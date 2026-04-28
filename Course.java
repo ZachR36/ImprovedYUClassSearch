@@ -27,7 +27,7 @@ public class Course {
 
   public Course(String args) {
     String[] info = args.split(",");
-    this.CRN = Integer.parseInt(info[0]);
+    this.CRN = Integer.parseInt(info[0].substring(1, info[0].length() - 1));
     this.deptNumber = Integer.parseInt(info[1]);
     this.department = info[2];
     this.section = info[3];

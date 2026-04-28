@@ -13,8 +13,9 @@ public class Search {
   public static void main(String[] args) {
     try {
       setup(args[0]);
-    } catch (Exception IOException) {
+    } catch (IOException e) {
       System.out.println("Failed to read CSV");
+      e.printStackTrace();
     }
   }
 
