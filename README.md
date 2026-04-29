@@ -1,7 +1,7 @@
 A better class lookup engine for YU courses
 ## Instructions
 1. Open the Regular class lookup, select your term
-2.Open your browser's inspect tool and navigate to the "Network" tab
+2. Open your browser's inspect tool and navigate to the "Network" tab
 3. Now hit search without specifying any parameters. This ensures that you pull the whole dataset.
 4. Right click on the GET request that has the type "json" and select "Copy as cURL" under the copy option.
 5. Paste this into the terminal, and then change the "pageMaxSize" to 1000. Pipe the output into a file called classes1.json
