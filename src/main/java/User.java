@@ -4,6 +4,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+/**
+ * In the runner class, the user can select to use a preexisting user object, or make a new User on the spot, or use a guest user.
+ * If they're using a guest one, they can choose to set pieces of information for the user one at a time. And they can also decide
+ * later to save the user that they've built during this use into a given path, so that they can log in to it next time.
+ *
+ * So need to make a no args user constructor, and constructor that takes in all the pieces of data.
+ * Need to make setters for the different pieces so that they can edit their profile as they use it
+ * Fields should be set to a default value or set to null, so that guest users work properly in the search class
+ */
 public class User {
     private String name;
     private boolean honors;
@@ -26,7 +35,6 @@ public class User {
             }
         }
     }
-    // TODO: no arg constructor
     public User(String name, boolean honors, String campus, String school, Set<Integer> completedCourseCRNs) {
         this.name = name;
         this.honors = honors;
@@ -34,6 +42,30 @@ public class User {
         this.school = school;
         this.completedCourses = completedCourseCRNs;
     }
+    public User(){
+        this.name = "guest";
+        this.honors = false; // TODO: Hopefully this doesn't prevent honors courses from being displayed
+        this.campus = null;
+        this.school = null;
+        this.completedCourses = new HashSet<>();
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setHonors(boolean honors) {
+        this.honors = honors;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
+    }
+
     public String getName(){
         return this.name;
     }
