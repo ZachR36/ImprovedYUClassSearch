@@ -8,8 +8,8 @@ import java.nio.file.Path;
  * Search
  */
 public class Search {
-  private static HashMap<Integer, Course> mapByCRN = new HashMap<>();
   private static User currentUser = null;
+  private static HashMap<Integer, Course> mapByCRN = new HashMap<>();
   private static HashMap<String, Course> mapByDep = new HashMap<>();
   private static HashMap<Integer, Course> interested = new HashMap<>();
   private static HashMap<Integer, Course> bookmarked = new HashMap<>();
@@ -23,9 +23,9 @@ public class Search {
       e.printStackTrace();
     }
     Scanner scan = new Scanner(System.in);
-    while(currentUser == null){
+    while (currentUser == null) {
       System.out.println("Do you want to use a pre-existing User object, create a new one, or use a guest one?" +
-              " (Yes - give the path; No - \"no\"): ");
+          " (Yes - give the path; No - \"no\"): ");
       currentUser = setUser(scan.nextLine());
     }
 
@@ -77,7 +77,7 @@ public class Search {
       System.out.println("Course is not in database");
       return false;
     }
-    Course course = mapByCRN.get(Integer.parseInt(crn));
+    Course newCourse = mapByCRN.get(Integer.parseInt(crn));
     float credits = 0;
     for (Course course : bookmarked.values()) {
       if (course.getCredits() == 0) {
@@ -86,11 +86,35 @@ public class Search {
         credits += course.getCredits();
       }
     }
-    if ((currentUser.getCampus().toLowerCase().equals("wilf") && credits + course.getCredits() > 17.5)) {
+    if ((currentUser.getCampus().equals("wilf") && credits + newCourse.getCredits() > 17.5)
+        || (currentUser.getCampus().equals("beren") && credits + newCourse.getCredits() > 21)) {
       System.out.println("Over credit maximum");
       return false;
     }
-
+    if (newCourse.getCampus().toLowerCase().contains(currentUser.getCampus()) == false) {
+      System.out.println("Course and User campuses do not match");
+      return false;
+    }
+    String section = newCourse.getSection();
+    if (currentUser.getCampus().equals("wilf")) {
+      for (Course ccourse : bookmarked.values()) {
+        if (ccourse.getSection().equals(section)) {
+          System.out.println("Course has a section conflict");
+          return false;
+        }
+      }
+    } else {
+      for (String c : section.split("")) {
+        for (Course ccourse : bookmarked.values()) {
+          if (ccourse.getSection().contains(c)) {
+            System.out.println("Course has a section conflict");
+            return false;
+          }
+        }
+      }
+    }
+    bookmarked.put(Integer.parseInt(crn), newCourse);
+    return true;
   }
 
   /**
