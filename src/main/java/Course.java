@@ -50,7 +50,7 @@ public class Course {
       }
     }
     this.meetings = meetingsTwo;
-    this.attributes = this.removeQuotes(info[15]).split("\\|\\|");
+    this.attributes = this.removeQuotes(info[15]).replaceAll("&amp;", "&").split("\\|\\|");
     this.attributeDescriptions = this.removeQuotes(info[16]).split("\\|\\|");
     this.courseDescription = this.fetchDescription("202609", String.valueOf(this.CRN));
   }
