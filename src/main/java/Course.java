@@ -1,10 +1,9 @@
 import java.net.*;
 import java.net.http.*;
-import java.util.concurrent.CompletableFuture;
 
 public class Course {
   private final int CRN;
-  private final int deptNumber;
+  private final String deptNumber;
   private final String department;
   private final String section;
   private final String campus;
@@ -27,21 +26,21 @@ public class Course {
 
   public Course(String args) {
     String[] info = args.split(",");
-    this.CRN = Integer.parseInt(info[0].substring(1, info[0].length() - 1));
-    this.deptNumber = Integer.parseInt(info[1]);
-    this.department = info[2];
-    this.section = info[3];
-    this.campus = info[4];
-    this.name = info[5];
+    this.CRN = Integer.parseInt(this.removeQuotes(info[0]));
+    this.deptNumber = this.removeQuotes(info[1]);
+    this.department = this.removeQuotes(info[2]);
+    this.section = this.removeQuotes(info[3]);
+    this.campus = this.removeQuotes(info[4]);
+    this.name = this.removeQuotes(info[5]);
     this.credits = Integer.parseInt(info[6]);
-    this.teacher = info[7];
+    this.teacher = this.removeQuotes(info[7]).replace(";", ",");
     this.enrolled = Integer.parseInt(info[8]);
     this.maxEnrolled = Integer.parseInt(info[9]);
     this.remainingEnrollment = Integer.parseInt(info[10]);
     this.waitlist = Integer.parseInt(info[11]);
     this.maxWaitlist = Integer.parseInt(info[12]);
     this.remainingWaitlist = Integer.parseInt(info[13]);
-    String[] meetings = info[14].split("::");
+    String[] meetings = this.removeQuotes(info[14]).split("::");
     String[][][] meetingsTwo = new String[meetings.length][][];
     for (int i = 0; i < meetings.length; i++) {
       String[] fields = meetings[i].split("}");
@@ -51,8 +50,8 @@ public class Course {
       }
     }
     this.meetings = meetingsTwo;
-    this.attributes = info[15].split("\\|\\|");
-    this.attributeDescriptions = info[16].split("\\|\\|");
+    this.attributes = this.removeQuotes(info[15]).split("\\|\\|");
+    this.attributeDescriptions = this.removeQuotes(info[16]).split("\\|\\|");
     this.courseDescription = this.fetchDescription("202609", String.valueOf(this.CRN));
   }
 
@@ -66,10 +65,18 @@ public class Course {
           .POST(HttpRequest.BodyPublishers.ofString(formData))
           .build();
 
-      // sharedClient automatically handles the cookies behind the scenes
-      return sharedClient.send(request, HttpResponse.BodyHandlers.ofString()).body();
+      String[] lines = sharedClient.send(request, HttpResponse.BodyHandlers.ofString()).body().split("\\R");
+      return lines[2];
     } catch (Exception e) {
       return "Error: " + e.getMessage();
+    }
+  }
+
+  private String removeQuotes(String parent) {
+    if (parent.isBlank() || parent.isEmpty()) {
+      return "";
+    } else {
+      return parent.substring(1, parent.length() - 1);
     }
   }
 
@@ -77,7 +84,7 @@ public class Course {
     return CRN;
   }
 
-  public int getDeptNumber() {
+  public String getDeptNumber() {
     return deptNumber;
   }
 
