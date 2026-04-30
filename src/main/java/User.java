@@ -26,6 +26,7 @@ public class User {
             }
         }
     }
+    // TODO: no arg constructor
     public User(String name, boolean honors, String campus, String school, Set<Integer> completedCourseCRNs) {
         this.name = name;
         this.honors = honors;

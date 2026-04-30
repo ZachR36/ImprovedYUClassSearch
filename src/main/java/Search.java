@@ -9,7 +9,7 @@ import java.nio.file.Path;
  */
 public class Search {
   private static HashMap<Integer, Course> mapByCRN = new HashMap<>();
-  private static User currentUser;
+  private static User currentUser = null;
   private static HashMap<String, Course> mapByDep = new HashMap<>();
   private static HashMap<Integer, Course> interested = new HashMap<>();
   private static HashMap<Integer, Course> bookmarked = new HashMap<>();
@@ -23,8 +23,12 @@ public class Search {
       e.printStackTrace();
     }
     Scanner scan = new Scanner(System.in);
-    System.out.println("Do you want to use a pre-existing User object (Yes - give the path; No - \"no\"): ");
-    setUser(scan.nextLine());
+    while(currentUser == null){
+      System.out.println("Do you want to use a pre-existing User object, create a new one, or use a guest one?" +
+              " (Yes - give the path; No - \"no\"): ");
+      currentUser = setUser(scan.nextLine());
+    }
+
     // while(true){
     // // Give the user a list of things that they can do next, and they'll pick one
     // of those functions
@@ -36,7 +40,7 @@ public class Search {
       // TODO: Make new user, and ask if they want to save said user file
     } else {
       try {
-        currentUser = new User(Path.of(user));
+        return new User(Path.of(user));
       } catch (IOException e) {
         System.out.println("Failed to read user file");
       }
@@ -47,7 +51,7 @@ public class Search {
     if (user.equals("guest")) {
     } else {
       try {
-        currentUser = new User(Path.of(user));
+        return new User(Path.of(user));
       } catch (IOException e) {
         System.out.println("Failed to read user file");
       }
