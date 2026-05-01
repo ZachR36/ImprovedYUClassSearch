@@ -8,10 +8,6 @@ import java.util.*;
  * In the runner class, the user can select to use a preexisting user object, or make a new User on the spot, or use a guest user.
  * If they're using a guest one, they can choose to set pieces of information for the user one at a time. And they can also decide
  * later to save the user that they've built during this use into a given path, so that they can log in to it next time.
- *
- * So need to make a no args user constructor, and constructor that takes in all the pieces of data.
- * Need to make setters for the different pieces so that they can edit their profile as they use it
- * Fields should be set to a default value or set to null, so that guest users work properly in the search class
  */
 public class User {
     private String name;
@@ -63,7 +59,7 @@ public class User {
     }
 
     public void setSchool(String school) {
-        this.school = school;
+        this.school = school.toLowerCase();
     }
 
     public String getName(){

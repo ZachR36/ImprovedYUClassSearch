@@ -23,10 +23,22 @@ public class Search {
       e.printStackTrace();
     }
     Scanner scan = new Scanner(System.in);
+    String selection = "";
     while (currentUser == null) {
       System.out.println("Do you want to use a pre-existing User object, create a new one, or use a guest one?" +
-          " (Yes - give the path; No - \"no\"): ");
-      currentUser = setUser(scan.nextLine());
+          " (Path,\"make\", or \"guest\"): ");
+      selection = scan.nextLine();
+      currentUser = setUser(selection);
+    }
+    if(selection.equalsIgnoreCase("make")){
+      System.out.println("Provide a user name: ");
+      currentUser.setName(scan.nextLine());
+      System.out.println("Are you in honors? (Y/N): ");
+      currentUser.setHonors(scan.nextLine().equalsIgnoreCase("y"));
+      System.out.println("What campus are you on? (Wilf/Beren): ");
+      currentUser.setName(scan.nextLine().equalsIgnoreCase("wilf") ? "wilf" : "beren");
+      System.out.println("What school are you in? (YC, Syms, Beren): ");
+      currentUser.setName(scan.nextLine());
     }
 
     // while(true){
@@ -35,16 +47,17 @@ public class Search {
     // }
   }
 
-  private static User setUser(String user) {
-    if (user.toLowerCase().equals("no")) {
-      // TODO: Make new user, and ask if they want to save said user file
+  private static User setUser(String selection) {
+    if (selection.equalsIgnoreCase("guest") || selection.equalsIgnoreCase("make")) {
+      return new User();
     } else {
       try {
-        return new User(Path.of(user));
+        return new User(Path.of(selection));
       } catch (IOException e) {
         System.out.println("Failed to read user file");
       }
     }
+    return new User();
   }
   // Todo: This was the changeUser method. Instead, we'll allow them to add new info to the user that they're
   //  using. And if they want to change to a new existing User, we can have that work through this method or setUser.
