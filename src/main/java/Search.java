@@ -5,7 +5,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Search
+ * Runner class for users to search through classes that Yeshiva University is offering the next semester.
+ * When the program begins, the user is prompted to set up their profile so that searches can be altered based on their
+ * information.
+ * Then, the main program will be begin: The user will be prompted to choose from a list of possible actions, such as
+ * bookmark a class that they're interested in, limit their search criteria, or update user information. The program will
+ * print out the requested list of classes after each search.
+ *
+ * List of actions:
+ * List of Searches:
  */
 public class Search {
   private static User currentUser = null;
