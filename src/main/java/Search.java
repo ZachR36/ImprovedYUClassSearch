@@ -46,18 +46,20 @@ public class Search {
       }
     }
   }
-
-  private static User changeUser(String user) {
-    if (user.equals("guest")) {
-    } else {
-      try {
-        return new User(Path.of(user));
-      } catch (IOException e) {
-        System.out.println("Failed to read user file");
-      }
-    }
-    // In middle of running, the user can select to give a new Path to User info, or
-    // can ask for "guest"
+  // Todo: This was the changeUser method. Instead, we'll allow them to add new info to the user that they're
+  //  using. And if they want to change to a new existing User, we can have that work through this method or setUser.
+  private static void adjustUser(int option, String info) {
+//    Old code, to be changed:
+//    if (user.equals("guest")) {
+//    } else {
+//      try {
+//        return new User(Path.of(user));
+//      } catch (IOException e) {
+//        System.out.println("Failed to read user file");
+//      }
+//    }
+//    // In middle of running, the user can select to give a new Path to User info, or
+//    // can ask for "guest"
   }
 
   /**
@@ -77,11 +79,13 @@ public class Search {
       System.out.println("Course is not in database");
       return false;
     }
+    // TODO: before adding the class, we can check with the user that this is what they wanted, since they
+    //  might've accidentally given the wrong CRN
     Course newCourse = mapByCRN.get(Integer.parseInt(crn));
     float credits = 0;
     for (Course course : bookmarked.values()) {
       if (course.getCredits() == 0) {
-        credits += 0.5;
+        credits += 0.5; // Accounting for an error that courses with 0.5 credits are stored with 0
       } else {
         credits += course.getCredits();
       }
@@ -95,10 +99,10 @@ public class Search {
       System.out.println("Course and User campuses do not match");
       return false;
     }
-    String section = newCourse.getSection();
+    String section = newCourse.getSection(); // section refers to the date and time slot
     if (currentUser.getCampus().equals("wilf")) {
-      for (Course ccourse : bookmarked.values()) {
-        if (ccourse.getSection().equals(section)) {
+      for (Course course : bookmarked.values()) { // TODO: Deal with edge cases.
+        if (course.getSection().equals(section)) {
           System.out.println("Course has a section conflict");
           return false;
         }
