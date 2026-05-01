@@ -25,13 +25,31 @@ public class Search {
   // TODO: Add the other data structures that we need to help out search functions
   public static void main(String[] args) {
     try {
-      setup(args[0]);
+      setup(args[0]); // The user should give the csv file holding all the class information when starting the program.
     } catch (IOException e) {
       System.out.println("Failed to read CSV");
       e.printStackTrace();
     }
     Scanner scan = new Scanner(System.in);
     String selection = "";
+    userSetUp(selection, scan);
+    // This is the string that we'll print every time we want to prompt the user to choose their next action
+    String actionPrompt = "Please choose an option from the following list: \n ...";
+    while(true){
+      System.out.println(actionPrompt);
+      selection = scan.nextLine();
+      // Now perform the action selected...
+      switch (selection.toLowerCase()) {
+        case "user" -> System.out.println("(Call method to update the user)");// Do something to the user;
+        case "search" -> System.out.println("(Call corresponding search method)");
+        case "etc" -> System.out.println("you get the idea");
+      }
+
+
+    }
+  }
+
+  private static void userSetUp(String selection, Scanner scan) {
     while (currentUser == null) {
       System.out.println("Do you want to use a pre-existing User object, create a new one, or use a guest one?" +
           " (Path,\"make\", or \"guest\"): ");
@@ -48,11 +66,6 @@ public class Search {
       System.out.println("What school are you in? (YC, Syms, Beren): ");
       currentUser.setName(scan.nextLine());
     }
-
-    // while(true){
-    // // Give the user a list of things that they can do next, and they'll pick one
-    // of those functions
-    // }
   }
 
   private static User setUser(String selection) {
