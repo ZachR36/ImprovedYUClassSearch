@@ -31,7 +31,7 @@ public class Course {
     this.department = this.removeQuotes(info[2]);
     this.section = this.removeQuotes(info[3]);
     this.campus = this.removeQuotes(info[4]);
-    this.name = this.removeQuotes(info[5]);
+    this.name = this.removeQuotes(info[5]).replaceAll("&amp;", "&");
     this.credits = Integer.parseInt(info[6]);
     this.teacher = this.removeQuotes(info[7]).replace(";", ",");
     this.enrolled = Integer.parseInt(info[8]);
