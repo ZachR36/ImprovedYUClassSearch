@@ -22,7 +22,9 @@ import java.nio.file.Path;
 public class Search {
   private static User currentUser = null;
   private static HashMap<Integer, Course> mapByCRN = new HashMap<>();
-  private static HashMap<String, Course> mapByDep = new HashMap<>();
+  private static HashMap<String, ArrayList<Course>> mapByDep = new HashMap<>();
+  private static HashMap<String, ArrayList<Course>> mapByTeacher = new HashMap<>();
+  private static HashMap<Integer, ArrayList<Course>> mapByCredits = new HashMap<>();
   private static HashMap<Integer, Course> interested = new HashMap<>();
   private static HashMap<Integer, Course> bookmarked = new HashMap<>();
 
@@ -167,26 +169,53 @@ public class Search {
     }
   }
 
-  /**
-   * We need to implement all the search methods that we want to provide. The user
-   * will tell us what kind
-   * of search they want to do, and then the criteria they're giving, and then
-   * this class will print out
-   * a list of those classes.
-   * 
-   * @param something
-   */
-  private static void searchCriteriaNum1(String something) {
-
+  private static Course searchByCRN(int CRN) {
+    if (mapByCRN.containsKey(CRN)) {
+      return mapByCRN.get(CRN);
+    } else {
+      return null;
+    }
   }
 
-  /**
-   * User can search by multiple criteria at once, so we'll have to work that out
-   * 
-   * @param something
-   */
-  private static void compoundSearchMethods(String something) {
+  private static ArrayList<Course> searchByDepartment(String dept) {
+    if (mapByDep.containsKey(dept)) {
+      return mapByDep.get(dept);
+    } else {
+      return null;
+    }
+  }
 
+  private static ArrayList<Course> searchByTeacher(String nameFrag) {
+    ArrayList<Course> results = new ArrayList<>();
+    for (String name : mapByTeacher.keySet()) {
+      if (name.contains(nameFrag)) {
+        results.addAll(mapByTeacher.get(name));
+      }
+    }
+    if (results.size() == 0) {
+      return null;
+    } else {
+      return results;
+    }
+  }
+
+  private static Course searchByDeptAndNumber(String dept, String num) {
+    ArrayList<Course> deptList = searchByDepartment(dept);
+    for (Course course : deptList) {
+      if (course.getDeptNumber().equals(num)) {
+        return course;
+      }
+    }
+    return null;
+  }
+
+  private static ArrayList<Course> searchByCredits(double credits) {
+    int intCredits = (int) credits;
+    if (mapByCredits.containsKey(intCredits)) {
+      return mapByCredits.get(intCredits);
+    } else {
+      return null;
+    }
   }
 
   private static void setup(String path) throws IOException {
@@ -196,9 +225,20 @@ public class Search {
       while ((line = reader.readLine()) != null) {
         Course newCourse = new Course(line);
         mapByCRN.put(newCourse.getCRN(), newCourse);
-        mapByDep.put(newCourse.getDepartment(), newCourse);
-        // Add the courses to the other Data Structures here
+        if (!mapByDep.containsKey(newCourse.getDepartment())) {
+          mapByDep.put(newCourse.getDepartment(), new ArrayList<Course>());
+        }
+        mapByDep.get(newCourse.getDepartment()).add(newCourse);
+        if (!mapByTeacher.containsKey(newCourse.getTeacher())) {
+          mapByTeacher.put(newCourse.getTeacher(), new ArrayList<Course>());
+        }
+        mapByDep.get(newCourse.getDepartment()).add(newCourse);
+        if (!mapByCredits.containsKey(newCourse.getCredits())) {
+          mapByCredits.put(newCourse.getCredits(), new ArrayList<Course>());
+        }
+        mapByCredits.get(newCourse.getCredits()).add(newCourse);
       }
+      // Add the courses to the other Data Structures here
     }
   }
 }

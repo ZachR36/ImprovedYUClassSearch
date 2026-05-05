@@ -29,8 +29,14 @@ public class Course {
     this.CRN = Integer.parseInt(this.removeQuotes(info[0]));
     this.deptNumber = this.removeQuotes(info[1]);
     this.department = this.removeQuotes(info[2]);
-    this.section = this.removeQuotes(info[3]);
+
+    String sectionString = this.removeQuotes(info[3]);
     this.campus = this.removeQuotes(info[4]);
+    if (!this.campus.toLowerCase().contains("wilf")) {
+      this.section = sectionString.replaceAll("[^A-Z]", "");
+    } else {
+      this.section = sectionString;
+    }
     this.name = this.removeQuotes(info[5]).replaceAll("&amp;", "&");
     this.credits = Integer.parseInt(info[6]);
     this.teacher = this.removeQuotes(info[7]).replace(";", ",");
