@@ -203,14 +203,14 @@ public class Search {
       }
     }
   }
-  private static void coursePrinting(Collection<Course> courses, int startingPoint){
+  private static void coursePrinting(List<Course> courses, int startingPoint){
     // Print the header, explaining what's in each column
     System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
             "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
             "-".repeat(132));
     // Print each class in line
     for(int i = startingPoint; i < startingPoint+10; i++){
-      Course course = courses[i];
+      Course course = courses.get(startingPoint);
       System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
               course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(), course.getCRN(),course.getTeacher(), course.getEnrolled(), course.getRemainingEnrollment(), course.getAttributes(),
               "-".repeat(132));
