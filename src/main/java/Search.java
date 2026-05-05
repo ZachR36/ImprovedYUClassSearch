@@ -5,11 +5,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Runner class for users to search through classes that Yeshiva University is offering the next semester.
- * When the program begins, the user is prompted to set up their profile so that searches can be altered based on their
+ * Runner class for users to search through classes that Yeshiva University is
+ * offering the next semester.
+ * When the program begins, the user is prompted to set up their profile so that
+ * searches can be altered based on their
  * information.
- * Then, the main program will be begin: The user will be prompted to choose from a list of possible actions, such as
- * bookmark a class that they're interested in, limit their search criteria, or update user information. The program will
+ * Then, the main program will be begin: The user will be prompted to choose
+ * from a list of possible actions, such as
+ * bookmark a class that they're interested in, limit their search criteria, or
+ * update user information. The program will
  * print out the requested list of classes after each search.
  *
  * List of actions:
@@ -25,7 +29,8 @@ public class Search {
   // TODO: Add the other data structures that we need to help out search functions
   public static void main(String[] args) {
     try {
-      setup(args[0]); // The user should give the csv file holding all the class information when starting the program.
+      setup(args[0]); // The user should give the csv file holding all the class information when
+                      // starting the program.
     } catch (IOException e) {
       System.out.println("Failed to read CSV");
       e.printStackTrace();
@@ -33,9 +38,10 @@ public class Search {
     Scanner scan = new Scanner(System.in);
     String selection = "";
     userSetUp(selection, scan);
-    // This is the string that we'll print every time we want to prompt the user to choose their next action
+    // This is the string that we'll print every time we want to prompt the user to
+    // choose their next action
     String actionPrompt = "Please choose an option from the following list: \n ...";
-    while(true){
+    while (true) {
       System.out.println(actionPrompt);
       selection = scan.nextLine();
       // Now perform the action selected...
@@ -44,7 +50,6 @@ public class Search {
         case "search" -> System.out.println("(Call corresponding search method)");
         case "etc" -> System.out.println("you get the idea");
       }
-
 
     }
   }
@@ -56,7 +61,7 @@ public class Search {
       selection = scan.nextLine();
       currentUser = setUser(selection);
     }
-    if(selection.equalsIgnoreCase("make")){
+    if (selection.equalsIgnoreCase("make")) {
       System.out.println("Provide a user name: ");
       currentUser.setName(scan.nextLine());
       System.out.println("Are you in honors? (Y/N): ");
@@ -80,21 +85,6 @@ public class Search {
     }
     return new User();
   }
-  // Todo: This was the changeUser method. Instead, we'll allow them to add new info to the user that they're
-  //  using. And if they want to change to a new existing User, we can have that work through this method or setUser.
-  private static void adjustUser(int option, String info) {
-//    Old code, to be changed:
-//    if (user.equals("guest")) {
-//    } else {
-//      try {
-//        return new User(Path.of(user));
-//      } catch (IOException e) {
-//        System.out.println("Failed to read user file");
-//      }
-//    }
-//    // In middle of running, the user can select to give a new Path to User info, or
-//    // can ask for "guest"
-  }
 
   /**
    * Add a class, selected by the user, to a list of classes that they plan on
@@ -113,8 +103,9 @@ public class Search {
       System.out.println("Course is not in database");
       return false;
     }
-    // TODO: before adding the class, we can check with the user that this is what they wanted, since they
-    //  might've accidentally given the wrong CRN
+    // TODO: before adding the class, we can check with the user that this is what
+    // they wanted, since they
+    // might've accidentally given the wrong CRN
     Course newCourse = mapByCRN.get(Integer.parseInt(crn));
     float credits = 0;
     for (Course course : bookmarked.values()) {
