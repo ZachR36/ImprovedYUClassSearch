@@ -210,10 +210,11 @@ public class Search {
             "-".repeat(132));
     // Print each class in line
     for(int i = startingPoint; i < startingPoint+10; i++){
-      Course course = courses.get(startingPoint);
+      Course course = courses.get(i);
       System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
-              course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(), course.getCRN(),course.getTeacher(), course.getEnrolled(), course.getRemainingEnrollment(), course.getAttributes(),
-              "-".repeat(132));
+              course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
+              course.getCRN(),course.getTeacher(), course.getMaxEnrolled(), course.getRemainingEnrollment(),
+              String.join(", ", course.getAttributes()), "-".repeat(132));
     }
     // Print how many elements we're showing and how many are left
     System.out.println("Classes " + startingPoint + " to " + (startingPoint+10) + ". Out of " + courses.size());
