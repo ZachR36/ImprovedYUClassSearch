@@ -25,6 +25,7 @@ public class Search {
   private static HashMap<String, Course> mapByDep = new HashMap<>();
   private static HashMap<Integer, Course> interested = new HashMap<>();
   private static HashMap<Integer, Course> bookmarked = new HashMap<>();
+  private static ArrayList<Course> currentSearchResults = new ArrayList<>();
 
   // TODO: Add the other data structures that we need to help out search functions
   public static void main(String[] args) {
