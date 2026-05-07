@@ -9,7 +9,7 @@ public class Course {
   private final String campus;
   private final String name;
   private final String courseDescription;
-  private final int credits;
+  private final double credits;
   private final String teacher;
   private final int enrolled;
   private final int maxEnrolled;
@@ -38,7 +38,7 @@ public class Course {
       this.section = sectionString;
     }
     this.name = this.removeQuotes(info[5]).replaceAll("&amp;", "&");
-    this.credits = Integer.parseInt(info[6]);
+    this.credits = Double.parseDouble(info[6]);
     this.teacher = this.removeQuotes(info[7]).replace(";", ",");
     this.enrolled = Integer.parseInt(info[8]);
     this.maxEnrolled = Integer.parseInt(info[9]);
@@ -110,7 +110,7 @@ public class Course {
     return name;
   }
 
-  public int getCredits() {
+  public double getCredits() {
     return credits;
   }
 

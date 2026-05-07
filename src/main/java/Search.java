@@ -24,7 +24,7 @@ public class Search {
   private static HashMap<Integer, Course> mapByCRN = new HashMap<>();
   private static HashMap<String, ArrayList<Course>> mapByDep = new HashMap<>();
   private static HashMap<String, ArrayList<Course>> mapByTeacher = new HashMap<>();
-  private static HashMap<Integer, ArrayList<Course>> mapByCredits = new HashMap<>();
+  private static HashMap<Double, ArrayList<Course>> mapByCredits = new HashMap<>();
   private static HashMap<Integer, Course> interested = new HashMap<>();
   private static HashMap<Integer, Course> bookmarked = new HashMap<>();
   private static ArrayList<Course> currentSearchResults = new ArrayList<>();
@@ -212,9 +212,8 @@ public class Search {
   }
 
   private static ArrayList<Course> searchByCredits(double credits) {
-    int intCredits = (int) credits;
-    if (mapByCredits.containsKey(intCredits)) {
-      return mapByCredits.get(intCredits);
+    if (mapByCredits.containsKey(credits)) {
+      return mapByCredits.get(credits);
     } else {
       return null;
     }
@@ -243,21 +242,22 @@ public class Search {
       // Add the courses to the other Data Structures here
     }
   }
-  private static void coursePrinting(List<Course> courses, int startingPoint){
+
+  private static void coursePrinting(List<Course> courses, int startingPoint) {
     // Print the header, explaining what's in each column
     System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
-            "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
-            "-".repeat(132));
+        "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
+        "-".repeat(132));
     // Print each class in line
-    for(int i = startingPoint; i < startingPoint+10; i++){
+    for (int i = startingPoint; i < startingPoint + 10; i++) {
       Course course = courses.get(i);
       System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
-              course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
-              course.getCRN(),course.getTeacher(), course.getMaxEnrolled(), course.getRemainingEnrollment(),
-              String.join(", ", course.getAttributes()), "-".repeat(132));
+          course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
+          course.getCRN(), course.getTeacher(), course.getMaxEnrolled(), course.getRemainingEnrollment(),
+          String.join(", ", course.getAttributes()), "-".repeat(132));
     }
     // Print how many elements we're showing and how many are left
-    System.out.println("Classes " + startingPoint + " to " + (startingPoint+10) + ". Out of " + courses.size());
+    System.out.println("Classes " + startingPoint + " to " + (startingPoint + 10) + ". Out of " + courses.size());
     // Print the action prompt
     System.out.println(actionPrompt);
   }
