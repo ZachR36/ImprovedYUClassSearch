@@ -21,12 +21,7 @@ import java.nio.file.Path;
  */
 
 /*
-List of basic things that need finishing so we can submit this:
-TODO: Fix the action prompt so it properly prompts them to choose one of the options
-TODO: The switch case in the while(true) should actually call the methods to do searches
-
 Things to add after to make this better/actually provide some more functionality:
-TODO: Implement method for the user to save their User to a given path
 TODO: Ability to compound different searches
 TODO: New search method - don't show them classes that they've already taken
 
@@ -36,19 +31,32 @@ TODO: Implement a search based on the classes that the user fulfilled the requir
  */
 
 public class Search {
-  private static User currentUser = null;
+  // The Data Structures to hold different lists of classes to help with searches
   private static HashMap<Integer, Course> mapByCRN = new HashMap<>();
   private static HashMap<String, ArrayList<Course>> mapByDep = new HashMap<>();
   private static HashMap<String, ArrayList<Course>> mapByTeacher = new HashMap<>();
   private static HashMap<Double, ArrayList<Course>> mapByCredits = new HashMap<>();
+
+  // The user object that they're using
+  private static User currentUser = null;
+  // Lists of classes that the User will save
   private static HashMap<Integer, Course> interested = new HashMap<>();
   private static HashMap<Integer, Course> bookmarked = new HashMap<>();
+
+  // A List of all the classes that the last search returned
   private static ArrayList<Course> currentSearchResults = new ArrayList<>();
+
+  // the number of courses that will be printed on one page
+  private static final int INCREMENT = 15;
+
   // This is the string that we'll print every time we want to prompt the user to
   // choose their next action
   private static String actionPrompt = "Please choose an option from the following list: \n" +
           "If you want to make a change to the user info: \"user\" \n" +
-          "If you want to search based on a certain criteria: \"search\" \n";
+          "If you want to search based on a certain criteria: \"search\" \n" +
+          "If you want to scroll to the next (>) or previous (<) page of classes. \n" +
+          "If you want to mark a class that you're interested in: \"interested\" \n" +
+          "If you want to bookmark a class (so that time slot will be knocked off: \"bookmark\"";
 
   public static void main(String[] args) throws IOException {
     System.out.println("The program is now going to load up all the class info from the csv file you provided. This could take a few minutes. You'll get a message when it's finished.");
@@ -62,6 +70,7 @@ public class Search {
     }
     Scanner scan = new Scanner(System.in);
     String selection = "";
+    int printingSpot = 0;
     userSetUp(scan);
 
     while (true) {
@@ -69,19 +78,59 @@ public class Search {
       selection = scan.nextLine();
       // Now perform the action selected...
       switch (selection.toLowerCase()) {
-        case "user" -> userChange(scan);// Do something to the user;
-        case "search" -> System.out.println("(Call corresponding search method)");
-        case "etc" -> System.out.println("you get the idea");
+        case "user" -> {
+          userChange(scan);
+        }
+        case "search" -> {
+          chooseSearchOption(); // Need to implement this method
+          printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top of the list
+          coursePrinting(currentSearchResults,printingSpot);
+          printingSpot += INCREMENT;
+        }
+        case "bookmark" -> {
+          System.out.println("Give the CRN of the class that you want to bookmark: ");
+          bookmarkClass(scan.nextLine());
+        }
+        case "interested" -> {
+          System.out.println("Give the CRN of the class that you're interested in: ");
+          interestedInClass(scan.nextLine());
+        }
+        case "<" -> {
+          // Clear the screen
+          System.out.print("\033[H\033[2J");
+          System.out.flush();
+          // Print the previous page of classes
+          printingSpot -= INCREMENT;
+          coursePrinting(currentSearchResults,printingSpot);
+          printingSpot += INCREMENT;
+        }
+        case ">" -> {
+          // Clear the screen
+          System.out.print("\033[H\033[2J");
+          System.out.flush();
+          // Print the next page of classes
+          coursePrinting(currentSearchResults,printingSpot);
+          printingSpot += INCREMENT;
+        }
       }
 
     }
   }
-  
+
+
   /*
 
   SEARCH METHODS
 
    */
+  private static void chooseSearchOption() {
+    /* This will prompt them further for what exactly they want. Refine or expand the search. New search.
+     Whether to exclude or include certain classes. Then also what criteria they want to search by. Anything else.
+     Then set the currentSearchResults to what the list should now be, so the main method can deal with printing.
+
+     */
+    // TODO: This is the next and final step for version 1/a complete working version of the program
+  }
 
   private static Course searchByCRN(int CRN) {
     if (mapByCRN.containsKey(CRN)) {
@@ -304,7 +353,7 @@ public class Search {
             "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
             "-".repeat(132));
     // Print each class in line
-    for (int i = startingPoint; i < startingPoint + 10; i++) {
+    for (int i = startingPoint; i < startingPoint + INCREMENT; i++) {
       Course course = courses.get(i);
       System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
               course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
