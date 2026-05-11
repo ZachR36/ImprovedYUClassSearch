@@ -31,7 +31,7 @@ TODO: Ability to compound different searches
 TODO: New search method - don't show them classes that they've already taken
 
 Even more advanced:
-TODO: Implement a search based on the classes that the user fulfilled the requirements for
+TODO: Implement a search based on the classes that the user fulfilled the requirements for (involves fixing the fetchDescription time issue)
 
  */
 
@@ -46,7 +46,9 @@ public class Search {
   private static ArrayList<Course> currentSearchResults = new ArrayList<>();
   // This is the string that we'll print every time we want to prompt the user to
   // choose their next action
-  private static String actionPrompt = "Please choose an option from the following list: \n ...";
+  private static String actionPrompt = "Please choose an option from the following list: \n" +
+          "If you want to make a change to the user info: \"user\" \n" +
+          "If you want to search based on a certain criteria: \"search\" \n";
 
   public static void main(String[] args) {
     System.out.println("The program is now going to load up all the class info from the csv file you provided. This could take a few minutes. You'll get a message when it's finished.");
@@ -67,12 +69,35 @@ public class Search {
       selection = scan.nextLine();
       // Now perform the action selected...
       switch (selection.toLowerCase()) {
-        case "user" -> System.out.println("(Call method to update the user)");// Do something to the user;
+        case "user" -> userChange(scan);// Do something to the user;
         case "search" -> System.out.println("(Call corresponding search method)");
         case "etc" -> System.out.println("you get the idea");
       }
 
     }
+  }
+  private static void userChange(Scanner scan){
+    String choice = "";
+    boolean validChoice = false;
+    while (!validChoice){
+      System.out.println("Do you want to make an update to this User, or use a new one? (\"update\",\"new\",\"exit\"");
+      choice = scan.nextLine();
+      if(choice.equalsIgnoreCase("update")){
+        updateUserData(scan);
+        validChoice = true;
+      } else if (choice.equalsIgnoreCase("new")){
+        userSetUp(scan);
+        validChoice = true;
+      } else if (choice.equalsIgnoreCase("exit")){
+        return;
+      } else {
+        System.out.println("Invalid choice, try again");
+      }
+    }
+  }
+
+  private static void updateUserData(Scanner scan){
+    // This method should ask them what they want to change about the user, and then make the update. Then go back to the main method.
   }
 
   private static void userSetUp(Scanner scan) {
