@@ -84,7 +84,8 @@ public class Search {
           userChange(scan);
         }
         case "search" -> {
-          currentSearchResults = searchByDepartment(scan.nextLine()); // Need to implement this method
+          // Need to implement this method. And decide if the method should return a list or set currentSearchResuls
+          chooseSearchOption();
           printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top of the list
           coursePrinting(currentSearchResults,printingSpot);
           printingSpot += INCREMENT;
