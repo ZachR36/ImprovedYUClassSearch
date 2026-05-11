@@ -81,9 +81,11 @@ public class User {
     public Set<Integer> getCompletedCourses() {
         return completedCourses;
     }
+
     public void addCompletedClass(Integer crn){
         completedCourses.add(crn);
     }
+
     public void saveToFile(Path filePath) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(filePath)) {
             writer.write(name);

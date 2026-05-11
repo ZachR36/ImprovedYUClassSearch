@@ -50,7 +50,7 @@ public class Search {
           "If you want to make a change to the user info: \"user\" \n" +
           "If you want to search based on a certain criteria: \"search\" \n";
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     System.out.println("The program is now going to load up all the class info from the csv file you provided. This could take a few minutes. You'll get a message when it's finished.");
     try {
       setup(args[0]); // The user should give the csv file holding all the class information when
@@ -76,143 +76,12 @@ public class Search {
 
     }
   }
-  private static void userChange(Scanner scan){
-    String choice = "";
-    boolean validChoice = false;
-    while (!validChoice){
-      System.out.println("Do you want to make an update to this User, or use a new one? (\"update\",\"new\",\"exit\"");
-      choice = scan.nextLine();
-      if(choice.equalsIgnoreCase("update")){
-        updateUserData(scan);
-        validChoice = true;
-      } else if (choice.equalsIgnoreCase("new")){
-        userSetUp(scan);
-        validChoice = true;
-      } else if (choice.equalsIgnoreCase("exit")){
-        return;
-      } else {
-        System.out.println("Invalid choice, try again");
-      }
-    }
-  }
+  
+  /*
 
-  private static void updateUserData(Scanner scan){
-    // This method should ask them what they want to change about the user, and then make the update. Then go back to the main method.
-  }
+  SEARCH METHODS
 
-  private static void userSetUp(Scanner scan) {
-    String choice = "";
-    while (currentUser == null) {
-      System.out.println("Do you want to use a pre-existing User object, create a new one, or use a guest one?" +
-          " (Path,\"make\", or \"guest\"): ");
-      choice = scan.nextLine();
-      currentUser = setUser(choice);
-    }
-    if (choice.equalsIgnoreCase("make")) {
-      System.out.println("Provide a user name: ");
-      currentUser.setName(scan.nextLine());
-      System.out.println("Are you in honors? (Y/N): ");
-      currentUser.setHonors(scan.nextLine().equalsIgnoreCase("y"));
-      System.out.println("What campus are you on? (Wilf/Beren): ");
-      currentUser.setName(scan.nextLine().equalsIgnoreCase("wilf") ? "wilf" : "beren");
-      System.out.println("What school are you in? (YC, Syms, Beren): ");
-      currentUser.setName(scan.nextLine());
-    }
-  }
-
-  private static User setUser(String selection) {
-    if (selection.equalsIgnoreCase("guest") || selection.equalsIgnoreCase("make")) {
-      return new User();
-    } else {
-      try {
-        return new User(Path.of(selection));
-      } catch (IOException e) {
-        System.out.println("Failed to read user file");
-      }
-    }
-    return new User();
-  }
-
-  /**
-   * Add a class, selected by the user, to a list of classes that they plan on
-   * taking.
-   * This will prevent them from double booking that time slot or from selecting
-   * too many credits.
-   * 
-   * @param crn of the class that they want to mark
-   * @return true if the class was successfully added to the list of bookmarked
-   *         classes.
-   *         false otherwise (such as if this conflicts with classes they already
-   *         marked).
    */
-  private static boolean bookmarkClass(String crn) {
-    if (mapByCRN.containsKey(Integer.parseInt(crn)) == false) {
-      System.out.println("Course is not in database");
-      return false;
-    }
-    // TODO: before adding the class, we can check with the user that this is what
-    // they wanted, since they
-    // might've accidentally given the wrong CRN
-    Course newCourse = mapByCRN.get(Integer.parseInt(crn));
-    float credits = 0;
-    for (Course course : bookmarked.values()) {
-      if (course.getCredits() == 0) {
-        credits += 0.5; // Accounting for an error that courses with 0.5 credits are stored with 0
-      } else {
-        credits += course.getCredits();
-      }
-    }
-    if ((currentUser.getCampus().equals("wilf") && credits + newCourse.getCredits() > 17.5)
-        || (currentUser.getCampus().equals("beren") && credits + newCourse.getCredits() > 21)) {
-      System.out.println("Over credit maximum");
-      return false;
-    }
-    if (newCourse.getCampus().toLowerCase().contains(currentUser.getCampus()) == false) {
-      System.out.println("Course and User campuses do not match");
-      return false;
-    }
-    String section = newCourse.getSection(); // section refers to the date and time slot
-    if (currentUser.getCampus().equals("wilf")) {
-      for (Course course : bookmarked.values()) { // TODO: Deal with edge cases.
-        if (course.getSection().equals(section)) {
-          System.out.println("Course has a section conflict");
-          return false;
-        }
-      }
-    } else {
-      for (String c : section.split("")) {
-        for (Course ccourse : bookmarked.values()) {
-          if (ccourse.getSection().contains(c)) {
-            System.out.println("Course has a section conflict");
-            return false;
-          }
-        }
-      }
-    }
-    bookmarked.put(Integer.parseInt(crn), newCourse);
-    return true;
-  }
-
-  /**
-   * Add this class to a list of classes that they're interested in, but don't
-   * block out that time slot
-   * 
-   * @param crn
-   * @return true if successful, false otherwise
-   */
-  private static boolean interestedInClass(String crn) {
-    int intcrn = Integer.parseInt(crn);
-    if (mapByCRN.containsKey(intcrn) == false) {
-      System.out.println("CRN is not in database");
-      return false;
-    }
-    if (interested.containsKey(intcrn)) {
-      return false;
-    } else {
-      interested.put(intcrn, mapByCRN.get(intcrn));
-      return true;
-    }
-  }
 
   private static Course searchByCRN(int CRN) {
     if (mapByCRN.containsKey(CRN)) {
@@ -262,6 +131,199 @@ public class Search {
     }
   }
 
+  /*
+
+  BOOKMARK / INTERESTED METHODS
+
+   */
+
+  /**
+   * Add a class, selected by the user, to a list of classes that they plan on
+   * taking.
+   * This will prevent them from double booking that time slot or from selecting
+   * too many credits.
+   *
+   * @param crn of the class that they want to mark
+   * @return true if the class was successfully added to the list of bookmarked
+   *         classes.
+   *         false otherwise (such as if this conflicts with classes they already
+   *         marked).
+   */
+  private static boolean bookmarkClass(String crn) {
+    if (mapByCRN.containsKey(Integer.parseInt(crn)) == false) {
+      System.out.println("Course is not in database");
+      return false;
+    }
+    // TODO: before adding the class, we can check with the user that this is what
+    // they wanted, since they
+    // might've accidentally given the wrong CRN
+    Course newCourse = mapByCRN.get(Integer.parseInt(crn));
+    float credits = 0;
+    for (Course course : bookmarked.values()) {
+      if (course.getCredits() == 0) {
+        credits += 0.5; // Accounting for an error that courses with 0.5 credits are stored with 0
+      } else {
+        credits += course.getCredits();
+      }
+    }
+    if ((currentUser.getCampus().equals("wilf") && credits + newCourse.getCredits() > 17.5)
+            || (currentUser.getCampus().equals("beren") && credits + newCourse.getCredits() > 21)) {
+      System.out.println("Over credit maximum");
+      return false;
+    }
+    if (newCourse.getCampus().toLowerCase().contains(currentUser.getCampus()) == false) {
+      System.out.println("Course and User campuses do not match");
+      return false;
+    }
+    String section = newCourse.getSection(); // section refers to the date and time slot
+    if (currentUser.getCampus().equals("wilf")) {
+      for (Course course : bookmarked.values()) { // TODO: Deal with edge cases.
+        if (course.getSection().equals(section)) {
+          System.out.println("Course has a section conflict");
+          return false;
+        }
+      }
+    } else {
+      for (String c : section.split("")) {
+        for (Course ccourse : bookmarked.values()) {
+          if (ccourse.getSection().contains(c)) {
+            System.out.println("Course has a section conflict");
+            return false;
+          }
+        }
+      }
+    }
+    bookmarked.put(Integer.parseInt(crn), newCourse);
+    return true;
+  }
+
+  /**
+   * Add this class to a list of classes that they're interested in, but don't
+   * block out that time slot
+   *
+   * @param crn
+   * @return true if successful, false otherwise
+   */
+  private static boolean interestedInClass(String crn) {
+    int intcrn = Integer.parseInt(crn);
+    if (mapByCRN.containsKey(intcrn) == false) {
+      System.out.println("CRN is not in database");
+      return false;
+    }
+    if (interested.containsKey(intcrn)) {
+      return false;
+    } else {
+      interested.put(intcrn, mapByCRN.get(intcrn));
+      return true;
+    }
+  }
+  /*
+
+  USER OPTION METHODS
+
+   */
+  private static void userChange(Scanner scan) throws IOException {
+    String choice = "";
+    boolean validChoice = false;
+    while (!validChoice){
+      System.out.println("Do you want to make an update to this User, save this one, or switch users? (\"update\",\"save\",\"switch\",\"exit\"");
+      choice = scan.nextLine();
+      if(choice.equalsIgnoreCase("update")){
+        updateUserData(scan);
+        validChoice = true;
+      } else if (choice.equalsIgnoreCase("save")) {
+        System.out.println("Give the path where you want to write the file with the user data: ");
+        Path path = Path.of(scan.nextLine());
+        if (validateGivenPath(path)){
+          currentUser.saveToFile(path);
+          validChoice = true;
+        }
+      } else if (choice.equalsIgnoreCase("switch")){
+        userSetUp(scan);
+        validChoice = true;
+      } else if (choice.equalsIgnoreCase("exit")){
+        return;
+      } else {
+        System.out.println("Invalid choice, try again");
+      }
+    }
+  }
+
+  private static void updateUserData(Scanner scan){
+    System.out.println("What attribute do you want to update: (\"name\",\"honors\",\"campus\",\"school\"");
+    String choice = scan.nextLine();
+    switch (choice.toLowerCase()){
+      case "name" -> {
+        System.out.println("Provide a user name: ");
+        currentUser.setName(scan.nextLine());
+      }
+      case "honors" -> {
+        System.out.println("Are you in honors? (Y/N): ");
+        currentUser.setHonors(scan.nextLine().equalsIgnoreCase("y"));
+      }
+      case "campus" -> {
+        System.out.println("What campus are you on? (Wilf/Beren): ");
+        currentUser.setName(scan.nextLine().equalsIgnoreCase("wilf") ? "wilf" : "beren");
+      }
+      case "school" -> {
+        System.out.println("What school are you in? (YC, Syms, Beren): ");
+        currentUser.setName(scan.nextLine());
+      }
+      default -> {
+        System.out.println("Invalid choice");
+        updateUserData(scan);
+      }
+    }
+  }
+  /*
+
+  HELPER METHODS
+
+   */
+
+  private static boolean validateGivenPath(Path path) {
+    File file = path.toFile();
+    File parentDir = file.getParentFile();
+    if (parentDir != null && !parentDir.exists()) {
+      System.out.println("Error: the directory does not exist.");
+      return false;
+    } else if (parentDir != null && !parentDir.canWrite()) {
+      System.out.println("Error: you don't have permission to write there.");
+      return false;
+    } else if (file.exists() && !file.canWrite()) {
+      System.out.println("Error: a file already exists there and can't be overwritten.");
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  private static void coursePrinting(List<Course> courses, int startingPoint) {
+    // Print the header, explaining what's in each column
+    System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
+            "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
+            "-".repeat(132));
+    // Print each class in line
+    for (int i = startingPoint; i < startingPoint + 10; i++) {
+      Course course = courses.get(i);
+      System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
+              course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
+              course.getCRN(), course.getTeacher(), course.getMaxEnrolled(), course.getRemainingEnrollment(),
+              String.join(", ", course.getAttributes()), "-".repeat(132));
+    }
+    // Print how many elements we're showing and how many are left
+    System.out.println("Classes " + startingPoint + " to " + (startingPoint + 10) + ". Out of " + courses.size());
+    // Print the action prompt
+    System.out.println(actionPrompt);
+  }
+
+
+  /*
+
+  METHODS FOR PROGRAM SET UP
+
+   */
+
   private static void setup(String path) throws IOException {
     Path csv = Path.of(path);
     try (BufferedReader reader = Files.newBufferedReader(csv)) {
@@ -285,23 +347,45 @@ public class Search {
       // Add the courses to the other Data Structures here
     }
   }
-
-  private static void coursePrinting(List<Course> courses, int startingPoint) {
-    // Print the header, explaining what's in each column
-    System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
-        "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
-        "-".repeat(132));
-    // Print each class in line
-    for (int i = startingPoint; i < startingPoint + 10; i++) {
-      Course course = courses.get(i);
-      System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
-          course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
-          course.getCRN(), course.getTeacher(), course.getMaxEnrolled(), course.getRemainingEnrollment(),
-          String.join(", ", course.getAttributes()), "-".repeat(132));
+  private static void userSetUp(Scanner scan) {
+    String choice = "";
+    boolean finished = false;
+    while (!finished) {
+      System.out.println("Do you want to use a pre-existing User object, create a new one, or use a guest one?" +
+              " (\"pre\",\"make\", or \"guest\"): ");
+      choice = scan.nextLine();
+      switch(choice.toLowerCase()){
+        case "pre" -> {
+          System.out.println("Give the Path to the file with the user info: ");
+          Path path = Path.of(scan.nextLine());
+          if(validateGivenPath(path)){
+            try {
+              currentUser = new User(path);
+              finished = true;
+            } catch (IOException e) {
+              System.out.println("Failed to read user file");
+            }
+          }
+        }
+        case "make" -> {
+          System.out.println("Provide a user name: ");
+          currentUser.setName(scan.nextLine());
+          System.out.println("Are you in honors? (Y/N): ");
+          currentUser.setHonors(scan.nextLine().equalsIgnoreCase("y"));
+          System.out.println("What campus are you on? (Wilf/Beren): ");
+          currentUser.setName(scan.nextLine().equalsIgnoreCase("wilf") ? "wilf" : "beren");
+          System.out.println("What school are you in? (YC, Syms, Beren): ");
+          currentUser.setName(scan.nextLine());
+          finished = true;
+        }
+        case "guest" -> {
+          currentUser = new User();
+          finished = true;
+        }
+        default -> {
+          System.out.println("Invalid choice");
+        }
+      }
     }
-    // Print how many elements we're showing and how many are left
-    System.out.println("Classes " + startingPoint + " to " + (startingPoint + 10) + ". Out of " + courses.size());
-    // Print the action prompt
-    System.out.println(actionPrompt);
   }
 }
