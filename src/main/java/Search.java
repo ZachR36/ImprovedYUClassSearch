@@ -72,7 +72,9 @@ public class Search {
     String selection = "";
     int printingSpot = 0;
     userSetUp(scan);
-
+    // Clear the screen
+    System.out.print("\033[H\033[2J");
+    System.out.flush();
     while (true) {
       System.out.println(actionPrompt);
       selection = scan.nextLine();
@@ -82,7 +84,7 @@ public class Search {
           userChange(scan);
         }
         case "search" -> {
-          chooseSearchOption(); // Need to implement this method
+          currentSearchResults = searchByDepartment(scan.nextLine()); // Need to implement this method
           printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top of the list
           coursePrinting(currentSearchResults,printingSpot);
           printingSpot += INCREMENT;
@@ -203,9 +205,8 @@ public class Search {
       System.out.println("Course is not in database");
       return false;
     }
-    // TODO: before adding the class, we can check with the user that this is what
-    // they wanted, since they
-    // might've accidentally given the wrong CRN
+    // TODO: before adding the class, we can check with the user that this is what they wanted,
+    //  since they might've accidentally given the wrong CRN
     Course newCourse = mapByCRN.get(Integer.parseInt(crn));
     float credits = 0;
     for (Course course : bookmarked.values()) {
@@ -220,6 +221,7 @@ public class Search {
       System.out.println("Over credit maximum");
       return false;
     }
+    // TODO: If they're using a guest user then this will give an error.
     if (newCourse.getCampus().toLowerCase().contains(currentUser.getCampus()) == false) {
       System.out.println("Course and User campuses do not match");
       return false;
@@ -353,15 +355,21 @@ public class Search {
             "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
             "-".repeat(132));
     // Print each class in line
+    boolean endOfList = false;
     for (int i = startingPoint; i < startingPoint + INCREMENT; i++) {
-      Course course = courses.get(i);
-      System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
+      if(i > courses.size()){
+        endOfList = true;
+        break;
+      }
+      Course course = courses.get(i-1);
+      System.out.printf("%-30.30s %-6s %-10s %-10s %-7s %-8s %-20.20s %-7s %-11s %-15s%n%s%n",
               course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
               course.getCRN(), course.getTeacher(), course.getMaxEnrolled(), course.getRemainingEnrollment(),
               String.join(", ", course.getAttributes()), "-".repeat(132));
     }
     // Print how many elements we're showing and how many are left
-    System.out.println("Classes " + startingPoint + " to " + (startingPoint + 10) + ". Out of " + courses.size());
+    int endSpot = (endOfList ? courses.size() : startingPoint + INCREMENT);
+    System.out.println("Classes " + startingPoint + " to " + endSpot + ". Out of " + courses.size());
     // Print the action prompt
     System.out.println(actionPrompt);
   }
