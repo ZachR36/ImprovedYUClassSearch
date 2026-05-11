@@ -19,6 +19,22 @@ import java.nio.file.Path;
  * List of actions:
  * List of Searches:
  */
+
+/*
+List of basic things that need finishing so we can submit this:
+TODO: Fix the action prompt so it properly prompts them to choose one of the options
+TODO: The switch case in the while(true) should actually call the methods to do searches
+
+Things to add after to make this better/actually provide some more functionality:
+TODO: Implement method for the user to save their User to a given path
+TODO: Ability to compound different searches
+TODO: New search method - don't show them classes that they've already taken
+
+Even more advanced:
+TODO: Implement a search based on the classes that the user fulfilled the requirements for
+
+ */
+
 public class Search {
   private static User currentUser = null;
   private static HashMap<Integer, Course> mapByCRN = new HashMap<>();
@@ -32,7 +48,6 @@ public class Search {
   // choose their next action
   private static String actionPrompt = "Please choose an option from the following list: \n ...";
 
-  // TODO: Add the other data structures that we need to help out search functions
   public static void main(String[] args) {
     System.out.println("The program is now going to load up all the class info from the csv file you provided. This could take a few minutes. You'll get a message when it's finished.");
     try {
@@ -45,7 +60,7 @@ public class Search {
     }
     Scanner scan = new Scanner(System.in);
     String selection = "";
-    userSetUp(selection, scan);
+    userSetUp(scan);
 
     while (true) {
       System.out.println(actionPrompt);
@@ -60,14 +75,15 @@ public class Search {
     }
   }
 
-  private static void userSetUp(String selection, Scanner scan) {
+  private static void userSetUp(Scanner scan) {
+    String choice = "";
     while (currentUser == null) {
       System.out.println("Do you want to use a pre-existing User object, create a new one, or use a guest one?" +
           " (Path,\"make\", or \"guest\"): ");
-      selection = scan.nextLine();
-      currentUser = setUser(selection);
+      choice = scan.nextLine();
+      currentUser = setUser(choice);
     }
-    if (selection.equalsIgnoreCase("make")) {
+    if (choice.equalsIgnoreCase("make")) {
       System.out.println("Provide a user name: ");
       currentUser.setName(scan.nextLine());
       System.out.println("Are you in honors? (Y/N): ");
