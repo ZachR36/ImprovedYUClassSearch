@@ -34,9 +34,11 @@ public class Search {
 
   // TODO: Add the other data structures that we need to help out search functions
   public static void main(String[] args) {
+    System.out.println("The program is now going to load up all the class info from the csv file you provided. This could take a few minutes. You'll get a message when it's finished.");
     try {
       setup(args[0]); // The user should give the csv file holding all the class information when
                       // starting the program.
+      System.out.println("All courses successfully loaded.");
     } catch (IOException e) {
       System.out.println("Failed to read CSV");
       e.printStackTrace();
