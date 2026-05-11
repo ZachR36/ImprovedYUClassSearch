@@ -8,7 +8,7 @@ public class Course {
   private final String section;
   private final String campus;
   private final String name;
-  private final String courseDescription;
+  private String courseDescription;
   private final double credits;
   private final String teacher;
   private final int enrolled;
@@ -58,7 +58,9 @@ public class Course {
     this.meetings = meetingsTwo;
     this.attributes = this.removeQuotes(info[15]).replaceAll("&amp;", "&").split("\\|\\|");
     this.attributeDescriptions = this.removeQuotes(info[16]).split("\\|\\|");
-    this.courseDescription = this.fetchDescription("202609", String.valueOf(this.CRN));
+    // It takes a long time for the program to get the description for hundreds of courses. So we'll use a temp, and only
+    // fetch it if the program needs it and calls Course.getCourseDescription.
+    this.courseDescription = "temp";
   }
 
   private String fetchDescription(String term, String crn) {
@@ -155,6 +157,9 @@ public class Course {
   }
 
   public String getCourseDescription() {
+    if(courseDescription.equals("temp")){
+      this.courseDescription = this.fetchDescription("202609", String.valueOf(this.CRN));
+    }
     return courseDescription;
   }
 }
