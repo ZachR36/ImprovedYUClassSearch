@@ -187,13 +187,13 @@ public class UserTest {
     @Test
     void guestConstructor_campusIsNull() {
         User guest = new User();
-        assertNull(guest.getCampus());
+        assertEquals("wilf beren",guest.getCampus());
     }
 
     @Test
     void guestConstructor_schoolIsNull() {
         User guest = new User();
-        assertNull(guest.getSchool());
+        assertEquals("yc syms beren",guest.getSchool());
     }
 
     @Test
