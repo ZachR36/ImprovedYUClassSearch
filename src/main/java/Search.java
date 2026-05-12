@@ -56,7 +56,9 @@ public class Search {
           "If you want to search based on a certain criteria: \"search\" \n" +
           "If you want to scroll to the next (>) or previous (<) page of classes. \n" +
           "If you want to mark a class that you're interested in: \"interested\" \n" +
-          "If you want to bookmark a class (so that time slot will be knocked off: \"bookmark\"";
+          "If you want to bookmark a class (so that time slot will be knocked off: \"bookmark\" \n" +
+          "If you want to clear the screen: \"clear\" \n" +
+          "If you want to exit the program: \"exit\"";
 
   public static void main(String[] args) throws IOException {
     System.out.println("The program is now going to load up all the class info from the csv file you provided. This could take a few minutes. You'll get a message when it's finished.");
@@ -75,9 +77,10 @@ public class Search {
     // Clear the screen
     System.out.print("\033[H\033[2J");
     System.out.flush();
-    while (true) {
+    boolean run = true;
+    while (run) {
       System.out.println(actionPrompt);
-      selection = scan.nextLine();
+      selection = scan.nextLine().trim();
       // Now perform the action selected...
       switch (selection.toLowerCase()) {
         case "user" -> {
@@ -85,18 +88,24 @@ public class Search {
         }
         case "search" -> {
           // Need to implement this method. And decide if the method should return a list or set currentSearchResuls
-          chooseSearchOption(scan);
-          printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top of the list
-          coursePrinting(currentSearchResults,printingSpot);
-          printingSpot += INCREMENT;
+          boolean success = chooseSearchOption(scan);
+          if (success){
+            if(currentSearchResults.isEmpty()){
+              System.out.println("\n There were no matches for this search.\n");
+            } else {
+              printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top of the list
+              coursePrinting(currentSearchResults,printingSpot);
+              printingSpot += INCREMENT;
+            }
+          }
         }
         case "bookmark" -> {
           System.out.println("Give the CRN of the class that you want to bookmark: ");
-          bookmarkClass(scan.nextLine());
+          bookmarkClass(scan.nextLine().trim());
         }
         case "interested" -> {
           System.out.println("Give the CRN of the class that you're interested in: ");
-          interestedInClass(scan.nextLine());
+          interestedInClass(scan.nextLine().trim());
         }
         case "<" -> {
           // Clear the screen
@@ -115,6 +124,14 @@ public class Search {
           coursePrinting(currentSearchResults,printingSpot);
           printingSpot += INCREMENT;
         }
+        case "clear" -> {
+          // Clear the screen
+          System.out.print("\033[H\033[2J");
+          System.out.flush();
+        }
+        case "exit" -> {
+          run = false;
+        }
       }
 
     }
@@ -126,72 +143,89 @@ public class Search {
   SEARCH METHODS
 
    */
-  private static void chooseSearchOption(Scanner scan) {
+  private static boolean chooseSearchOption(Scanner scan) {
     /* This will prompt them further for what exactly they want. Refine or expand the search. New search.
      Whether to exclude or include certain classes. Then also what criteria they want to search by. Anything else.
      Then set the currentSearchResults to what the list should now be, so the main method can deal with printing.
      */
-    System.out.println("What criteria do you want to search for (spelling, not case, sensitive): " +
-            "\n CRN, department, teacher, credits, dept + course number \n" +
-            "(\"exit\" if you want to cancel the search request)");
     boolean validGiven = false;
     String choice = "";
     while (!validGiven){
-      choice = scan.nextLine();
+      System.out.println("What criteria do you want to search for (spelling, not case, sensitive): " +
+              "\n CRN, department, teacher, credits, dept + course number \n" +
+              "(\"exit\" if you want to cancel the search request)");
+      choice = scan.nextLine().trim();
       switch (choice.toLowerCase()) {
         case "crn" -> {
           System.out.println("Give the crn of the course you want to look at (Five digit number): ");
           try{
-            int crn = Integer.parseInt(scan.nextLine());
-            if (crn >= 10000 &&  crn <= 99999){ // Ensuring it's a five digit number
+            int crn = Integer.parseInt(scan.nextLine().trim());
+            if (crn < 10000 || crn > 99999){ // Ensuring it's a five digit number
               throw new IllegalArgumentException();
             }
             validGiven = true;
             currentSearchResults.clear();
-            searchByCRN(crn).ifPresent(currentSearchResults::add);
+            Course course = searchByCRN(crn);
+            if (course != null){
+              currentSearchResults.add(course);
+            }
           } catch (NumberFormatException e){
-            System.out.println("Make sure you're giving a number/only digits");
+            System.out.println("\nMake sure you're giving a number/only digits\n");
           } catch (IllegalArgumentException e){
-            System.out.println("You must give a five digit number/a valid CRN");
+            System.out.println("\nYou must give a five digit number/a valid CRN\n");
           }
         }
-        case "department", "teacher" -> {
-          String dept = scan.nextLine();
+        case "department" -> {
+          System.out.println("Give the department that you want to search for: ");
+          String dept = scan.nextLine().toLowerCase().trim();
           validGiven = true;
           currentSearchResults = searchByDepartment(dept);
         }
-          case "credits" -> {
-            System.out.println("Give the crn of the course you want to look at (Five digit number): ");
-            double credits = -1;
-            try{
-              credits = Integer.parseInt(scan.nextLine());
-            } catch (NumberFormatException e){
-              System.out.println("Make sure you're giving a number/only digits");
+        case "teacher" -> {
+          System.out.println("Give the teacher that you want to search for:");
+          String teacher = scan.nextLine().toLowerCase().trim();
+          validGiven = true;
+          currentSearchResults = searchByTeacher(teacher);
+        }
+        case "credits" -> {
+          System.out.println("Give the number of credits that you want to search for (0.5,1,2,3,4): ");
+          double credits = -1;
+          try{
+            credits = Integer.parseInt(scan.nextLine().trim());
+          } catch (NumberFormatException e){
+            System.out.println("\nMake sure you're giving a number/only digits\n");
+          }
+            if (credits == 0.5) {
+                currentSearchResults = searchByCredits(0);
+                validGiven = true;
+            } else if (credits == 1.0 || credits == 2.0 || credits == 3.0 || credits == 4.0) {
+                currentSearchResults = searchByCredits(credits);
+                validGiven = true;
+            } else {
+                System.out.println("\nNot a valid option for credits (0.5,1,2,3,4)\n");
             }
-              if (credits == 0.5) {
-                  currentSearchResults = searchByCredits(0);
-                  validGiven = true;
-              } else if (credits == 1.0 || credits == 2.0 || credits == 3.0 || credits == 4.0) {
-                  currentSearchResults = searchByCredits(credits);
-                  validGiven = true;
-              } else {
-                  System.out.println("Not a valid option for credits (0.5,1,2,3,4)");
-              }
         }
         case "dept + course number" -> {
           System.out.println("First give the department: ");
-          String dept = scan.nextLine();
+          String dept = scan.nextLine().trim();
           System.out.println("Now give the course number: ");
-          String courseNum = scan.nextLine();
+          String courseNum = scan.nextLine().trim();
           validGiven = true;
           currentSearchResults.clear();
-          searchByDeptAndNumber(dept,courseNum).ifPresent(currentSearchResults::add);
+          Course course = searchByDeptAndNumber(dept,courseNum);
+          if(course != null){
+            currentSearchResults.add(course);
+          }
+        }
+        case "exit" -> {
+          return false;
         }
         default -> {
           System.out.println("Not a valid option. Try again.");
         }
       }
     }
+    return true;
   }
 
   /*
@@ -200,8 +234,8 @@ public class Search {
    */
 
 
-  private static Optional<Course> searchByCRN(int CRN) {
-      return Optional.ofNullable(mapByCRN.getOrDefault(CRN, null));
+  private static Course searchByCRN(int CRN) {
+      return mapByCRN.getOrDefault(CRN, null);
   }
 
   private static ArrayList<Course> searchByDepartment(String dept) {
@@ -218,7 +252,7 @@ public class Search {
     return results;
   }
 
-  private static Optional<Course> searchByDeptAndNumber(String dept, String num) {
+  private static Course searchByDeptAndNumber(String dept, String num) {
     Course resultCourse = null;
     ArrayList<Course> deptList = searchByDepartment(dept);
     for (Course course : deptList) {
@@ -226,7 +260,7 @@ public class Search {
         resultCourse = course;
       }
     }
-    return Optional.ofNullable(resultCourse);
+    return resultCourse;
   }
 
   private static ArrayList<Course> searchByCredits(double credits) {
@@ -272,7 +306,6 @@ public class Search {
       System.out.println("Over credit maximum");
       return false;
     }
-    // TODO: If they're using a guest user then this will give an error.
     if (newCourse.getCampus().toLowerCase().contains(currentUser.getCampus()) == false) {
       System.out.println("Course and User campuses do not match");
       return false;
@@ -329,13 +362,13 @@ public class Search {
     boolean validChoice = false;
     while (!validChoice){
       System.out.println("Do you want to make an update to this User, save this one, or switch users? (\"update\",\"save\",\"switch\",\"exit\"");
-      choice = scan.nextLine();
+      choice = scan.nextLine().trim();
       if(choice.equalsIgnoreCase("update")){
         updateUserData(scan);
         validChoice = true;
       } else if (choice.equalsIgnoreCase("save")) {
         System.out.println("Give the path where you want to write the file with the user data: ");
-        Path path = Path.of(scan.nextLine());
+        Path path = Path.of(scan.nextLine().trim());
         if (validateGivenPath(path)){
           currentUser.saveToFile(path);
           validChoice = true;
@@ -356,21 +389,21 @@ public class Search {
     boolean validGiven = false;
     while (!validGiven){
       System.out.println("What attribute do you want to update: (\"name\",\"honors\",\"campus\",\"school\"");
-      choice = scan.nextLine();
+      choice = scan.nextLine().trim();
       switch (choice.toLowerCase()){
         case "name" -> {
           System.out.println("Provide a user name: ");
-          currentUser.setName(scan.nextLine());
+          currentUser.setName(scan.nextLine().trim());
           validGiven = true;
         }
         case "honors" -> {
           System.out.println("Are you in honors? (Y/N): ");
           validGiven = true; // Setting to not-in-honors if anything other than "y" is given
-          currentUser.setHonors(scan.nextLine().equalsIgnoreCase("y"));
+          currentUser.setHonors(scan.nextLine().trim().equalsIgnoreCase("y"));
         }
         case "campus" -> {
           System.out.println("What campus are you on? (Wilf/Beren): ");
-          String campus = scan.nextLine();
+          String campus = scan.nextLine().trim();
           switch (campus.toLowerCase()){
             case "wilf", "beren" -> {
               validGiven = true;
@@ -381,7 +414,7 @@ public class Search {
         }
         case "school" -> {
           System.out.println("What school are you in? (YC, Syms, Beren): ");
-          String school = scan.nextLine();
+          String school = scan.nextLine().trim();
           switch (school.toLowerCase()) {
             case "yc", "syms", "beren" -> {
               validGiven = true;
@@ -429,6 +462,7 @@ public class Search {
     for (int i = startingPoint; i < startingPoint + INCREMENT; i++) {
       if(i > courses.size()){
         endOfList = true;
+        System.out.println(courses.size() + " - size of course list. And i is: " + i);
         break;
       }
       Course course = courses.get(i-1);
@@ -458,14 +492,14 @@ public class Search {
       while ((line = reader.readLine()) != null) {
         Course newCourse = new Course(line);
         mapByCRN.put(newCourse.getCRN(), newCourse);
-        if (!mapByDep.containsKey(newCourse.getDepartment())) {
-          mapByDep.put(newCourse.getDepartment(), new ArrayList<Course>());
+        if (!mapByDep.containsKey(newCourse.getDepartment().toLowerCase())) {
+          mapByDep.put(newCourse.getDepartment().toLowerCase(), new ArrayList<Course>());
         }
-        mapByDep.get(newCourse.getDepartment()).add(newCourse);
-        if (!mapByTeacher.containsKey(newCourse.getTeacher())) {
-          mapByTeacher.put(newCourse.getTeacher(), new ArrayList<Course>());
+        mapByDep.get(newCourse.getDepartment().toLowerCase()).add(newCourse);
+        if (!mapByTeacher.containsKey(newCourse.getTeacher().toLowerCase())) {
+          mapByTeacher.put(newCourse.getTeacher().toLowerCase(), new ArrayList<Course>());
         }
-        mapByDep.get(newCourse.getDepartment()).add(newCourse);
+        mapByTeacher.get(newCourse.getTeacher().toLowerCase()).add(newCourse);
         if (!mapByCredits.containsKey(newCourse.getCredits())) {
           mapByCredits.put(newCourse.getCredits(), new ArrayList<Course>());
         }
@@ -480,11 +514,11 @@ public class Search {
     while (!finished) {
       System.out.println("Do you want to use a pre-existing User object, create a new one, or use a guest one?" +
               " (\"pre\",\"make\", or \"guest\"): ");
-      choice = scan.nextLine();
+      choice = scan.nextLine().trim();
       switch(choice.toLowerCase()){
         case "pre" -> {
           System.out.println("Give the Path to the file with the user info: ");
-          Path path = Path.of(scan.nextLine());
+          Path path = Path.of(scan.nextLine().trim());
           if(validateGivenPath(path)){
             try {
               currentUser = new User(path);
@@ -496,13 +530,13 @@ public class Search {
         }
         case "make" -> {
           System.out.println("Provide a user name: ");
-          currentUser.setName(scan.nextLine());
+          currentUser.setName(scan.nextLine().trim());
           System.out.println("Are you in honors? (Y/N): ");
-          currentUser.setHonors(scan.nextLine().equalsIgnoreCase("y"));
+          currentUser.setHonors(scan.nextLine().trim().equalsIgnoreCase("y"));
           System.out.println("What campus are you on? (Wilf/Beren): ");
-          currentUser.setName(scan.nextLine().equalsIgnoreCase("wilf") ? "wilf" : "beren");
+          currentUser.setName(scan.nextLine().trim().equalsIgnoreCase("wilf") ? "wilf" : "beren");
           System.out.println("What school are you in? (YC, Syms, Beren): ");
-          currentUser.setName(scan.nextLine());
+          currentUser.setName(scan.nextLine().trim());
           finished = true;
         }
         case "guest" -> {
