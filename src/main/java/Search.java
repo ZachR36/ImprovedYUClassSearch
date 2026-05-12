@@ -287,8 +287,8 @@ public class Search {
       }
     } else {
       for (String c : section.split("")) {
-        for (Course ccourse : bookmarked.values()) {
-          if (ccourse.getSection().contains(c)) {
+        for (Course course : bookmarked.values()) {
+          if (course.getSection().contains(c)) {
             System.out.println("Course has a section conflict");
             return false;
           }

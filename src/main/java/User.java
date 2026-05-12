@@ -40,9 +40,9 @@ public class User {
     }
     public User(){
         this.name = "guest";
-        this.honors = false; // TODO: Hopefully this doesn't prevent honors courses from being displayed
-        this.campus = null;
-        this.school = null;
+        this.honors = false;
+        this.campus = "wilf beren"; // Temporarily setting these like this so errors aren't thrown
+        this.school = "yc syms beren";
         this.completedCourses = new HashSet<>();
     }
 
