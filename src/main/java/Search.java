@@ -132,11 +132,60 @@ public class Search {
      Then set the currentSearchResults to what the list should now be, so the main method can deal with printing.
      */
     System.out.println("What criteria do you want to search for (spelling, not case, sensitive): " +
-            "\n CRN, department, teacher, credits, department + course number \n" +
+            "\n CRN, department, teacher, credits, dept + course number \n" +
             "(\"exit\" if you want to cancel the search request)");
     boolean validGiven = false;
+    String choice = "";
     while (!validGiven){
-
+      choice = scan.nextLine();
+      switch (choice.toLowerCase()) {
+        case "crn" -> {
+          System.out.println("Give the crn of the course you want to look at (Five digit number): ");
+          try{
+            int crn = Integer.parseInt(scan.nextLine());
+            if (crn >= 10000 &&  crn <= 99999){ // Ensuring it's a five digit number
+              throw new IllegalArgumentException();
+            }
+            validGiven = true;
+            Course course = searchByCRN(crn);
+            currentSearchResults.clear();
+            currentSearchResults.add(course);
+          } catch (NumberFormatException e){
+            System.out.println("Make sure you're giving a number/only digits");
+          } catch (IllegalArgumentException e){
+            System.out.println("You must give a five digit number/a valid CRN");
+          }
+        }
+        case "department", "teacher" -> {
+          String dept = scan.nextLine();
+          validGiven = true;
+          currentSearchResults = searchByDepartment(dept);
+        }
+          case "credits" -> {
+            System.out.println("Give the crn of the course you want to look at (Five digit number): ");
+            double credits = -1;
+            try{
+              credits = Integer.parseInt(scan.nextLine());
+            } catch (NumberFormatException e){
+              System.out.println("Make sure you're giving a number/only digits");
+            }
+              if (credits == 0.5) {
+                  currentSearchResults = searchByCredits(0);
+                  validGiven = true;
+              } else if (credits == 1.0 || credits == 2.0 || credits == 3.0 || credits == 4.0) {
+                  currentSearchResults = searchByCredits(credits);
+                  validGiven = true;
+              } else {
+                  System.out.println("Not a valid option for credits (0.5,1,2,3,4)");
+              }
+        }
+        case "dept + course number" -> {
+    
+        }
+        default -> {
+          System.out.println("Not a valid option. Try again.");
+        }
+      }
     }
   }
 
