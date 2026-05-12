@@ -85,7 +85,7 @@ public class Search {
         }
         case "search" -> {
           // Need to implement this method. And decide if the method should return a list or set currentSearchResuls
-          chooseSearchOption();
+          chooseSearchOption(scan);
           printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top of the list
           coursePrinting(currentSearchResults,printingSpot);
           printingSpot += INCREMENT;
@@ -126,13 +126,18 @@ public class Search {
   SEARCH METHODS
 
    */
-  private static void chooseSearchOption() {
+  private static void chooseSearchOption(Scanner scan) {
     /* This will prompt them further for what exactly they want. Refine or expand the search. New search.
      Whether to exclude or include certain classes. Then also what criteria they want to search by. Anything else.
      Then set the currentSearchResults to what the list should now be, so the main method can deal with printing.
-
      */
-    // TODO: This is the next and final step for version 1/a complete working version of the program
+    System.out.println("What criteria do you want to search for (spelling, not case, sensitive): " +
+            "\n CRN, department, teacher, credits, department + course number \n" +
+            "(\"exit\" if you want to cancel the search request)");
+    boolean validGiven = false;
+    while (!validGiven){
+
+    }
   }
 
   private static Course searchByCRN(int CRN) {
@@ -302,28 +307,47 @@ public class Search {
   }
 
   private static void updateUserData(Scanner scan){
-    System.out.println("What attribute do you want to update: (\"name\",\"honors\",\"campus\",\"school\"");
-    String choice = scan.nextLine();
-    switch (choice.toLowerCase()){
-      case "name" -> {
-        System.out.println("Provide a user name: ");
-        currentUser.setName(scan.nextLine());
-      }
-      case "honors" -> {
-        System.out.println("Are you in honors? (Y/N): ");
-        currentUser.setHonors(scan.nextLine().equalsIgnoreCase("y"));
-      }
-      case "campus" -> {
-        System.out.println("What campus are you on? (Wilf/Beren): ");
-        currentUser.setName(scan.nextLine().equalsIgnoreCase("wilf") ? "wilf" : "beren");
-      }
-      case "school" -> {
-        System.out.println("What school are you in? (YC, Syms, Beren): ");
-        currentUser.setName(scan.nextLine());
-      }
-      default -> {
-        System.out.println("Invalid choice");
-        updateUserData(scan);
+    String choice = "";
+    boolean validGiven = false;
+    while (!validGiven){
+      System.out.println("What attribute do you want to update: (\"name\",\"honors\",\"campus\",\"school\"");
+      choice = scan.nextLine();
+      switch (choice.toLowerCase()){
+        case "name" -> {
+          System.out.println("Provide a user name: ");
+          currentUser.setName(scan.nextLine());
+          validGiven = true;
+        }
+        case "honors" -> {
+          System.out.println("Are you in honors? (Y/N): ");
+          validGiven = true; // Setting to not-in-honors if anything other than "y" is given
+          currentUser.setHonors(scan.nextLine().equalsIgnoreCase("y"));
+        }
+        case "campus" -> {
+          System.out.println("What campus are you on? (Wilf/Beren): ");
+          String campus = scan.nextLine();
+          switch (campus.toLowerCase()){
+            case "wilf", "beren" -> {
+              validGiven = true;
+              currentUser.setCampus(campus);
+            }
+            default -> System.out.println("Invalid campus name");
+          }
+        }
+        case "school" -> {
+          System.out.println("What school are you in? (YC, Syms, Beren): ");
+          String school = scan.nextLine();
+          switch (school.toLowerCase()) {
+            case "yc", "syms", "beren" -> {
+              validGiven = true;
+              currentUser.setCampus(school);
+            }
+            default -> System.out.println("Invalid school name");
+          }
+        }
+        default -> {
+          System.out.println("Invalid choice");
+        }
       }
     }
   }
