@@ -147,9 +147,8 @@ public class Search {
               throw new IllegalArgumentException();
             }
             validGiven = true;
-            Course course = searchByCRN(crn);
             currentSearchResults.clear();
-            currentSearchResults.add(course);
+            searchByCRN(crn).ifPresent(currentSearchResults::add);
           } catch (NumberFormatException e){
             System.out.println("Make sure you're giving a number/only digits");
           } catch (IllegalArgumentException e){
@@ -180,7 +179,13 @@ public class Search {
               }
         }
         case "dept + course number" -> {
-    
+          System.out.println("First give the department: ");
+          String dept = scan.nextLine();
+          System.out.println("Now give the course number: ");
+          String courseNum = scan.nextLine();
+          validGiven = true;
+          currentSearchResults.clear();
+          searchByDeptAndNumber(dept,courseNum).ifPresent(currentSearchResults::add);
         }
         default -> {
           System.out.println("Not a valid option. Try again.");
@@ -189,20 +194,18 @@ public class Search {
     }
   }
 
-  private static Course searchByCRN(int CRN) {
-    if (mapByCRN.containsKey(CRN)) {
-      return mapByCRN.get(CRN);
-    } else {
-      return null;
-    }
+  /*
+   Note: Methods that return a list of courses return an empty list if there are no matches.
+   Methods that return one course return an Optional, forcing other methods to deal with the chance that it's null/not present.
+   */
+
+
+  private static Optional<Course> searchByCRN(int CRN) {
+      return Optional.ofNullable(mapByCRN.getOrDefault(CRN, null));
   }
 
   private static ArrayList<Course> searchByDepartment(String dept) {
-    if (mapByDep.containsKey(dept)) {
-      return mapByDep.get(dept);
-    } else {
-      return null;
-    }
+      return mapByDep.getOrDefault(dept, new ArrayList<>());
   }
 
   private static ArrayList<Course> searchByTeacher(String nameFrag) {
@@ -212,29 +215,22 @@ public class Search {
         results.addAll(mapByTeacher.get(name));
       }
     }
-    if (results.size() == 0) {
-      return null;
-    } else {
-      return results;
-    }
+    return results;
   }
 
-  private static Course searchByDeptAndNumber(String dept, String num) {
+  private static Optional<Course> searchByDeptAndNumber(String dept, String num) {
+    Course resultCourse = null;
     ArrayList<Course> deptList = searchByDepartment(dept);
     for (Course course : deptList) {
       if (course.getDeptNumber().equals(num)) {
-        return course;
+        resultCourse = course;
       }
     }
-    return null;
+    return Optional.ofNullable(resultCourse);
   }
 
   private static ArrayList<Course> searchByCredits(double credits) {
-    if (mapByCredits.containsKey(credits)) {
-      return mapByCredits.get(credits);
-    } else {
-      return null;
-    }
+      return mapByCredits.getOrDefault(credits, new ArrayList<>());
   }
 
   /*
