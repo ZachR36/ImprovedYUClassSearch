@@ -51,7 +51,7 @@ public class Search {
 
   // This is the string that we'll print every time we want to prompt the user to
   // choose their next action
-  private static String actionPrompt = "Please choose an option from the following list: \n" +
+  private static String actionPrompt = "\nPlease choose an option from the following list: \n" +
           "If you want to make a change to the user info: \"user\" \n" +
           "If you want to search based on a certain criteria: \"search\" \n" +
           "If you want to scroll to the next (>) or previous (<) page of classes. \n" +
@@ -61,7 +61,6 @@ public class Search {
           "If you want to exit the program: \"exit\"";
 
   public static void main(String[] args) throws IOException {
-    System.out.println("The program is now going to load up all the class info from the csv file you provided. This could take a few minutes. You'll get a message when it's finished.");
     try {
       setup(args[0]); // The user should give the csv file holding all the class information when
                       // starting the program.
@@ -230,7 +229,7 @@ public class Search {
 
   /*
    Note: Methods that return a list of courses return an empty list if there are no matches.
-   Methods that return one course return an Optional, forcing other methods to deal with the chance that it's null/not present.
+   Methods that return one course return null, so other methods will have to deal with that.
    */
 
 
@@ -462,7 +461,6 @@ public class Search {
     for (int i = startingPoint; i < startingPoint + INCREMENT; i++) {
       if(i > courses.size()){
         endOfList = true;
-        System.out.println(courses.size() + " - size of course list. And i is: " + i);
         break;
       }
       Course course = courses.get(i-1);
@@ -529,6 +527,7 @@ public class Search {
           }
         }
         case "make" -> {
+          currentUser = new User();
           System.out.println("Provide a user name: ");
           currentUser.setName(scan.nextLine().trim());
           System.out.println("Are you in honors? (Y/N): ");
