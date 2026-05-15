@@ -21,13 +21,15 @@ import java.nio.file.Path;
  */
 
 /*
-Things to add after to make this better/actually provide some more functionality:
-TODO: Ability to compound different searches
-TODO: New search method - don't show them classes that they've already taken
-
-Even more advanced:
-TODO: Implement a search based on the classes that the user fulfilled the requirements for (involves fixing the fetchDescription time issue)
-
+ * Things to add after to make this better/actually provide some more
+ * functionality:
+ * TODO: Ability to compound different searches
+ * TODO: New search method - don't show them classes that they've already taken
+ * 
+ * Even more advanced:
+ * TODO: Implement a search based on the classes that the user fulfilled the
+ * requirements for (involves fixing the fetchDescription time issue)
+ * 
  */
 
 public class Search {
@@ -36,6 +38,7 @@ public class Search {
   private static HashMap<String, ArrayList<Course>> mapByDep = new HashMap<>();
   private static HashMap<String, ArrayList<Course>> mapByTeacher = new HashMap<>();
   private static HashMap<Double, ArrayList<Course>> mapByCredits = new HashMap<>();
+  private static HashMap<String, Course> mapByName = new HashMap<>();
 
   // The user object that they're using
   private static User currentUser = null;
@@ -52,13 +55,13 @@ public class Search {
   // This is the string that we'll print every time we want to prompt the user to
   // choose their next action
   private static String actionPrompt = "\nPlease choose an option from the following list: \n" +
-          "If you want to make a change to the user info: \"user\" \n" +
-          "If you want to search based on a certain criteria: \"search\" \n" +
-          "If you want to scroll to the next (>) or previous (<) page of classes. \n" +
-          "If you want to mark a class that you're interested in: \"interested\" \n" +
-          "If you want to bookmark a class (so that time slot will be knocked off: \"bookmark\" \n" +
-          "If you want to clear the screen: \"clear\" \n" +
-          "If you want to exit the program: \"exit\"";
+      "If you want to make a change to the user info: \"user\" \n" +
+      "If you want to search based on a certain criteria: \"search\" \n" +
+      "If you want to scroll to the next (>) or previous (<) page of classes. \n" +
+      "If you want to mark a class that you're interested in: \"interested\" \n" +
+      "If you want to bookmark a class (so that time slot will be reserved): \"bookmark\" \n" +
+      "If you want to clear the screen: \"clear\" \n" +
+      "If you want to exit the program: \"exit\"";
 
   public static void main(String[] args) throws IOException {
     try {
@@ -86,14 +89,16 @@ public class Search {
           userChange(scan);
         }
         case "search" -> {
-          // Need to implement this method. And decide if the method should return a list or set currentSearchResuls
+          // Need to implement this method. And decide if the method should return a list
+          // or set currentSearchResuls
           boolean success = chooseSearchOption(scan);
-          if (success){
-            if(currentSearchResults.isEmpty()){
+          if (success) {
+            if (currentSearchResults.isEmpty()) {
               System.out.println("\n There were no matches for this search.\n");
             } else {
-              printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top of the list
-              coursePrinting(currentSearchResults,printingSpot);
+              printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top
+                                // of the list
+              coursePrinting(currentSearchResults, printingSpot);
               printingSpot += INCREMENT;
             }
           }
@@ -112,7 +117,7 @@ public class Search {
           System.out.flush();
           // Print the previous page of classes
           printingSpot -= INCREMENT;
-          coursePrinting(currentSearchResults,printingSpot);
+          coursePrinting(currentSearchResults, printingSpot);
           printingSpot += INCREMENT;
         }
         case ">" -> {
@@ -120,7 +125,7 @@ public class Search {
           System.out.print("\033[H\033[2J");
           System.out.flush();
           // Print the next page of classes
-          coursePrinting(currentSearchResults,printingSpot);
+          coursePrinting(currentSearchResults, printingSpot);
           printingSpot += INCREMENT;
         }
         case "clear" -> {
@@ -136,41 +141,44 @@ public class Search {
     }
   }
 
-
   /*
-
-  SEARCH METHODS
-
+   * 
+   * SEARCH METHODS
+   * 
    */
   private static boolean chooseSearchOption(Scanner scan) {
-    /* This will prompt them further for what exactly they want. Refine or expand the search. New search.
-     Whether to exclude or include certain classes. Then also what criteria they want to search by. Anything else.
-     Then set the currentSearchResults to what the list should now be, so the main method can deal with printing.
+    /*
+     * This will prompt them further for what exactly they want. Refine or expand
+     * the search. New search.
+     * Whether to exclude or include certain classes. Then also what criteria they
+     * want to search by. Anything else.
+     * Then set the currentSearchResults to what the list should now be, so the main
+     * method can deal with printing.
      */
     boolean validGiven = false;
     String choice = "";
-    while (!validGiven){
+    while (!validGiven) {
       System.out.println("What criteria do you want to search for (spelling, not case, sensitive): " +
-              "\n CRN, department, teacher, credits, dept + course number \n" +
-              "(\"exit\" if you want to cancel the search request)");
+          "\n CRN, name, department, teacher, credits, dept + course number \n" +
+          "(\"exit\" if you want to cancel the search request)");
       choice = scan.nextLine().trim();
       switch (choice.toLowerCase()) {
         case "crn" -> {
           System.out.println("Give the crn of the course you want to look at (Five digit number): ");
-          try{
+          try {
             int crn = Integer.parseInt(scan.nextLine().trim());
-            if (crn < 10000 || crn > 99999){ // Ensuring it's a five digit number
+            if (crn < 10000 || crn > 99999) { // Ensuring it's a five digit number
               throw new IllegalArgumentException();
             }
             validGiven = true;
             currentSearchResults.clear();
             Course course = searchByCRN(crn);
-            if (course != null){
+            if (course != null) {
               currentSearchResults.add(course);
             }
-          } catch (NumberFormatException e){
+          } catch (NumberFormatException e) {
             System.out.println("\nMake sure you're giving a number/only digits\n");
-          } catch (IllegalArgumentException e){
+          } catch (IllegalArgumentException e) {
             System.out.println("\nYou must give a five digit number/a valid CRN\n");
           }
         }
@@ -189,20 +197,20 @@ public class Search {
         case "credits" -> {
           System.out.println("Give the number of credits that you want to search for (0.5,1,2,3,4): ");
           double credits = -1;
-          try{
+          try {
             credits = Integer.parseInt(scan.nextLine().trim());
-          } catch (NumberFormatException e){
+          } catch (NumberFormatException e) {
             System.out.println("\nMake sure you're giving a number/only digits\n");
           }
-            if (credits == 0.5) {
-                currentSearchResults = searchByCredits(0);
-                validGiven = true;
-            } else if (credits == 1.0 || credits == 2.0 || credits == 3.0 || credits == 4.0) {
-                currentSearchResults = searchByCredits(credits);
-                validGiven = true;
-            } else {
-                System.out.println("\nNot a valid option for credits (0.5,1,2,3,4)\n");
-            }
+          if (credits == 0.5) {
+            currentSearchResults = searchByCredits(0);
+            validGiven = true;
+          } else if (credits == 1.0 || credits == 2.0 || credits == 3.0 || credits == 4.0) {
+            currentSearchResults = searchByCredits(credits);
+            validGiven = true;
+          } else {
+            System.out.println("\nNot a valid option for credits (0.5,1,2,3,4)\n");
+          }
         }
         case "dept + course number" -> {
           System.out.println("First give the department: ");
@@ -211,10 +219,17 @@ public class Search {
           String courseNum = scan.nextLine().trim();
           validGiven = true;
           currentSearchResults.clear();
-          Course course = searchByDeptAndNumber(dept,courseNum);
-          if(course != null){
+          Course course = searchByDeptAndNumber(dept, courseNum);
+          if (course != null) {
             currentSearchResults.add(course);
           }
+        }
+        case "name" -> {
+          System.out.println("What is the name of the class? (You may give part of the name)");
+          String nameFrag = scan.nextLine().trim().toLowerCase();
+          currentSearchResults.clear();
+          currentSearchResults.addAll(searchByName(nameFrag));
+          validGiven = true;
         }
         case "exit" -> {
           return false;
@@ -228,17 +243,18 @@ public class Search {
   }
 
   /*
-   Note: Methods that return a list of courses return an empty list if there are no matches.
-   Methods that return one course return null, so other methods will have to deal with that.
+   * Note: Methods that return a list of courses return an empty list if there are
+   * no matches.
+   * Methods that return one course return null, so other methods will have to
+   * deal with that.
    */
 
-
   private static Course searchByCRN(int CRN) {
-      return mapByCRN.getOrDefault(CRN, null);
+    return mapByCRN.getOrDefault(CRN, null);
   }
 
   private static ArrayList<Course> searchByDepartment(String dept) {
-      return mapByDep.getOrDefault(dept, new ArrayList<>());
+    return mapByDep.getOrDefault(dept, new ArrayList<>());
   }
 
   private static ArrayList<Course> searchByTeacher(String nameFrag) {
@@ -263,13 +279,23 @@ public class Search {
   }
 
   private static ArrayList<Course> searchByCredits(double credits) {
-      return mapByCredits.getOrDefault(credits, new ArrayList<>());
+    return mapByCredits.getOrDefault(credits, new ArrayList<>());
+  }
+
+  private static ArrayList<Course> searchByName(String nameFrag) {
+    ArrayList<Course> result = new ArrayList<>();
+    for (String name : mapByName.keySet()) {
+      if (name.contains(nameFrag)) {
+        result.add(mapByName.get(name));
+      }
+    }
+    return result;
   }
 
   /*
-
-  BOOKMARK / INTERESTED METHODS
-
+   * 
+   * BOOKMARK / INTERESTED METHODS
+   * 
    */
 
   /**
@@ -289,8 +315,9 @@ public class Search {
       System.out.println("Course is not in database");
       return false;
     }
-    // TODO: before adding the class, we can check with the user that this is what they wanted,
-    //  since they might've accidentally given the wrong CRN
+    // TODO: before adding the class, we can check with the user that this is what
+    // they wanted,
+    // since they might've accidentally given the wrong CRN
     Course newCourse = mapByCRN.get(Integer.parseInt(crn));
     float credits = 0;
     for (Course course : bookmarked.values()) {
@@ -301,7 +328,7 @@ public class Search {
       }
     }
     if ((currentUser.getCampus().equals("wilf") && credits + newCourse.getCredits() > 17.5)
-            || (currentUser.getCampus().equals("beren") && credits + newCourse.getCredits() > 21)) {
+        || (currentUser.getCampus().equals("beren") && credits + newCourse.getCredits() > 21)) {
       System.out.println("Over credit maximum");
       return false;
     }
@@ -313,7 +340,7 @@ public class Search {
     if (currentUser.getCampus().equals("wilf")) {
       for (Course course : bookmarked.values()) { // TODO: Deal with edge cases.
         if (course.getSection().equals(section)) {
-          System.out.println("Course has a section conflict");
+          System.out.println("Course has a section conflict: " + section + " in " + course.getName());
           return false;
         }
       }
@@ -321,7 +348,7 @@ public class Search {
       for (String c : section.split("")) {
         for (Course course : bookmarked.values()) {
           if (course.getSection().contains(c)) {
-            System.out.println("Course has a section conflict");
+            System.out.println("Course has a section conflict: " + c + " in " + course.getName());
             return false;
           }
         }
@@ -351,31 +378,33 @@ public class Search {
       return true;
     }
   }
+
   /*
-
-  USER OPTION METHODS
-
+   * 
+   * USER OPTION METHODS
+   * 
    */
   private static void userChange(Scanner scan) throws IOException {
     String choice = "";
     boolean validChoice = false;
-    while (!validChoice){
-      System.out.println("Do you want to make an update to this User, save this one, or switch users? (\"update\",\"save\",\"switch\",\"exit\"");
+    while (!validChoice) {
+      System.out.println(
+          "Do you want to make an update to this User, save this one, or switch users? (\"update\",\"save\",\"switch\",\"exit\"");
       choice = scan.nextLine().trim();
-      if(choice.equalsIgnoreCase("update")){
+      if (choice.equalsIgnoreCase("update")) {
         updateUserData(scan);
         validChoice = true;
       } else if (choice.equalsIgnoreCase("save")) {
         System.out.println("Give the path where you want to write the file with the user data: ");
         Path path = Path.of(scan.nextLine().trim());
-        if (validateGivenPath(path)){
+        if (validateGivenPath(path)) {
           currentUser.saveToFile(path);
           validChoice = true;
         }
-      } else if (choice.equalsIgnoreCase("switch")){
+      } else if (choice.equalsIgnoreCase("switch")) {
         userSetUp(scan);
         validChoice = true;
-      } else if (choice.equalsIgnoreCase("exit")){
+      } else if (choice.equalsIgnoreCase("exit")) {
         return;
       } else {
         System.out.println("Invalid choice, try again");
@@ -383,13 +412,13 @@ public class Search {
     }
   }
 
-  private static void updateUserData(Scanner scan){
+  private static void updateUserData(Scanner scan) {
     String choice = "";
     boolean validGiven = false;
-    while (!validGiven){
+    while (!validGiven) {
       System.out.println("What attribute do you want to update: (\"name\",\"honors\",\"campus\",\"school\"");
       choice = scan.nextLine().trim();
-      switch (choice.toLowerCase()){
+      switch (choice.toLowerCase()) {
         case "name" -> {
           System.out.println("Provide a user name: ");
           currentUser.setName(scan.nextLine().trim());
@@ -403,7 +432,7 @@ public class Search {
         case "campus" -> {
           System.out.println("What campus are you on? (Wilf/Beren): ");
           String campus = scan.nextLine().trim();
-          switch (campus.toLowerCase()){
+          switch (campus.toLowerCase()) {
             case "wilf", "beren" -> {
               validGiven = true;
               currentUser.setCampus(campus);
@@ -429,9 +458,9 @@ public class Search {
     }
   }
   /*
-
-  HELPER METHODS
-
+   * 
+   * HELPER METHODS
+   * 
    */
 
   private static boolean validateGivenPath(Path path) {
@@ -454,20 +483,20 @@ public class Search {
   private static void coursePrinting(List<Course> courses, int startingPoint) {
     // Print the header, explaining what's in each column
     System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
-            "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
-            "-".repeat(132));
+        "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
+        "-".repeat(132));
     // Print each class in line
     boolean endOfList = false;
     for (int i = startingPoint; i < startingPoint + INCREMENT; i++) {
-      if(i > courses.size()){
+      if (i > courses.size()) {
         endOfList = true;
         break;
       }
-      Course course = courses.get(i-1);
+      Course course = courses.get(i - 1);
       System.out.printf("%-30.30s %-6s %-10s %-10s %-7s %-8s %-20.20s %-7s %-11s %-15s%n%s%n",
-              course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
-              course.getCRN(), course.getTeacher(), course.getMaxEnrolled(), course.getRemainingEnrollment(),
-              String.join(", ", course.getAttributes()), "-".repeat(132));
+          course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
+          course.getCRN(), course.getTeacher(), course.getMaxEnrolled(), course.getRemainingEnrollment(),
+          String.join(", ", course.getAttributes()), "-".repeat(132));
     }
     // Print how many elements we're showing and how many are left
     int endSpot = (endOfList ? courses.size() : startingPoint + INCREMENT);
@@ -476,11 +505,10 @@ public class Search {
     System.out.println(actionPrompt);
   }
 
-
   /*
-
-  METHODS FOR PROGRAM SET UP
-
+   * 
+   * METHODS FOR PROGRAM SET UP
+   * 
    */
 
   private static void setup(String path) throws IOException {
@@ -490,6 +518,7 @@ public class Search {
       while ((line = reader.readLine()) != null) {
         Course newCourse = new Course(line);
         mapByCRN.put(newCourse.getCRN(), newCourse);
+        mapByName.put(newCourse.getName().toLowerCase(), newCourse);
         if (!mapByDep.containsKey(newCourse.getDepartment().toLowerCase())) {
           mapByDep.put(newCourse.getDepartment().toLowerCase(), new ArrayList<Course>());
         }
@@ -506,18 +535,19 @@ public class Search {
       // Add the courses to the other Data Structures here
     }
   }
+
   private static void userSetUp(Scanner scan) {
     String choice = "";
     boolean finished = false;
     while (!finished) {
       System.out.println("Do you want to use a pre-existing User object, create a new one, or use a guest one?" +
-              " (\"pre\",\"make\", or \"guest\"): ");
+          " (\"pre\",\"make\", or \"guest\"): ");
       choice = scan.nextLine().trim();
-      switch(choice.toLowerCase()){
+      switch (choice.toLowerCase()) {
         case "pre" -> {
           System.out.println("Give the Path to the file with the user info: ");
           Path path = Path.of(scan.nextLine().trim());
-          if(validateGivenPath(path)){
+          if (validateGivenPath(path)) {
             try {
               currentUser = new User(path);
               finished = true;

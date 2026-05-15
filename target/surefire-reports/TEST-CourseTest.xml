@@ -1,116 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="CourseTest" time="0.113" tests="56" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="CourseTest" time="0.285" tests="56" errors="0" skipped="0" failures="0">
   <properties>
-    <property name="java.specification.version" value="21"/>
+    <property name="java.specification.version" value="25"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
-    <property name="java.class.path" value="/Users/zacharyrosenberg/edu/yu/cs/DataStructures/DSExtraProject/ImprovedYUClassSearch/target/test-classes:/Users/zacharyrosenberg/edu/yu/cs/DataStructures/DSExtraProject/ImprovedYUClassSearch/target/classes:/Users/zacharyrosenberg/.m2/repository/org/junit/jupiter/junit-jupiter/5.8.1/junit-jupiter-5.8.1.jar:/Users/zacharyrosenberg/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.8.1/junit-jupiter-api-5.8.1.jar:/Users/zacharyrosenberg/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/Users/zacharyrosenberg/.m2/repository/org/junit/platform/junit-platform-commons/1.8.1/junit-platform-commons-1.8.1.jar:/Users/zacharyrosenberg/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/zacharyrosenberg/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.8.1/junit-jupiter-params-5.8.1.jar:/Users/zacharyrosenberg/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.8.1/junit-jupiter-engine-5.8.1.jar:/Users/zacharyrosenberg/.m2/repository/org/junit/platform/junit-platform-engine/1.8.1/junit-platform-engine-1.8.1.jar:"/>
-    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="java.class.path" value="/home/zelfinit/CS/Data Structures/ImprovedYUClassSearch/target/test-classes:/home/zelfinit/CS/Data Structures/ImprovedYUClassSearch/target/classes:/home/zelfinit/.m2/repository/org/junit/jupiter/junit-jupiter/5.8.1/junit-jupiter-5.8.1.jar:/home/zelfinit/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.8.1/junit-jupiter-api-5.8.1.jar:/home/zelfinit/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/zelfinit/.m2/repository/org/junit/platform/junit-platform-commons/1.8.1/junit-platform-commons-1.8.1.jar:/home/zelfinit/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/zelfinit/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.8.1/junit-jupiter-params-5.8.1.jar:/home/zelfinit/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.8.1/junit-jupiter-engine-5.8.1.jar:/home/zelfinit/.m2/repository/org/junit/platform/junit-platform-engine/1.8.1/junit-platform-engine-1.8.1.jar:"/>
+    <property name="java.vm.vendor" value="Red Hat, Inc."/>
     <property name="sun.arch.data.model" value="64"/>
-    <property name="java.vendor.url" value="https://java.oracle.com/"/>
-    <property name="os.name" value="Mac OS X"/>
-    <property name="java.vm.specification.version" value="21"/>
+    <property name="java.vendor.url" value="https://www.redhat.com/"/>
+    <property name="os.name" value="Linux"/>
+    <property name="java.vm.specification.version" value="25"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
-    <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/zacharyrosenberg/edu/yu/cs/DataStructures/DSExtraProject/ImprovedYUClassSearch/target/surefire/surefirebooter-20260512162607142_3.jar /Users/zacharyrosenberg/edu/yu/cs/DataStructures/DSExtraProject/ImprovedYUClassSearch/target/surefire 2026-05-12T16-26-07_050-jvmRun1 surefire-20260512162607142_1tmp surefire_0-20260512162607142_2tmp"/>
-    <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-25-openjdk/lib"/>
+    <property name="sun.java.command" value="/home/zelfinit/CS/Data Structures/ImprovedYUClassSearch/target/surefire/surefirebooter-20260515160334663_3.jar /home/zelfinit/CS/Data Structures/ImprovedYUClassSearch/target/surefire 2026-05-15T16-03-34_386-jvmRun1 surefire-20260515160334663_1tmp surefire_0-20260515160334663_2tmp"/>
     <property name="jdk.debug" value="release"/>
-    <property name="surefire.test.class.path" value="/Users/zacharyrosenberg/edu/yu/cs/DataStructures/DSExtraProject/ImprovedYUClassSearch/target/test-classes:/Users/zacharyrosenberg/edu/yu/cs/DataStructures/DSExtraProject/ImprovedYUClassSearch/target/classes:/Users/zacharyrosenberg/.m2/repository/org/junit/jupiter/junit-jupiter/5.8.1/junit-jupiter-5.8.1.jar:/Users/zacharyrosenberg/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.8.1/junit-jupiter-api-5.8.1.jar:/Users/zacharyrosenberg/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/Users/zacharyrosenberg/.m2/repository/org/junit/platform/junit-platform-commons/1.8.1/junit-platform-commons-1.8.1.jar:/Users/zacharyrosenberg/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/zacharyrosenberg/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.8.1/junit-jupiter-params-5.8.1.jar:/Users/zacharyrosenberg/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.8.1/junit-jupiter-engine-5.8.1.jar:/Users/zacharyrosenberg/.m2/repository/org/junit/platform/junit-platform-engine/1.8.1/junit-platform-engine-1.8.1.jar:"/>
+    <property name="surefire.test.class.path" value="/home/zelfinit/CS/Data Structures/ImprovedYUClassSearch/target/test-classes:/home/zelfinit/CS/Data Structures/ImprovedYUClassSearch/target/classes:/home/zelfinit/.m2/repository/org/junit/jupiter/junit-jupiter/5.8.1/junit-jupiter-5.8.1.jar:/home/zelfinit/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.8.1/junit-jupiter-api-5.8.1.jar:/home/zelfinit/.m2/repository/org/opentest4j/opentest4j/1.2.0/opentest4j-1.2.0.jar:/home/zelfinit/.m2/repository/org/junit/platform/junit-platform-commons/1.8.1/junit-platform-commons-1.8.1.jar:/home/zelfinit/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/zelfinit/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.8.1/junit-jupiter-params-5.8.1.jar:/home/zelfinit/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.8.1/junit-jupiter-engine-5.8.1.jar:/home/zelfinit/.m2/repository/org/junit/platform/junit-platform-engine/1.8.1/junit-platform-engine-1.8.1.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
-    <property name="user.home" value="/Users/zacharyrosenberg"/>
+    <property name="user.home" value="/home/zelfinit"/>
     <property name="user.language" value="en"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
-    <property name="java.version.date" value="2025-07-15"/>
-    <property name="java.home" value="/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home"/>
+    <property name="java.version.date" value="2026-04-21"/>
+    <property name="java.home" value="/usr/lib/jvm/java-25-openjdk"/>
     <property name="file.separator" value="/"/>
-    <property name="basedir" value="/Users/zacharyrosenberg/edu/yu/cs/DataStructures/DSExtraProject/ImprovedYUClassSearch"/>
+    <property name="basedir" value="/home/zelfinit/CS/Data Structures/ImprovedYUClassSearch"/>
     <property name="java.vm.compressedOopsMode" value="Zero based"/>
     <property name="line.separator" value="&#10;"/>
-    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="apple.awt.application.name" value="ForkedBooter"/>
-    <property name="surefire.real.class.path" value="/Users/zacharyrosenberg/edu/yu/cs/DataStructures/DSExtraProject/ImprovedYUClassSearch/target/surefire/surefirebooter-20260512162607142_3.jar"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="surefire.real.class.path" value="/home/zelfinit/CS/Data Structures/ImprovedYUClassSearch/target/surefire/surefirebooter-20260515160334663_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
-    <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
-    <property name="java.runtime.version" value="21.0.8+12-LTS-250"/>
-    <property name="user.name" value="zacharyrosenberg"/>
+    <property name="java.runtime.version" value="25.0.3+9"/>
+    <property name="user.name" value="zelfinit"/>
     <property name="stdout.encoding" value="UTF-8"/>
     <property name="path.separator" value=":"/>
-    <property name="os.version" value="15.6.1"/>
-    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="os.version" value="6.19.14-300.fc44.x86_64"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="file.encoding" value="UTF-8"/>
-    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
-    <property name="localRepository" value="/Users/zacharyrosenberg/.m2/repository"/>
-    <property name="java.vendor.url.bug" value="https://bugreport.java.com/bugreport/"/>
-    <property name="java.io.tmpdir" value="/var/folders/4z/6j097z7s60qd1k88ss2kzf4r0000gn/T/"/>
-    <property name="java.version" value="21.0.8"/>
-    <property name="user.dir" value="/Users/zacharyrosenberg/edu/yu/cs/DataStructures/DSExtraProject/ImprovedYUClassSearch"/>
-    <property name="os.arch" value="aarch64"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="java.vendor.version" value="(Red_Hat-25.0.3.0.9-1)"/>
+    <property name="localRepository" value="/home/zelfinit/.m2/repository"/>
+    <property name="java.vendor.url.bug" value="https://bugzilla.redhat.com/enter_bug.cgi?product=Fedora&amp;component=java-25-openjdk&amp;version=42"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="java.version" value="25.0.3"/>
+    <property name="user.dir" value="/home/zelfinit/CS/Data Structures/ImprovedYUClassSearch"/>
+    <property name="os.arch" value="amd64"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
     <property name="native.encoding" value="UTF-8"/>
-    <property name="java.library.path" value="/Users/zacharyrosenberg/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
+    <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib"/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
     <property name="stderr.encoding" value="UTF-8"/>
-    <property name="java.vendor" value="Oracle Corporation"/>
-    <property name="java.vm.version" value="21.0.8+12-LTS-250"/>
-    <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
-    <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
-    <property name="java.class.version" value="65.0"/>
+    <property name="java.vendor" value="Red Hat, Inc."/>
+    <property name="java.vm.version" value="25.0.3+9"/>
+    <property name="stdin.encoding" value="UTF-8"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="69.0"/>
   </properties>
-  <testcase name="section_parsedCorrectly_alphabeticSection" classname="CourseTest" time="0.085"/>
-  <testcase name="attributes_multipleAttributes_correctValues" classname="CourseTest" time="0.001"/>
-  <testcase name="meetings_twoBlocks_firstBlockDay" classname="CourseTest" time="0"/>
-  <testcase name="attributesAndDescriptions_sameLengthForEmptyAttributes" classname="CourseTest" time="0"/>
+  <testcase name="section_parsedCorrectly_alphabeticSection" classname="CourseTest" time="0.208"/>
+  <testcase name="attributes_multipleAttributes_correctValues" classname="CourseTest" time="0.003"/>
+  <testcase name="meetings_twoBlocks_firstBlockDay" classname="CourseTest" time="0.001"/>
+  <testcase name="attributesAndDescriptions_sameLengthForEmptyAttributes" classname="CourseTest" time="0.001"/>
   <testcase name="section_parsedCorrectly_numericSection" classname="CourseTest" time="0.001"/>
-  <testcase name="credits_parsedCorrectly_twoCredits" classname="CourseTest" time="0"/>
-  <testcase name="meetings_twoBlocks_secondBlockDay" classname="CourseTest" time="0"/>
+  <testcase name="credits_parsedCorrectly_twoCredits" classname="CourseTest" time="0.001"/>
+  <testcase name="meetings_twoBlocks_secondBlockDay" classname="CourseTest" time="0.001"/>
   <testcase name="attributes_singleAttribute_correctLength" classname="CourseTest" time="0"/>
-  <testcase name="attributes_emptyAttribute_arrayHasOneEmptyEntry" classname="CourseTest" time="0.001"/>
-  <testcase name="attributeDescriptions_singleDescription_correctValue" classname="CourseTest" time="0"/>
+  <testcase name="attributes_emptyAttribute_arrayHasOneEmptyEntry" classname="CourseTest" time="0"/>
+  <testcase name="attributeDescriptions_singleDescription_correctValue" classname="CourseTest" time="0.001"/>
   <testcase name="department_parsedCorrectly_BIBL" classname="CourseTest" time="0.001"/>
-  <testcase name="attributeDescriptions_honorsDescription_correctValue" classname="CourseTest" time="0"/>
+  <testcase name="attributeDescriptions_honorsDescription_correctValue" classname="CourseTest" time="0.001"/>
   <testcase name="meetings_twoDaysInBlock_correctDayCount" classname="CourseTest" time="0.001"/>
   <testcase name="name_parsedCorrectly_differentCourse" classname="CourseTest" time="0"/>
-  <testcase name="campus_parsedCorrectly_Wilf" classname="CourseTest" time="0.001"/>
+  <testcase name="campus_parsedCorrectly_Wilf" classname="CourseTest" time="0"/>
   <testcase name="deptNumber_parsedCorrectly_multipleAttributes" classname="CourseTest" time="0"/>
-  <testcase name="maxEnrolled_parsedCorrectly_thirtySeats" classname="CourseTest" time="0.001"/>
+  <testcase name="maxEnrolled_parsedCorrectly_thirtySeats" classname="CourseTest" time="0"/>
   <testcase name="name_parsedCorrectly_standardCourse" classname="CourseTest" time="0"/>
   <testcase name="attributes_singleAttribute_correctValue" classname="CourseTest" time="0"/>
-  <testcase name="teacher_multipleNamePartsWithSemicolon" classname="CourseTest" time="0.001"/>
+  <testcase name="teacher_multipleNamePartsWithSemicolon" classname="CourseTest" time="0"/>
   <testcase name="enrolled_parsedCorrectly" classname="CourseTest" time="0"/>
   <testcase name="meetings_singleBlock_correctRoom" classname="CourseTest" time="0"/>
-  <testcase name="meetings_singleBlock_correctBlockCount" classname="CourseTest" time="0"/>
-  <testcase name="remainingWaitlist_parsedCorrectly_five" classname="CourseTest" time="0"/>
+  <testcase name="meetings_singleBlock_correctBlockCount" classname="CourseTest" time="0.001"/>
+  <testcase name="remainingWaitlist_parsedCorrectly_five" classname="CourseTest" time="0.001"/>
   <testcase name="section_parsedCorrectly_alphanumericSection" classname="CourseTest" time="0.001"/>
-  <testcase name="remainingWaitlist_parsedCorrectly_ten" classname="CourseTest" time="0"/>
+  <testcase name="remainingWaitlist_parsedCorrectly_ten" classname="CourseTest" time="0.001"/>
   <testcase name="attributes_honorsAttribute_correctValue" classname="CourseTest" time="0"/>
-  <testcase name="meetings_twoBlocks_correctBlockCount" classname="CourseTest" time="0.001"/>
-  <testcase name="meetings_twoBlocksEachWithTwoDays_secondBlockStartTime" classname="CourseTest" time="0"/>
+  <testcase name="meetings_twoBlocks_correctBlockCount" classname="CourseTest" time="0"/>
+  <testcase name="meetings_twoBlocksEachWithTwoDays_secondBlockStartTime" classname="CourseTest" time="0.001"/>
   <testcase name="meetings_singleBlock_correctEndTime" classname="CourseTest" time="0.001"/>
   <testcase name="remainingEnrollment_parsedCorrectly_fullRemaining" classname="CourseTest" time="0"/>
   <testcase name="campus_parsedCorrectly_Beren" classname="CourseTest" time="0"/>
   <testcase name="teacher_parsedCorrectly_noSemicolon" classname="CourseTest" time="0.001"/>
   <testcase name="department_parsedCorrectly_ACC" classname="CourseTest" time="0"/>
   <testcase name="department_parsedCorrectly_ART" classname="CourseTest" time="0"/>
-  <testcase name="deptNumber_parsedCorrectly_standardCourse" classname="CourseTest" time="0"/>
+  <testcase name="deptNumber_parsedCorrectly_standardCourse" classname="CourseTest" time="0.001"/>
   <testcase name="credits_parsedCorrectly_threeCredits" classname="CourseTest" time="0"/>
   <testcase name="attributeDescriptions_multipleDescriptions_correctLength" classname="CourseTest" time="0"/>
-  <testcase name="attributeDescriptions_emptyDescription_arrayHasOneEmptyEntry" classname="CourseTest" time="0"/>
+  <testcase name="attributeDescriptions_emptyDescription_arrayHasOneEmptyEntry" classname="CourseTest" time="0.001"/>
   <testcase name="attributeDescriptions_multipleDescriptions_correctValues" classname="CourseTest" time="0"/>
   <testcase name="maxWaitlist_parsedCorrectly_ten" classname="CourseTest" time="0"/>
-  <testcase name="waitlist_parsedCorrectly_zero" classname="CourseTest" time="0"/>
+  <testcase name="waitlist_parsedCorrectly_zero" classname="CourseTest" time="0.001"/>
   <testcase name="crn_parsedCorrectly_honorsCourse" classname="CourseTest" time="0"/>
   <testcase name="crn_parsedCorrectly_berenCampus" classname="CourseTest" time="0"/>
-  <testcase name="meetings_singleBlock_correctStartTime" classname="CourseTest" time="0.001"/>
-  <testcase name="maxWaitlist_parsedCorrectly_zero" classname="CourseTest" time="0"/>
-  <testcase name="attributesAndDescriptions_sameLengthForMultipleAttributes" classname="CourseTest" time="0"/>
+  <testcase name="meetings_singleBlock_correctStartTime" classname="CourseTest" time="0"/>
+  <testcase name="maxWaitlist_parsedCorrectly_zero" classname="CourseTest" time="0.001"/>
+  <testcase name="attributesAndDescriptions_sameLengthForMultipleAttributes" classname="CourseTest" time="0.001"/>
   <testcase name="maxEnrolled_parsedCorrectly_fifteenSeats" classname="CourseTest" time="0"/>
   <testcase name="teacher_semicolonReplacedWithComma" classname="CourseTest" time="0"/>
-  <testcase name="meetings_twoBlocksEachWithTwoDays_firstBlockHasTwoDays" classname="CourseTest" time="0"/>
-  <testcase name="meetings_singleBlock_correctBuilding" classname="CourseTest" time="0.001"/>
+  <testcase name="meetings_twoBlocksEachWithTwoDays_firstBlockHasTwoDays" classname="CourseTest" time="0.001"/>
+  <testcase name="meetings_singleBlock_correctBuilding" classname="CourseTest" time="0"/>
   <testcase name="crn_parsedCorrectly_standardCourse" classname="CourseTest" time="0"/>
-  <testcase name="name_parsedCorrectly_longName" classname="CourseTest" time="0"/>
+  <testcase name="name_parsedCorrectly_longName" classname="CourseTest" time="0.001"/>
   <testcase name="section_parsedCorrectly_multiLetterSection" classname="CourseTest" time="0.001"/>
-  <testcase name="meetings_twoBlocksEachWithTwoDays_correctBlockCount" classname="CourseTest" time="0"/>
-  <testcase name="attributes_multipleAttributes_correctLength" classname="CourseTest" time="0"/>
+  <testcase name="meetings_twoBlocksEachWithTwoDays_correctBlockCount" classname="CourseTest" time="0.001"/>
+  <testcase name="attributes_multipleAttributes_correctLength" classname="CourseTest" time="0.001"/>
 </testsuite>
