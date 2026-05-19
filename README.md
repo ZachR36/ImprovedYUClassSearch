@@ -15,7 +15,7 @@ cat classes*.json | jq -r '.data[] | [
   .sequenceNumber, 
   .campusDescription, 
   ((.courseTitle) | gsub(","; ";")), 
-  (if .creditHourLow == 0.5 then 0 else .creditHourLow end), ((.faculty[0].displayName // "Staff") | gsub(","; ";")), 
+  (.creditHours//.creditHourLow), ((.faculty[0].displayName // "Staff") | gsub(","; ";")), 
   .enrollment, 
   .maximumEnrollment, 
   .seatsAvailable, 

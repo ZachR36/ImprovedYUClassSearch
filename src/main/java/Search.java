@@ -55,13 +55,16 @@ public class Search {
   // This is the string that we'll print every time we want to prompt the user to
   // choose their next action
   private static String actionPrompt = "\nPlease choose an option from the following list: \n" +
-      "If you want to make a change to the user info: \"user\" \n" +
-      "If you want to search based on a certain criteria: \"search\" \n" +
-      "If you want to scroll to the next (>) or previous (<) page of classes. \n" +
-      "If you want to mark a class that you're interested in: \"interested\" \n" +
-      "If you want to bookmark a class (so that time slot will be reserved): \"bookmark\" \n" +
-      "If you want to clear the screen: \"clear\" \n" +
-      "If you want to exit the program: \"exit\"";
+      "To make a change to the user info: \"user\" \n" +
+      "To search based on a certain criteria: \"search\" \n" +
+      "To refine previous searches: \"refine\" \n" +
+      "To scroll to the next (>) or previous (<) page of classes. \n" +
+      "To mark (or unmark) a class that you're interested in: \"interested\" \n" +
+      "To get your \"Interested\" list: \"get interested\" \n" +
+      "To bookmark (or unmark) a class (so that time slot will be reserved): \"bookmark\" \n" +
+      "To get your \"Bookmarked\" list: \"get bookmarked\" \n" +
+      "To clear the screen: \"clear\" \n" +
+      "To exit the program: \"exit\"";
 
   public static void main(String[] args) throws IOException {
     try {
@@ -91,7 +94,22 @@ public class Search {
         case "search" -> {
           // Need to implement this method. And decide if the method should return a list
           // or set currentSearchResuls
-          boolean success = chooseSearchOption(scan);
+          boolean success = chooseSearchOption(scan, false);
+          if (success) {
+            if (currentSearchResults.isEmpty()) {
+              System.out.println("\n There were no matches for this search.\n");
+            } else {
+              printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top
+                                // of the list
+              coursePrinting(currentSearchResults, printingSpot);
+              printingSpot += INCREMENT;
+            }
+          }
+        }
+        case "refine" -> {
+          // Need to implement this method. And decide if the method should return a list
+          // or set currentSearchResuls
+          boolean success = chooseSearchOption(scan, true);
           if (success) {
             if (currentSearchResults.isEmpty()) {
               System.out.println("\n There were no matches for this search.\n");
@@ -110,6 +128,12 @@ public class Search {
         case "interested" -> {
           System.out.println("Give the CRN of the class that you're interested in: ");
           interestedInClass(scan.nextLine().trim());
+        }
+        case "get bookmarked" -> {
+          coursePrinting(getBookmarked(), 1);
+        }
+        case "get interested" -> {
+          coursePrinting(getInterested(), 1);
         }
         case "<" -> {
           // Clear the screen
@@ -146,7 +170,7 @@ public class Search {
    * SEARCH METHODS
    * 
    */
-  private static boolean chooseSearchOption(Scanner scan) {
+  private static boolean chooseSearchOption(Scanner scan, boolean refine) {
     /*
      * This will prompt them further for what exactly they want. Refine or expand
      * the search. New search.
@@ -157,6 +181,7 @@ public class Search {
      */
     boolean validGiven = false;
     String choice = "";
+    ArrayList<Course> results = new ArrayList<>();
     while (!validGiven) {
       System.out.println("What criteria do you want to search for (spelling, not case, sensitive): " +
           "\n CRN, name, department, teacher, credits, dept + course number \n" +
@@ -171,10 +196,9 @@ public class Search {
               throw new IllegalArgumentException();
             }
             validGiven = true;
-            currentSearchResults.clear();
             Course course = searchByCRN(crn);
             if (course != null) {
-              currentSearchResults.add(course);
+              results.add(course);
             }
           } catch (NumberFormatException e) {
             System.out.println("\nMake sure you're giving a number/only digits\n");
@@ -186,31 +210,24 @@ public class Search {
           System.out.println("Give the department that you want to search for: ");
           String dept = scan.nextLine().toLowerCase().trim();
           validGiven = true;
-          currentSearchResults = searchByDepartment(dept);
+          results = searchByDepartment(dept);
         }
         case "teacher" -> {
           System.out.println("Give the teacher that you want to search for:");
           String teacher = scan.nextLine().toLowerCase().trim();
           validGiven = true;
-          currentSearchResults = searchByTeacher(teacher);
+          results = searchByTeacher(teacher);
         }
         case "credits" -> {
-          System.out.println("Give the number of credits that you want to search for (0.5,1,2,3,4): ");
+          System.out.println("Give the number of credits that you want to search for: ");
           double credits = -1;
           try {
             credits = Integer.parseInt(scan.nextLine().trim());
           } catch (NumberFormatException e) {
             System.out.println("\nMake sure you're giving a number/only digits\n");
           }
-          if (credits == 0.5) {
-            currentSearchResults = searchByCredits(0);
-            validGiven = true;
-          } else if (credits == 1.0 || credits == 2.0 || credits == 3.0 || credits == 4.0) {
-            currentSearchResults = searchByCredits(credits);
-            validGiven = true;
-          } else {
-            System.out.println("\nNot a valid option for credits (0.5,1,2,3,4)\n");
-          }
+          results = searchByCredits(credits);
+          validGiven = true;
         }
         case "dept + course number" -> {
           System.out.println("First give the department: ");
@@ -218,17 +235,15 @@ public class Search {
           System.out.println("Now give the course number: ");
           String courseNum = scan.nextLine().trim();
           validGiven = true;
-          currentSearchResults.clear();
           Course course = searchByDeptAndNumber(dept, courseNum);
           if (course != null) {
-            currentSearchResults.add(course);
+            results.add(course);
           }
         }
         case "name" -> {
           System.out.println("What is the name of the class? (You may give part of the name)");
           String nameFrag = scan.nextLine().trim().toLowerCase();
-          currentSearchResults.clear();
-          currentSearchResults.addAll(searchByName(nameFrag));
+          results.addAll(searchByName(nameFrag));
           validGiven = true;
         }
         case "exit" -> {
@@ -238,6 +253,11 @@ public class Search {
           System.out.println("Not a valid option. Try again.");
         }
       }
+    }
+    if (refine) {
+      currentSearchResults.retainAll(results);
+    } else {
+      currentSearchResults = results;
     }
     return true;
   }
@@ -315,6 +335,11 @@ public class Search {
       System.out.println("Course is not in database");
       return false;
     }
+    if (bookmarked.containsKey(Integer.parseInt(crn))) {
+      bookmarked.remove(Integer.parseInt(crn));
+      System.out.println("Removed " + crn + " from bookmarked");
+      return true;
+    }
     // TODO: before adding the class, we can check with the user that this is what
     // they wanted,
     // since they might've accidentally given the wrong CRN
@@ -358,6 +383,10 @@ public class Search {
     return true;
   }
 
+  private static ArrayList<Course> getBookmarked() {
+    return new ArrayList<Course>(bookmarked.values());
+  }
+
   /**
    * Add this class to a list of classes that they're interested in, but don't
    * block out that time slot
@@ -372,11 +401,16 @@ public class Search {
       return false;
     }
     if (interested.containsKey(intcrn)) {
-      return false;
+      interested.remove(intcrn);
+      return true;
     } else {
       interested.put(intcrn, mapByCRN.get(intcrn));
       return true;
     }
+  }
+
+  private static ArrayList<Course> getInterested() {
+    return new ArrayList<>(interested.values());
   }
 
   /*
@@ -502,7 +536,6 @@ public class Search {
     int endSpot = (endOfList ? courses.size() : startingPoint + INCREMENT);
     System.out.println("Classes " + startingPoint + " to " + endSpot + ". Out of " + courses.size());
     // Print the action prompt
-    System.out.println(actionPrompt);
   }
 
   /*
