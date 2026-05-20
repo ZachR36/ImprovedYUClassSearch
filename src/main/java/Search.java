@@ -39,6 +39,7 @@ public class Search {
   private static HashMap<String, ArrayList<Course>> mapByTeacher = new HashMap<>();
   private static HashMap<Double, ArrayList<Course>> mapByCredits = new HashMap<>();
   private static HashMap<String, Course> mapByName = new HashMap<>();
+  private static HashMap<String, ArrayList<Course>> mapByAttribute = new HashMap<>();
 
   // The user object that they're using
   private static User currentUser = null;
@@ -246,6 +247,12 @@ public class Search {
           results.addAll(searchByName(nameFrag));
           validGiven = true;
         }
+        case "attribute" -> {
+          System.out.println("What is the name of the attribute?");
+          String att = scan.nextLine().trim().toLowerCase();
+          results.addAll(searchByAttributes(att));
+          validGiven = true;
+        }
         case "exit" -> {
           return false;
         }
@@ -310,6 +317,9 @@ public class Search {
       }
     }
     return result;
+  }
+  private static ArrayList<Course> searchByAttributes(String att){
+    return mapByAttribute.getOrDefault(att,new ArrayList<>());
   }
 
   /*
@@ -564,6 +574,12 @@ public class Search {
           mapByCredits.put(newCourse.getCredits(), new ArrayList<Course>());
         }
         mapByCredits.get(newCourse.getCredits()).add(newCourse);
+        for(String att : newCourse.getAttributeDescriptions()){
+          if (!mapByAttribute.containsKey(att)) {
+            mapByAttribute.put(att, new ArrayList<Course>());
+          }
+          mapByAttribute.get(att).add(newCourse);
+        }
       }
       // Add the courses to the other Data Structures here
     }

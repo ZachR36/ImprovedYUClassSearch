@@ -58,6 +58,12 @@ public class Course {
     this.meetings = meetingsTwo;
     this.attributes = this.removeQuotes(info[15]).replaceAll("&amp;", "&").split("\\|\\|");
     this.attributeDescriptions = this.removeQuotes(info[16]).split("\\|\\|");
+    for(int i = 0; i < attributeDescriptions.length; i++){
+      String stripped = attributeDescriptions[i].replaceAll("YC-","");
+      stripped = stripped.replaceAll("Requirement","");
+      stripped = stripped.trim().toLowerCase();
+      attributeDescriptions[i] = stripped;
+    }
     // It takes a long time for the program to get the description for hundreds of courses. So we'll use a temp, and only
     // fetch it if the program needs it and calls Course.getCourseDescription.
     this.courseDescription = "temp";
