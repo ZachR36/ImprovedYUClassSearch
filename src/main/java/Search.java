@@ -93,7 +93,7 @@ public class Search {
         }
         case "search" -> {
           // Need to implement this method. And decide if the method should return a list
-          // or set currentSearchResuls
+          // or set currentSearchResults
           boolean success = chooseSearchOption(scan, false);
           if (success) {
             if (currentSearchResults.isEmpty()) {
@@ -108,16 +108,20 @@ public class Search {
         }
         case "refine" -> {
           // Need to implement this method. And decide if the method should return a list
-          // or set currentSearchResuls
-          boolean success = chooseSearchOption(scan, true);
-          if (success) {
-            if (currentSearchResults.isEmpty()) {
-              System.out.println("\n There were no matches for this search.\n");
-            } else {
-              printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top
-                                // of the list
-              coursePrinting(currentSearchResults, printingSpot);
-              printingSpot += INCREMENT;
+          // or set currentSearchResults
+          if (currentSearchResults.isEmpty()) {
+            System.out.println("No previous search to refine");
+          } else {
+            boolean success = chooseSearchOption(scan, true);
+            if (success) {
+              if (currentSearchResults.isEmpty()) {
+                System.out.println("\n There were no matches for this search.\n");
+              } else {
+                printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top
+                                  // of the list
+                coursePrinting(currentSearchResults, printingSpot);
+                printingSpot += INCREMENT;
+              }
             }
           }
         }
@@ -346,11 +350,7 @@ public class Search {
     Course newCourse = mapByCRN.get(Integer.parseInt(crn));
     float credits = 0;
     for (Course course : bookmarked.values()) {
-      if (course.getCredits() == 0) {
-        credits += 0.5; // Accounting for an error that courses with 0.5 credits are stored with 0
-      } else {
-        credits += course.getCredits();
-      }
+      credits += course.getCredits();
     }
     if ((currentUser.getCampus().equals("wilf") && credits + newCourse.getCredits() > 17.5)
         || (currentUser.getCampus().equals("beren") && credits + newCourse.getCredits() > 21)) {
@@ -537,6 +537,72 @@ public class Search {
     System.out.println("Classes " + startingPoint + " to " + endSpot + ". Out of " + courses.size());
     // Print the action prompt
   }
+
+  // TODO: not sure how I want to do this yet, especially with class descriptions
+  /*
+   * private static void displayCourseInfo(Course course) {
+   * System.out.println("CRN: " + course.getCRN() + "\nTitle: " + course.getName()
+   * + "\nTeacher: " + course.getTeacher()
+   * + "\nDepartment ID: "
+   * + course.getDepartment() + course.getDeptNumber());
+   * }
+   */
+
+  private static ArrayList<Course> removeWrongCampus(ArrayList<Course> list) {
+    ArrayList<Course> results = new ArrayList<>();
+    String campus = currentUser.getCampus();
+    for (Course course : list) {
+      if (campus.equals(course.getCampus())) {
+        results.add(course);
+      }
+    }
+    return results;
+  }
+
+  // TODO: needs to have user class updated before implemeting
+  /*
+   * private static ArrayList<Course> removeAlreadyTaken(ArrayList<Course> list) {
+   * ArrayList<Course> results = new ArrayList<>();
+   * for (String department : currentUser.getCompletedCourses().keySet()) {
+   * List<String> departmentNumbers =
+   * currentUser.getCompletedCourses().get(department);
+   * for (Course course : list) {
+   * if (!(course.getDepartment().equals(department) &&
+   * departmentNumbers.contains(course.getDeptNumber()))) {
+   * results.add(course);
+   * }
+   * }
+   * }
+   * return results;
+   * }
+   */
+
+  private static ArrayList<Course> removeHonors(ArrayList<Course> list) {
+    ArrayList<Course> results = new ArrayList<>();
+    for (Course course : list) {
+      ArrayList<String> attributes = new ArrayList<>(Arrays.asList(course.getAttributes()));
+      if (!attributes.contains("HONR")) {
+        results.add(course);
+      }
+    }
+    return results;
+  }
+
+  /*
+   * private static ArrayList<Course> getUnfinishedRequirements(ArrayList<Course>
+   * list) {
+   * ArrayList<Course> results = new ArrayList<>();
+   * TODO: get user requirements and the ones they have yet to fulfill
+   * for (Course course : list) {
+   * ArrayList<String> courseAttributes = new
+   * ArrayList<>(Arrays.asList(course.getAttributes()));
+   * if (!courseAttributes.retainAll(unfulfilled).isEmpty()) {
+   * results.add(course);
+   * }
+   * }
+   * return results;
+   * }
+   */
 
   /*
    * 
