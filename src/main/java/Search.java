@@ -277,15 +277,25 @@ public class Search {
     return mapByCRN.getOrDefault(CRN, null);
   }
 
-  private static ArrayList<Course> searchByDepartment(String dept) {
-    return mapByDep.getOrDefault(dept, new ArrayList<>());
+  private static ArrayList<Course> searchByDepartment(String departments) {
+    ArrayList<Course> results = new ArrayList<>();
+    String[] depts = departments.split(" ");
+    for (String dept : depts) {
+      if (mapByDep.get(dept) != null) {
+        results.addAll(mapByDep.get(dept));
+      }
+    }
+    return results;
   }
 
   private static ArrayList<Course> searchByTeacher(String nameFrag) {
     ArrayList<Course> results = new ArrayList<>();
-    for (String name : mapByTeacher.keySet()) {
-      if (name.contains(nameFrag)) {
-        results.addAll(mapByTeacher.get(name));
+    String[] names = nameFrag.split(" ");
+    for (String name : names) {
+      for (String key : mapByTeacher.keySet()) {
+        if (key.contains(name)) {
+          results.addAll(mapByTeacher.get(key));
+        }
       }
     }
     return results;
