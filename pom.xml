@@ -25,6 +25,14 @@
                     <trimStackTrace>false</trimStackTrace>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.cogdehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>Search</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
