@@ -39,6 +39,8 @@ public class Search {
   private static HashMap<String, ArrayList<Course>> mapByTeacher = new HashMap<>();
   private static HashMap<Double, ArrayList<Course>> mapByCredits = new HashMap<>();
   private static HashMap<String, Course> mapByName = new HashMap<>();
+  private static HashMap<String, ArrayList<Course>> mapByAttribute = new HashMap<>();
+  private static HashMap<String, ArrayList<Course>> mapByCampus = new HashMap<>();
 
   // The user object that they're using
   private static User currentUser = null;
@@ -101,6 +103,8 @@ public class Search {
             } else {
               printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top
                                 // of the list
+              System.out.print("\033[H" + "\033[2J");
+              System.out.flush();
               coursePrinting(currentSearchResults, printingSpot);
               printingSpot += INCREMENT;
             }
@@ -119,6 +123,8 @@ public class Search {
               } else {
                 printingSpot = 1; // Once they do a new search, when we print the classes we're start from the top
                                   // of the list
+                System.out.print("\033[H" + "\033[2J");
+                System.out.flush();
                 coursePrinting(currentSearchResults, printingSpot);
                 printingSpot += INCREMENT;
               }
@@ -141,20 +147,26 @@ public class Search {
         }
         case "<" -> {
           // Clear the screen
-          System.out.print("\033[H\033[2J");
+          System.out.print("\033[H" + "\033[2J");
           System.out.flush();
           // Print the previous page of classes
-          printingSpot -= INCREMENT;
+          if (printingSpot - (2 * INCREMENT) > 1) {
+            printingSpot = printingSpot - (2 * INCREMENT);
+          } else {
+            printingSpot = 1;
+          }
           coursePrinting(currentSearchResults, printingSpot);
           printingSpot += INCREMENT;
         }
         case ">" -> {
           // Clear the screen
-          System.out.print("\033[H\033[2J");
+          System.out.print("\033[H" + "\033[2J");
           System.out.flush();
           // Print the next page of classes
           coursePrinting(currentSearchResults, printingSpot);
-          printingSpot += INCREMENT;
+          if (printingSpot + INCREMENT < currentSearchResults.size()) {
+            printingSpot += INCREMENT;
+          }
         }
         case "clear" -> {
           // Clear the screen
@@ -188,7 +200,7 @@ public class Search {
     ArrayList<Course> results = new ArrayList<>();
     while (!validGiven) {
       System.out.println("What criteria do you want to search for (spelling, not case, sensitive): " +
-          "\n CRN, name, department, teacher, credits, dept + course number \n" +
+          "\n CRN, name, campus, department, teacher, credits, attribute, dept + course number \n" +
           "(\"exit\" if you want to cancel the search request)");
       choice = scan.nextLine().trim();
       switch (choice.toLowerCase()) {
@@ -210,14 +222,22 @@ public class Search {
             System.out.println("\nYou must give a five digit number/a valid CRN\n");
           }
         }
+        case "campus" -> {
+          System.out.println("Give the campus you want to search for: ");
+          String campus = scan.nextLine().toLowerCase().trim();
+          validGiven = true;
+          results = searchByCampus(campus);
+        }
         case "department" -> {
-          System.out.println("Give the department that you want to search for: ");
+          System.out.println(
+              "Give the department that you want to search for (you may have multiple sepearated by spaces): ");
           String dept = scan.nextLine().toLowerCase().trim();
           validGiven = true;
           results = searchByDepartment(dept);
         }
         case "teacher" -> {
-          System.out.println("Give the teacher that you want to search for:");
+          System.out
+              .println("Give the teacher that you want to search for (you may have multiple separated by spaces):");
           String teacher = scan.nextLine().toLowerCase().trim();
           validGiven = true;
           results = searchByTeacher(teacher);
@@ -250,6 +270,13 @@ public class Search {
           results.addAll(searchByName(nameFrag));
           validGiven = true;
         }
+        case "attribute" -> {
+          System.out
+              .println("Give the attributes you want to search for (you may have multiple speparated by spaces): ");
+          String attributes = scan.nextLine().toLowerCase().trim();
+          validGiven = true;
+          results = searchByAttributes(attributes);
+        }
         case "exit" -> {
           return false;
         }
@@ -277,10 +304,19 @@ public class Search {
     return mapByCRN.getOrDefault(CRN, null);
   }
 
+  private static ArrayList<Course> searchByCampus(String campus) {
+    ArrayList<Course> results = new ArrayList<>();
+    for (String key : mapByCampus.keySet()) {
+      if (key.toLowerCase().contains(campus)) {
+        results.addAll(mapByCampus.get(key));
+      }
+    }
+    return results;
+  }
+
   private static ArrayList<Course> searchByDepartment(String departments) {
     ArrayList<Course> results = new ArrayList<>();
-    String[] depts = departments.split(" ");
-    for (String dept : depts) {
+    for (String dept : departments.split(" ")) {
       if (mapByDep.get(dept) != null) {
         results.addAll(mapByDep.get(dept));
       }
@@ -288,10 +324,9 @@ public class Search {
     return results;
   }
 
-  private static ArrayList<Course> searchByTeacher(String nameFrag) {
+  private static ArrayList<Course> searchByTeacher(String names) {
     ArrayList<Course> results = new ArrayList<>();
-    String[] names = nameFrag.split(" ");
-    for (String name : names) {
+    for (String name : names.split(" ")) {
       for (String key : mapByTeacher.keySet()) {
         if (key.contains(name)) {
           results.addAll(mapByTeacher.get(key));
@@ -324,6 +359,16 @@ public class Search {
       }
     }
     return result;
+  }
+
+  private static ArrayList<Course> searchByAttributes(String attributes) {
+    ArrayList<Course> results = new ArrayList<>();
+    for (String attribute : attributes.split(" ")) {
+      if (mapByAttribute.containsKey(attribute)) {
+        results.addAll(mapByAttribute.get(attribute));
+      }
+    }
+    return results;
   }
 
   /*
@@ -640,6 +685,16 @@ public class Search {
           mapByCredits.put(newCourse.getCredits(), new ArrayList<Course>());
         }
         mapByCredits.get(newCourse.getCredits()).add(newCourse);
+        for (String attribute : newCourse.getAttributes()) {
+          if (!mapByAttribute.containsKey(attribute.toLowerCase())) {
+            mapByAttribute.put(attribute.toLowerCase(), new ArrayList<Course>());
+          }
+          mapByAttribute.get(attribute.toLowerCase()).add(newCourse);
+        }
+        if (!mapByCampus.containsKey(newCourse.getCampus())) {
+          mapByCampus.put(newCourse.getCampus(), new ArrayList<Course>());
+        }
+        mapByCampus.get(newCourse.getCampus()).add(newCourse);
       }
       // Add the courses to the other Data Structures here
     }
