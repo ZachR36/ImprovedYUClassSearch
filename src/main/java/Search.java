@@ -150,23 +150,22 @@ public class Search {
           System.out.print("\033[H" + "\033[2J");
           System.out.flush();
           // Print the previous page of classes
-          if (printingSpot - (2 * INCREMENT) > 1) {
-            printingSpot = printingSpot - (2 * INCREMENT);
+          if (printingSpot - INCREMENT > 1) {
+            printingSpot = printingSpot - INCREMENT;
           } else {
             printingSpot = 1;
           }
           coursePrinting(currentSearchResults, printingSpot);
-          printingSpot += INCREMENT;
         }
         case ">" -> {
           // Clear the screen
           System.out.print("\033[H" + "\033[2J");
           System.out.flush();
           // Print the next page of classes
-          coursePrinting(currentSearchResults, printingSpot);
           if (printingSpot + INCREMENT < currentSearchResults.size()) {
             printingSpot += INCREMENT;
           }
+          coursePrinting(currentSearchResults, printingSpot);
         }
         case "clear" -> {
           // Clear the screen
