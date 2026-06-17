@@ -10,7 +10,7 @@ import java.nio.file.Path;
  * When the program begins, the user is prompted to set up their profile so that
  * searches can be altered based on their
  * information.
- * Then, the main program will be begin: The user will be prompted to choose
+ * Then, the main program will begin: The user will be prompted to choose
  * from a list of possible actions, such as
  * bookmark a class that they're interested in, limit their search criteria, or
  * update user information. The program will
@@ -229,7 +229,7 @@ public class Search {
         }
         case "department" -> {
           System.out.println(
-              "Give the department that you want to search for (you may have multiple sepearated by spaces): ");
+              "Give the department that you want to search for (you may have multiple separated by spaces): ");
           String dept = scan.nextLine().toLowerCase().trim();
           validGiven = true;
           results = searchByDepartment(dept);
