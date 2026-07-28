@@ -26,11 +26,36 @@ import java.nio.file.Path;
  * TODO: Ability to compound different searches
  * TODO: New search method - don't show them classes that they've already taken
  * 
- * Even more advanced:
- * TODO: Implement a search based on the classes that the user fulfilled the
- * requirements for (involves fixing the fetchDescription time issue)
- * 
+ * Even more advanced - the part Judah actually wants:
+ * TODO: Implement a search based on the classes that the user fulfilled the requirements for (involves fixing the fetchDescription time issue)
+ *
+ * Advice from Zach, 7/28/26:
+ * The part that the school would actually be interested in here is mainly the ability to give recommendations.
+ * At least that's the way it was pitched to Judah in the original email. So I think maybe we can hold off on more
+ * advanced search options for now.
+ * My suggested game plan from here - as of 7/28, there are still bugs with the program as far as I can tell (I tried
+ * to use it once and the search failed). So I would start by fixing all of the bugs in the current version of the
+ * program so that it's fully functional in its simple form.
+ * I would also recommend restructuring the program - right now all of the logic is in this one giant class, so it's
+ * not so organized for someone else (or even myself, coming back to my own program two months later) to understand how
+ * the program works and what the different functions are all meant for. I'm thinking at the least make different classes
+ * of helper functions, like a class for search functions and later a class for recommendations, maybe a class for setup
+ * functions, etc. I'll have a clearer picture of this once I can figure out again how the program works.
+ * Finally, once we have a simple functioning program, then I would start working on the recommendation function. This
+ * means getting the pre and coreq info for every class, and getting the lists of classes for every major and minor.
+ * Once we have all the data stored, we can have the program recommend the next viable class in the track, or write an
+ * algorithm to figure out what classes they like and recommend similar ones (even outside of the major), or an algorithm
+ * to decide "you can only take two classes for your major now, so you should try to knock out some cores while you have
+ * the time" or something like that.
  */
+
+  /*
+  Todo: Bugs
+  Zach's list of bugs that need fixing:
+
+  - When saving a user name to file, it wrote "yc beren..." or whatever even though I selected one
+  - MAJOR - no classes can be found on standard searches (name="Intro", teacher="Diament")
+   */
 
 public class Search {
   // The Data Structures to hold different lists of classes to help with searches
