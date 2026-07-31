@@ -33,9 +33,8 @@ import java.nio.file.Path;
  * The part that the school would actually be interested in here is mainly the ability to give recommendations.
  * At least that's the way it was pitched to Judah in the original email. So I think maybe we can hold off on more
  * advanced search options for now.
- * My suggested game plan from here - as of 7/28, there are still bugs with the program as far as I can tell (I tried
- * to use it once and the search failed). So I would start by fixing all of the bugs in the current version of the
- * program so that it's fully functional in its simple form.
+ * My suggested game plan from here - I would start by fixing all of the bugs in the current version of the
+ * program so that it's fully functional in its simple form, it might be there already, I'll do some random testing.
  * I would also recommend restructuring the program - right now all of the logic is in this one giant class, so it's
  * not so organized for someone else (or even myself, coming back to my own program two months later) to understand how
  * the program works and what the different functions are all meant for. I'm thinking at the least make different classes
@@ -54,7 +53,6 @@ import java.nio.file.Path;
   Zach's list of bugs that need fixing:
 
   - When saving a user name to file, it wrote "yc beren..." or whatever even though I selected one
-  - MAJOR - no classes can be found on standard searches (name="Intro", teacher="Diament")
    */
 
 public class Search {
@@ -230,20 +228,25 @@ public class Search {
       switch (choice.toLowerCase()) {
         case "crn" -> {
           System.out.println("Give the crn of the course you want to look at (Five digit number): ");
+          int crn = 0;
+          Course course = null;
           try {
-            int crn = Integer.parseInt(scan.nextLine().trim());
+            crn = Integer.parseInt(scan.nextLine().trim());
             if (crn < 10000 || crn > 99999) { // Ensuring it's a five digit number
               throw new IllegalArgumentException();
-            }
-            validGiven = true;
-            Course course = searchByCRN(crn);
-            if (course != null) {
-              results.add(course);
+            } else {
+              validGiven = true;
             }
           } catch (NumberFormatException e) {
             System.out.println("\nMake sure you're giving a number/only digits\n");
           } catch (IllegalArgumentException e) {
             System.out.println("\nYou must give a five digit number/a valid CRN\n");
+          }
+          if(validGiven){
+            course = searchByCRN(crn);
+          }
+          if (course != null) {
+            results.add(course);
           }
         }
         case "campus" -> {
@@ -291,6 +294,7 @@ public class Search {
         case "name" -> {
           System.out.println("What is the name of the class? (You may give part of the name)");
           String nameFrag = scan.nextLine().trim().toLowerCase();
+          // TODO: Why is this .addAll but all other search methods reset results? Mistake? Try to be consistent
           results.addAll(searchByName(nameFrag));
           validGiven = true;
         }
@@ -309,6 +313,7 @@ public class Search {
         }
       }
     }
+    // TODO: Add a compound option. Just need "if compound -> currentSearchResults.addAll)"
     if (refine) {
       currentSearchResults.retainAll(results);
     } else {
