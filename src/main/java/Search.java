@@ -173,7 +173,7 @@ public class Search {
           System.out.print("\033[H" + "\033[2J");
           System.out.flush();
           // Print the previous page of classes
-          if (printingSpot - INCREMENT > 1) {
+          if (printingSpot - INCREMENT >= 1) {
             printingSpot = printingSpot - INCREMENT;
           } else {
             printingSpot = 1;
@@ -185,7 +185,7 @@ public class Search {
           System.out.print("\033[H" + "\033[2J");
           System.out.flush();
           // Print the next page of classes
-          if (printingSpot + INCREMENT < currentSearchResults.size()) {
+          if (printingSpot + INCREMENT <= currentSearchResults.size()) {
             printingSpot += INCREMENT;
           }
           coursePrinting(currentSearchResults, printingSpot);
@@ -269,20 +269,22 @@ public class Search {
           validGiven = true;
           results = searchByTeacher(teacher);
         }
-        case "credits" -> {
+        case "credits" -> { // TODO: Not supporting search for half credits
           System.out.println("Give the number of credits that you want to search for: ");
-          double credits = -1;
+          int credits = -1;
           try {
             credits = Integer.parseInt(scan.nextLine().trim());
           } catch (NumberFormatException e) {
             System.out.println("\nMake sure you're giving a number/only digits\n");
           }
-          results = searchByCredits(credits);
-          validGiven = true;
+          if(credits != -1){
+            results = searchByCredits(credits);
+            validGiven = true;
+          }
         }
         case "dept + course number" -> {
           System.out.println("First give the department: ");
-          String dept = scan.nextLine().trim();
+          String dept = scan.nextLine().toLowerCase().trim();
           System.out.println("Now give the course number: ");
           String courseNum = scan.nextLine().trim();
           validGiven = true;
@@ -564,7 +566,7 @@ public class Search {
           switch (school.toLowerCase()) {
             case "yc", "syms", "beren" -> {
               validGiven = true;
-              currentUser.setCampus(school);
+              currentUser.setSchool(school);
             }
             default -> System.out.println("Invalid school name");
           }
@@ -756,9 +758,9 @@ public class Search {
           System.out.println("Are you in honors? (Y/N): ");
           currentUser.setHonors(scan.nextLine().trim().equalsIgnoreCase("y"));
           System.out.println("What campus are you on? (Wilf/Beren): ");
-          currentUser.setName(scan.nextLine().trim().equalsIgnoreCase("wilf") ? "wilf" : "beren");
+          currentUser.setCampus(scan.nextLine().trim().equalsIgnoreCase("wilf") ? "wilf" : "beren");
           System.out.println("What school are you in? (YC, Syms, Beren): ");
-          currentUser.setName(scan.nextLine().trim());
+          currentUser.setSchool(scan.nextLine().trim());
           finished = true;
         }
         case "guest" -> {
