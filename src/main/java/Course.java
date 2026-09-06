@@ -38,14 +38,14 @@ public class Course {
       this.section = sectionString;
     }
     this.name = this.removeQuotes(info[5]).replaceAll("&amp;", "&");
-    this.credits = Double.parseDouble(info[6]);
+    this.credits = Double.parseDouble(stripQuotesIfPresent(info[6]));
     this.teacher = this.removeQuotes(info[7]).replace(";", ",");
-    this.enrolled = Integer.parseInt(info[8]);
-    this.maxEnrolled = Integer.parseInt(info[9]);
-    this.remainingEnrollment = Integer.parseInt(info[10]);
-    this.waitlist = Integer.parseInt(info[11]);
-    this.maxWaitlist = Integer.parseInt(info[12]);
-    this.remainingWaitlist = Integer.parseInt(info[13]);
+    this.enrolled = Integer.parseInt(stripQuotesIfPresent(info[8]));
+    this.maxEnrolled = Integer.parseInt(stripQuotesIfPresent(info[9]));
+    this.remainingEnrollment = Integer.parseInt(stripQuotesIfPresent(info[10]));
+    this.waitlist = Integer.parseInt(stripQuotesIfPresent(info[11]));
+    this.maxWaitlist = Integer.parseInt(stripQuotesIfPresent(info[12]));
+    this.remainingWaitlist = Integer.parseInt(stripQuotesIfPresent(info[13]));
     String[] meetings = this.removeQuotes(info[14]).split("::");
     String[][][] meetingsTwo = new String[meetings.length][][];
     for (int i = 0; i < meetings.length; i++) {
@@ -86,6 +86,14 @@ public class Course {
     } else {
       return parent.substring(1, parent.length() - 1);
     }
+  }
+
+  /** Removes one surrounding quote pair, while leaving unquoted fields unchanged. */
+  private String stripQuotesIfPresent(String field) {
+    if (field.length() >= 2 && field.startsWith("\"") && field.endsWith("\"")) {
+      return field.substring(1, field.length() - 1);
+    }
+    return field;
   }
 
   public int getCRN() {

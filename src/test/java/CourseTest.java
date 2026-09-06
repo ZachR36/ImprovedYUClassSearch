@@ -12,6 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class CourseTest {
 
+  private static final String LINE_WITH_QUOTED_NUMERICS = "\"10001\",\"1001\",\"TEST\",\"A\",\"Beren\",\"Quoted Numerics\",\"0.5\",\"Professor\",\"2\",\"30\",\"28\",\"1\",\"5\",\"4\",\"M}0900}1000}SCW}101\",\"\",\"\"";
+
   // -------------------------------------------------------------------------
   // Shared test courses — constructed once, reused across related tests.
   // Using real CSV lines (quotes intact, as the Runner passes them in).
@@ -121,6 +123,18 @@ public class CourseTest {
   // -------------------------------------------------------------------------
   // section field
   // -------------------------------------------------------------------------
+
+  @Test
+  void quotedNumericFieldsAreParsedCorrectly() {
+    Course course = new Course(LINE_WITH_QUOTED_NUMERICS);
+    assertEquals(0.5, course.getCredits());
+    assertEquals(2, course.getEnrolled());
+    assertEquals(30, course.getMaxEnrolled());
+    assertEquals(28, course.getRemainingEnrollment());
+    assertEquals(1, course.getWaitlist());
+    assertEquals(5, course.getMaxWaitlist());
+    assertEquals(4, course.getRemainingWaitlist());
+  }
 
   @Test
   void section_parsedCorrectly_numericSection() {

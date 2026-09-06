@@ -102,7 +102,7 @@ public class Search {
     }
     Scanner scan = new Scanner(System.in);
     String selection = "";
-    int printingSpot = 0;
+    int printingSpot = 1;
     userSetUp(scan);
     // Clear the screen
     System.out.print("\033[H\033[2J");
@@ -129,7 +129,6 @@ public class Search {
               System.out.print("\033[H" + "\033[2J");
               System.out.flush();
               coursePrinting(currentSearchResults, printingSpot);
-              printingSpot += INCREMENT;
             }
           }
         }
@@ -149,7 +148,6 @@ public class Search {
                 System.out.print("\033[H" + "\033[2J");
                 System.out.flush();
                 coursePrinting(currentSearchResults, printingSpot);
-                printingSpot += INCREMENT;
               }
             }
           }
@@ -185,7 +183,7 @@ public class Search {
           System.out.print("\033[H" + "\033[2J");
           System.out.flush();
           // Print the next page of classes
-          if (printingSpot + INCREMENT <= currentSearchResults.size()) {
+          if (hasNextPage(printingSpot, currentSearchResults.size())) {
             printingSpot += INCREMENT;
           }
           coursePrinting(currentSearchResults, printingSpot);
@@ -269,17 +267,18 @@ public class Search {
           validGiven = true;
           results = searchByTeacher(teacher);
         }
-        case "credits" -> { // TODO: Not supporting search for half credits
+        case "credits" -> {
           System.out.println("Give the number of credits that you want to search for: ");
-          int credits = -1;
+          double credits;
           try {
-            credits = Integer.parseInt(scan.nextLine().trim());
-          } catch (NumberFormatException e) {
-            System.out.println("\nMake sure you're giving a number/only digits\n");
-          }
-          if(credits != -1){
+            credits = Double.parseDouble(scan.nextLine().trim());
+            if (!Double.isFinite(credits) || credits < 0) {
+              throw new NumberFormatException();
+            }
             results = searchByCredits(credits);
             validGiven = true;
+          } catch (NumberFormatException e) {
+            System.out.println("\nMake sure you're giving a valid, non-negative number\n");
           }
         }
         case "dept + course number" -> {
@@ -378,7 +377,7 @@ public class Search {
     return resultCourse;
   }
 
-  private static ArrayList<Course> searchByCredits(double credits) {
+  static ArrayList<Course> searchByCredits(double credits) {
     return mapByCredits.getOrDefault(credits, new ArrayList<>());
   }
 
@@ -420,53 +419,90 @@ public class Search {
    *         false otherwise (such as if this conflicts with classes they already
    *         marked).
    */
-  private static boolean bookmarkClass(String crn) {
-    if (mapByCRN.containsKey(Integer.parseInt(crn)) == false) {
+  static boolean bookmarkClass(String crn) {
+    int courseCrn;
+    try {
+      courseCrn = Integer.parseInt(crn);
+    } catch (NumberFormatException e) {
+      System.out.println("CRN must be a number");
+      return false;
+    }
+    if (!mapByCRN.containsKey(courseCrn)) {
       System.out.println("Course is not in database");
       return false;
     }
-    if (bookmarked.containsKey(Integer.parseInt(crn))) {
-      bookmarked.remove(Integer.parseInt(crn));
+    if (bookmarked.containsKey(courseCrn)) {
+      bookmarked.remove(courseCrn);
       System.out.println("Removed " + crn + " from bookmarked");
       return true;
     }
     // TODO: before adding the class, we can check with the user that this is what
     // they wanted,
     // since they might've accidentally given the wrong CRN
-    Course newCourse = mapByCRN.get(Integer.parseInt(crn));
+    Course newCourse = mapByCRN.get(courseCrn);
     float credits = 0;
     for (Course course : bookmarked.values()) {
       credits += course.getCredits();
     }
     if ((currentUser.getCampus().equals("wilf") && credits + newCourse.getCredits() > 17.5)
-        || (currentUser.getCampus().equals("beren") && credits + newCourse.getCredits() > 21)) {
+        || credits + newCourse.getCredits() > 21) { // if they're not on wilf, they're either a guest or on beren. So either way limit to 21 credits
       System.out.println("Over credit maximum");
       return false;
     }
-    if (newCourse.getCampus().toLowerCase().contains(currentUser.getCampus()) == false) {
+    if (!currentUser.getCampus().contains(newCourse.getCampus().toLowerCase())) {
       System.out.println("Course and User campuses do not match");
       return false;
     }
-    String section = newCourse.getSection(); // section refers to the date and time slot
-    if (currentUser.getCampus().equals("wilf")) {
-      for (Course course : bookmarked.values()) { // TODO: Deal with edge cases.
-        if (course.getSection().equals(section)) {
-          System.out.println("Course has a section conflict: " + section + " in " + course.getName());
-          return false;
-        }
+    for (Course course : bookmarked.values()) {
+      if (hasMeetingConflict(newCourse, course)) {
+        System.out.println("Course has a meeting-time conflict with " + course.getName());
+        return false;
       }
-    } else {
-      for (String c : section.split("")) {
-        for (Course course : bookmarked.values()) {
-          if (course.getSection().contains(c)) {
-            System.out.println("Course has a section conflict: " + c + " in " + course.getName());
-            return false;
-          }
+    }
+    bookmarked.put(courseCrn, newCourse);
+    return true;
+  }
+
+  /** Returns whether two courses meet on a shared day during overlapping times. */
+  static boolean hasMeetingConflict(Course first, Course second) {
+    for (String[][] firstMeeting : first.getMeetings()) {
+      if (!hasUsableTime(firstMeeting)) {
+        continue;
+      }
+      for (String[][] secondMeeting : second.getMeetings()) {
+        if (!hasUsableTime(secondMeeting) || !sharesDay(firstMeeting[0], secondMeeting[0])) {
+          continue;
+        }
+        int firstStart = Integer.parseInt(firstMeeting[1][0]);
+        int firstEnd = Integer.parseInt(firstMeeting[2][0]);
+        int secondStart = Integer.parseInt(secondMeeting[1][0]);
+        int secondEnd = Integer.parseInt(secondMeeting[2][0]);
+        if (firstStart < secondEnd && secondStart < firstEnd) {
+          return true;
         }
       }
     }
-    bookmarked.put(Integer.parseInt(crn), newCourse);
-    return true;
+    return false;
+  }
+
+  private static boolean hasUsableTime(String[][] meeting) {
+    return meeting.length >= 3
+        && meeting[0].length > 0
+        && meeting[1].length > 0
+        && meeting[2].length > 0
+        && meeting[1][0].matches("\\d{4}")
+        && meeting[2][0].matches("\\d{4}");
+  }
+
+  private static boolean sharesDay(String[] firstDays, String[] secondDays) {
+    for (String firstDay : firstDays) {
+      for (String secondDay : secondDays) {
+        if (firstDay.equalsIgnoreCase(secondDay)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private static ArrayList<Course> getBookmarked() {
@@ -606,10 +642,8 @@ public class Search {
         "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
         "-".repeat(132));
     // Print each class in line
-    boolean endOfList = false;
     for (int i = startingPoint; i < startingPoint + INCREMENT; i++) {
       if (i > courses.size()) {
-        endOfList = true;
         break;
       }
       Course course = courses.get(i - 1);
@@ -619,9 +653,17 @@ public class Search {
           String.join(", ", course.getAttributes()), "-".repeat(132));
     }
     // Print how many elements we're showing and how many are left
-    int endSpot = (endOfList ? courses.size() : startingPoint + INCREMENT);
+    int endSpot = lastPrintedCourseIndex(startingPoint, courses.size());
     System.out.println("Classes " + startingPoint + " to " + endSpot + ". Out of " + courses.size());
     // Print the action prompt
+  }
+
+  static boolean hasNextPage(int startingPoint, int courseCount) {
+    return startingPoint + INCREMENT <= courseCount;
+  }
+
+  static int lastPrintedCourseIndex(int startingPoint, int courseCount) {
+    return Math.min(courseCount, startingPoint + INCREMENT - 1);
   }
 
   // TODO: not sure how I want to do this yet, especially with class descriptions
