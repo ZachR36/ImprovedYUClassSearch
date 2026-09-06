@@ -1,5 +1,6 @@
 import java.net.*;
 import java.net.http.*;
+import java.util.*;
 
 public class Course {
   private final int CRN;
@@ -8,7 +9,7 @@ public class Course {
   private final String section;
   private final String campus;
   private final String name;
-  private String courseDescription;
+  private final String courseDescription;
   private final double credits;
   private final String teacher;
   private final int enrolled;
@@ -20,6 +21,10 @@ public class Course {
   private final String[][][] meetings;
   private final String[] attributes;
   private final String[] attributeDescriptions;
+  private final String[][] prerequisites;    // from CSV column 18
+  private final String[][] corequisites;     // from CSV column 19
+  private final String[][] flexiblePrereqs;  // from CSV column 20
+  private final String manualRequirementNotes; // from CSV column 21, raw, unparsed
   private static final HttpClient sharedClient = HttpClient.newBuilder()
       .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ALL))
       .build();
@@ -58,26 +63,24 @@ public class Course {
     this.meetings = meetingsTwo;
     this.attributes = this.removeQuotes(info[15]).replaceAll("&amp;", "&").split("\\|\\|");
     this.attributeDescriptions = this.removeQuotes(info[16]).split("\\|\\|");
-    // It takes a long time for the program to get the description for hundreds of courses. So we'll use a temp, and only
-    // fetch it if the program needs it and calls Course.getCourseDescription.
-    this.courseDescription = "temp";
+    this.prerequisites = parseRequirementGroups(stripQuotesIfPresent(info[17]));
+    this.corequisites = parseRequirementGroups(stripQuotesIfPresent(info[18]));
+    this.flexiblePrereqs = parseRequirementGroups(stripQuotesIfPresent(info[19]));
+    this.manualRequirementNotes = stripQuotesIfPresent(info[20]);
+    this.courseDescription = stripQuotesIfPresent(info[21]);
   }
 
-  private String fetchDescription(String term, String crn) {
-    try {
-      String formData = "term=" + term + "&courseReferenceNumber=" + crn;
 
-      HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create("https://banner.oci.yu.edu/StudentRegistrationSsb/ssb/searchResults/getCourseDescription"))
-          .header("Content-Type", "application/x-www-form-urlencoded")
-          .POST(HttpRequest.BodyPublishers.ofString(formData))
-          .build();
-
-      String[] lines = sharedClient.send(request, HttpResponse.BodyHandlers.ofString()).body().split("\\R");
-      return lines[2];
-    } catch (Exception e) {
-      return "Error: " + e.getMessage();
+  private static String[][] parseRequirementGroups(String raw) {
+    if (raw == null || raw.isBlank()) {
+      return new String[0][];
     }
+    String[] groupTexts = raw.split(";;");
+    String[][] groups = new String[groupTexts.length][];
+    for (int i = 0; i < groupTexts.length; i++) {
+      groups[i] = groupTexts[i].split("\\|");
+    }
+    return groups;
   }
 
   private String removeQuotes(String parent) {
@@ -102,6 +105,10 @@ public class Course {
 
   public String getDeptNumber() {
     return deptNumber;
+  }
+
+  public String getCourseCode() {
+    return department.toUpperCase() + deptNumber;
   }
 
   public String getDepartment() {
@@ -164,10 +171,50 @@ public class Course {
     return attributeDescriptions;
   }
 
-  public String getCourseDescription() {
-    if(courseDescription.equals("temp")){
-      this.courseDescription = this.fetchDescription("202609", String.valueOf(this.CRN));
+  public String[][] getPrerequisites() {
+    return prerequisites;
+  }
+  public String[][] getCorequisites() {
+    return corequisites;
+  }
+  public String[][] getFlexiblePrereqs() {
+    return flexiblePrereqs;
+  }
+  public String getManualRequirementNotes() {
+    return manualRequirementNotes;
+  }
+  public boolean prerequisitesSatisfied(Set<String> completedCourseCodes) {
+    for (String[] group : prerequisites) {
+      boolean groupSatisfied = false;
+      for (String alternative : group) {
+        if (completedCourseCodes.contains(alternative)) {
+          groupSatisfied = true;
+          break;
+        }
+      }
+      if (!groupSatisfied) {
+        return false;
+      }
     }
+    return true;
+  }
+  public boolean flexiblePrereqsSatisfied(Set<String> completedOrCurrentlyRegisteringCodes) {
+    for (String[] group : flexiblePrereqs) {
+      boolean groupSatisfied = false;
+      for (String alternative : group) {
+        if (completedOrCurrentlyRegisteringCodes.contains(alternative)) {
+          groupSatisfied = true;
+          break;
+        }
+      }
+      if (!groupSatisfied) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public String getCourseDescription() {
     return courseDescription;
   }
 }
