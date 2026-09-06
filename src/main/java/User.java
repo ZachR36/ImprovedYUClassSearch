@@ -14,7 +14,15 @@ public class User {
     private boolean honors;
     private String campus; // Wilf or Beren
     private String school; // YC, Syms, Beren
-    private Set<Integer> completedCourses;
+
+    // Stores completed courses as course codes (department + course number,
+    // e.g. "IDS1010" - matching Course.getCourseCode()'s format exactly),
+    // NOT CRNs. A CRN identifies one specific section in one specific
+    // semester, so it can't be checked against prerequisites in a later
+    // semester's course data - the course code is what's stable and what
+    // Course.prerequisitesSatisfied(...) actually checks against.
+    private Set<String> completedCourses;
+
     public User(Path filePath) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(filePath)) {
             this.name = reader.readLine();
@@ -26,18 +34,23 @@ public class User {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (!line.isBlank()) {
-                    completedCourses.add(Integer.parseInt(line));
+                    completedCourses.add(normalizeCourseCode(line));
                 }
             }
         }
     }
-    public User(String name, boolean honors, String campus, String school, Set<Integer> completedCourseCRNs) {
+
+    public User(String name, boolean honors, String campus, String school, Set<String> completedCourseCodes) {
         this.name = name;
         this.honors = honors;
         this.campus = campus;
         this.school = school;
-        this.completedCourses = completedCourseCRNs;
+        this.completedCourses = new HashSet<>();
+        for (String code : completedCourseCodes) {
+            this.completedCourses.add(normalizeCourseCode(code));
+        }
     }
+
     public User(){
         this.name = "guest";
         this.honors = false;
@@ -78,12 +91,22 @@ public class User {
         return school;
     }
 
-    public Set<Integer> getCompletedCourses() {
+    public Set<String> getCompletedCourses() {
         return completedCourses;
     }
 
-    public void addCompletedClass(Integer crn){
-        completedCourses.add(crn);
+    public void addCompletedClass(String courseCode){
+        completedCourses.add(normalizeCourseCode(courseCode));
+    }
+
+    public void removeCompletedClass(String courseCode) {
+        completedCourses.remove(normalizeCourseCode(courseCode));
+    }
+
+    // Trims whitespace and uppercases, so a course code entered/stored in any
+    // casing still matches Course.getCourseCode()'s canonical format.
+    private static String normalizeCourseCode(String courseCode) {
+        return courseCode.trim().toUpperCase();
     }
 
     public void saveToFile(Path filePath) throws IOException {
@@ -96,8 +119,8 @@ public class User {
             writer.newLine();
             writer.write(school);
             writer.newLine();
-            for (Integer course : completedCourses) {
-                writer.write(Integer.toString(course));
+            for (String courseCode : completedCourses) {
+                writer.write(courseCode);
                 writer.newLine();
             }
         }

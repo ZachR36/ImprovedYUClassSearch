@@ -572,7 +572,8 @@ public class Search {
     String choice = "";
     boolean validGiven = false;
     while (!validGiven) {
-      System.out.println("What attribute do you want to update: (\"name\",\"honors\",\"campus\",\"school\"");
+      System.out.println("What attribute do you want to update: " +
+              "(\"name\", \"honors\", \"campus\", \"school\", \"completed\")");
       choice = scan.nextLine().trim();
       switch (choice.toLowerCase()) {
         case "name" -> {
@@ -607,11 +608,53 @@ public class Search {
             default -> System.out.println("Invalid school name");
           }
         }
+        case "completed" -> {
+          validGiven = updateCompletedCourse(scan);
+        }
         default -> {
           System.out.println("Invalid choice");
         }
       }
     }
+  }
+
+  /**
+   * Prompts for the CRN of a course and toggles it in the current user's
+   * completed-courses list: adds it (as a course code, e.g. "IDS1010") if
+   * it's not already marked completed, or removes it if it already is.
+   * Looking the course up by CRN - rather than asking for a course code
+   * directly - means the CRN is validated against the loaded course data,
+   * and the exact course-code format Course.getCourseCode() produces is
+   * used automatically, so it always matches what
+   * Course.prerequisitesSatisfied(...) checks against later.
+   *
+   * @return true if a valid CRN was given (whether it resulted in an add or
+   *         a remove), false if the input was invalid and the caller should
+   *         re-prompt.
+   */
+  private static boolean updateCompletedCourse(Scanner scan) {
+    System.out.println("Give the CRN of the class to mark completed (or un-mark, if already completed): ");
+    int crn;
+    try {
+      crn = Integer.parseInt(scan.nextLine().trim());
+    } catch (NumberFormatException e) {
+      System.out.println("CRN must be a number");
+      return false;
+    }
+    Course course = mapByCRN.get(crn);
+    if (course == null) {
+      System.out.println("Course is not in database");
+      return false;
+    }
+    String courseCode = course.getCourseCode();
+    if (currentUser.getCompletedCourses().contains(courseCode)) {
+      currentUser.removeCompletedClass(courseCode);
+      System.out.println("Removed " + courseCode + " from completed courses");
+    } else {
+      currentUser.addCompletedClass(courseCode);
+      System.out.println("Added " + courseCode + " to completed courses");
+    }
+    return true;
   }
   /*
    * 
