@@ -619,34 +619,19 @@ public class Search {
   }
 
   /**
-   * Prompts for the CRN of a course and toggles it in the current user's
-   * completed-courses list: adds it (as a course code, e.g. "IDS1010") if
-   * it's not already marked completed, or removes it if it already is.
-   * Looking the course up by CRN - rather than asking for a course code
-   * directly - means the CRN is validated against the loaded course data,
-   * and the exact course-code format Course.getCourseCode() produces is
-   * used automatically, so it always matches what
-   * Course.prerequisitesSatisfied(...) checks against later.
+   * Prompts for a course code (e.g. "COMP1300") and toggles it in the
+   * current user's completed-courses list. Takes the code directly rather
+   * than looking it up by CRN, since completed courses may include ones
+   * from past semesters that aren't in the currently loaded CSV at all.
    *
-   * @return true if a valid CRN was given (whether it resulted in an add or
-   *         a remove), false if the input was invalid and the caller should
-   *         re-prompt.
+   * @return true (always accepts the input - a malformed code just won't
+   *         match any real course's getCourseCode() later, which fails
+   *         safe rather than causing an incorrect match).
    */
   private static boolean updateCompletedCourse(Scanner scan) {
-    System.out.println("Give the CRN of the class to mark completed (or un-mark, if already completed): ");
-    int crn;
-    try {
-      crn = Integer.parseInt(scan.nextLine().trim());
-    } catch (NumberFormatException e) {
-      System.out.println("CRN must be a number");
-      return false;
-    }
-    Course course = mapByCRN.get(crn);
-    if (course == null) {
-      System.out.println("Course is not in database");
-      return false;
-    }
-    String courseCode = course.getCourseCode();
+    System.out.println("Give the course code of the class to mark completed "
+            + "(or un-mark, if already completed) - e.g. COMP1300: ");
+    String courseCode = scan.nextLine().trim().toUpperCase();
     if (currentUser.getCompletedCourses().contains(courseCode)) {
       currentUser.removeCompletedClass(courseCode);
       System.out.println("Removed " + courseCode + " from completed courses");
@@ -680,25 +665,21 @@ public class Search {
   }
 
   private static void coursePrinting(List<Course> courses, int startingPoint) {
-    // Print the header, explaining what's in each column
-    System.out.printf("%-30s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
-        "Title", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
-        "-".repeat(132));
-    // Print each class in line
+    System.out.printf("%-30s %-10s %-6s %-10s %-10s %-7s %-8s %-20s %-7s %-11s %-15s%n%s%n",
+            "Title", "Code", "Dpt.", "Course #", "Section", "Hours", "CRN", "Instructor", "Seats", "Seats Rem.", "Attributes",
+            "-".repeat(142));
     for (int i = startingPoint; i < startingPoint + INCREMENT; i++) {
       if (i > courses.size()) {
         break;
       }
       Course course = courses.get(i - 1);
-      System.out.printf("%-30.30s %-6s %-10s %-10s %-7s %-8s %-20.20s %-7s %-11s %-15s%n%s%n",
-          course.getName(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
-          course.getCRN(), course.getTeacher(), course.getMaxEnrolled(), course.getRemainingEnrollment(),
-          String.join(", ", course.getAttributes()), "-".repeat(132));
+      System.out.printf("%-30.30s %-10s %-6s %-10s %-10s %-7s %-8s %-20.20s %-7s %-11s %-15s%n%s%n",
+              course.getName(), course.getCourseCode(), course.getDepartment(), course.getDeptNumber(), course.getSection(), course.getCredits(),
+              course.getCRN(), course.getTeacher(), course.getMaxEnrolled(), course.getRemainingEnrollment(),
+              String.join(", ", course.getAttributes()), "-".repeat(142));
     }
-    // Print how many elements we're showing and how many are left
     int endSpot = lastPrintedCourseIndex(startingPoint, courses.size());
     System.out.println("Classes " + startingPoint + " to " + endSpot + ". Out of " + courses.size());
-    // Print the action prompt
   }
 
   static boolean hasNextPage(int startingPoint, int courseCount) {
