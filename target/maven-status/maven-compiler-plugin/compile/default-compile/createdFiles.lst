@@ -1,3 +1,7 @@
+UserSession.class
 Course.class
+CoursePrinter.class
 User.class
-Search.class
+SearchEngine.class
+UserSetup.class
+Runner.class

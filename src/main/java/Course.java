@@ -63,11 +63,11 @@ public class Course {
     this.meetings = meetingsTwo;
     this.attributes = this.removeQuotes(info[15]).replaceAll("&amp;", "&").split("\\|\\|");
     this.attributeDescriptions = this.removeQuotes(info[16]).split("\\|\\|");
-    this.prerequisites = parseRequirementGroups(stripQuotesIfPresent(info[17]));
-    this.corequisites = parseRequirementGroups(stripQuotesIfPresent(info[18]));
-    this.flexiblePrereqs = parseRequirementGroups(stripQuotesIfPresent(info[19]));
-    this.manualRequirementNotes = stripQuotesIfPresent(info[20]);
-    this.courseDescription = stripQuotesIfPresent(info[21]);
+    this.prerequisites = parseRequirementGroups(optionalField(info, 17));
+    this.corequisites = parseRequirementGroups(optionalField(info, 18));
+    this.flexiblePrereqs = parseRequirementGroups(optionalField(info, 19));
+    this.manualRequirementNotes = optionalField(info, 20);
+    this.courseDescription = optionalField(info, 21);
   }
 
 
@@ -97,6 +97,11 @@ public class Course {
       return field.substring(1, field.length() - 1);
     }
     return field;
+  }
+
+  /** Returns an optional later-schema field, or an empty value for legacy rows. */
+  private String optionalField(String[] fields, int index) {
+    return index < fields.length ? stripQuotesIfPresent(fields[index]) : "";
   }
 
   public int getCRN() {

@@ -39,7 +39,7 @@ import java.util.*;
  *   java DescriptionFetcher <inputCsv> <outputCsv> [term] [delayMs]
  *
  * EXAMPLE:
- *   java DescriptionFetcher fall2026Courses.csv fall2026CoursesWithDescriptions.csv
+ *   java DescriptionFetcher fall2026CoursesOriginal.csv fall2026CoursesWithDescriptions.csv
  *
  * ARGUMENTS:
  *   inputCsv   - path to the existing course CSV (required)

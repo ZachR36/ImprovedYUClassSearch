@@ -2,7 +2,7 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for the Course constructor using real lines from fall2026Courses.csv.
+ * Tests for the Course constructor using real lines from fall2026CoursesOriginal.csv.
  * fetchDescription() is excluded — tested separately once the network layer is
  * stable.
  *

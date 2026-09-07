@@ -40,5 +40,5 @@ cat classes*.json | jq -r '.data[] | [
 ] | @csv'
 ```
 8. Pipe this into a file with a name of your choice.
-9. Run Search with the file path as the following argument. Make sure the path is from root, and any escaped spaces should be changed to be not escaped.
+9. Run Runner with the file path as the following argument. Make sure the path is from root, and any escaped spaces should be changed to be not escaped.
 10. Use the TUI, it has instructions
