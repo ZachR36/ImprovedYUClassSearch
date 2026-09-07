@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 /** Holds the current user's transient search, bookmark, and interest-list state. */
 public class UserSession {
@@ -26,6 +26,21 @@ public class UserSession {
       return true;
     }
     Course newCourse = SearchEngine.mapByCRN.get(courseCrn);
+
+    if (!newCourse.prerequisitesSatisfied(currentUser.getCompletedCourses())) {
+      System.out.println("Prerequisites not satisfied for " + newCourse.getCourseCode());
+      return false;
+    }
+
+    Set<String> completedOrBookmarked = new HashSet<>(currentUser.getCompletedCourses());
+    for (Course bookmarkedCourse : bookmarked.values()) {
+      completedOrBookmarked.add(bookmarkedCourse.getCourseCode());
+    }
+    if (!newCourse.flexiblePrereqsSatisfied(completedOrBookmarked)) {
+      System.out.println("Flexible prerequisites not satisfied for " + newCourse.getCourseCode()
+              + " (must be completed or bookmarked alongside this course)");
+      return false;
+    }
     float credits = 0;
     for (Course course : bookmarked.values()) {
       credits += course.getCredits();
