@@ -14,6 +14,7 @@ public class Runner {
       + "To get your \"Interested\" list: \"get interested\" \n"
       + "To bookmark (or unmark) a class (so that time slot will be reserved): \"bookmark\" \n"
       + "To get your \"Bookmarked\" list: \"get bookmarked\" \n"
+      + "To view a course's full description and requirements: \"details\" \n"
       + "To clear the screen: \"clear\" \n"
       + "To exit the program: \"exit\"";
 
@@ -89,6 +90,7 @@ public class Runner {
         }
         case "get bookmarked" -> CoursePrinter.coursePrinting(UserSession.getBookmarked(), 1);
         case "get interested" -> CoursePrinter.coursePrinting(UserSession.getInterested(), 1);
+        case "details" -> displayCourseDetails(scan);
         case "<" -> {
           System.out.print("\033[H\033[2J");
           System.out.flush();
@@ -118,6 +120,23 @@ public class Runner {
 
   private static boolean chooseSearchOption(Scanner scan, boolean refine) {
     return chooseSearchOption(scan, refine, false);
+  }
+
+  private static void displayCourseDetails(Scanner scan) {
+    System.out.println("Give the CRN of the class whose details you want to view: ");
+    int crn;
+    try {
+      crn = Integer.parseInt(scan.nextLine().trim());
+    } catch (NumberFormatException e) {
+      System.out.println("CRN must be a number");
+      return;
+    }
+    Course course = SearchEngine.searchByCRN(crn);
+    if (course == null) {
+      System.out.println("Course is not in database");
+      return;
+    }
+    CoursePrinter.courseDetailsPrinting(course);
   }
 
   /**

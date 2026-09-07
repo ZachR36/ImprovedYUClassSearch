@@ -29,4 +29,38 @@ public class CoursePrinter {
   static int lastPrintedCourseIndex(int startingPoint, int courseCount) {
     return Math.min(courseCount, startingPoint + INCREMENT - 1);
   }
+
+  /** Prints the complete details and registration requirements for one course. */
+  static void courseDetailsPrinting(Course course) {
+    System.out.println("\n**Course Details**");
+    System.out.println("Name: " + course.getName());
+    System.out.println("Course code: " + course.getCourseCode());
+    System.out.println("CRN: " + course.getCRN());
+    System.out.println("Instructor: " + course.getTeacher());
+    System.out.println("Prerequisites: " + formatRequirementGroups(course.getPrerequisites()));
+    System.out.println("Corequisites: " + formatRequirementGroups(course.getCorequisites()));
+    System.out.println("Flexible prerequisites/corequisites: "
+        + formatRequirementGroups(course.getFlexiblePrereqs()));
+    System.out.println("Manual requirement notes: " + course.getManualRequirementNotes());
+    System.out.println("Description: " + course.getCourseDescription());
+  }
+
+  /** Formats AND requirement groups containing OR alternatives in readable form. */
+  private static String formatRequirementGroups(String[][] groups) {
+    if (groups.length == 0) {
+      return "";
+    }
+    StringBuilder formatted = new StringBuilder();
+    for (int i = 0; i < groups.length; i++) {
+      if (i > 0) {
+        formatted.append(" AND ");
+      }
+      if (groups[i].length > 1) {
+        formatted.append('(').append(String.join(" OR ", groups[i])).append(')');
+      } else {
+        formatted.append(groups[i][0]);
+      }
+    }
+    return formatted.toString();
+  }
 }

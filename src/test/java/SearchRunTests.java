@@ -1,6 +1,7 @@
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.lang.reflect.Field;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,10 +82,41 @@ public class SearchRunTests {
     assertFalse(UserSession.bookmarkClass("not-a-crn"));
   }
 
+  @Test
+  void courseDetailsIncludeAllRequirementColumnsAndDescription() {
+    Course course = courseWithRequirements();
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    PrintStream originalOutput = System.out;
+    try {
+      System.setOut(new PrintStream(output));
+      CoursePrinter.courseDetailsPrinting(course);
+    } finally {
+      System.setOut(originalOutput);
+    }
+
+    String details = output.toString();
+    assertTrue(details.contains("Name: Test Course 10001"));
+    assertTrue(details.contains("Course code: TEST1001"));
+    assertTrue(details.contains("CRN: 10001"));
+    assertTrue(details.contains("Instructor: Professor"));
+    assertTrue(details.contains("Prerequisites: TEST1000 AND (ALT1000 OR ALT2000)"));
+    assertTrue(details.contains("Corequisites: CORE1000"));
+    assertTrue(details.contains("Flexible prerequisites/corequisites: FLEX1000"));
+    assertTrue(details.contains("Manual requirement notes: Permission of instructor"));
+    assertTrue(details.contains("Description: A detailed course description."));
+  }
+
   private Course course(String crn, String section, String meeting, String credits) {
     return new Course("\"" + crn + "\",\"1001\",\"TEST\",\"" + section
         + "\",\"Beren\",\"Test Course " + crn + "\"," + credits
         + ",\"Professor\",0,20,20,0,0,0,\"" + meeting + "\",\"\",\"\"");
+  }
+
+  private Course courseWithRequirements() {
+    return new Course("\"10001\",\"1001\",\"TEST\",\"A\",\"Beren\",\"Test Course 10001\",3,"
+        + "\"Professor\",0,20,20,0,0,0,\"M}0900}1000}SCW}101\",\"\",\"\","
+        + "\"TEST1000;;ALT1000|ALT2000\",\"CORE1000\",\"FLEX1000\","
+        + "\"Permission of instructor\",\"A detailed course description.\"");
   }
 
   private void addToCourseMap(Course... courses) {
