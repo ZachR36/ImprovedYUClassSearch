@@ -120,28 +120,5 @@ public class SearchEngine {
     }
     return results;
   }
-
-  // Currently unused: retained for a future decision about automatic filters.
-  static ArrayList<Course> removeWrongCampus(ArrayList<Course> list) {
-    ArrayList<Course> results = new ArrayList<>();
-    String campus = UserSession.currentUser.getCampus();
-    for (Course course : list) {
-      if (campus.equals(course.getCampus())) {
-        results.add(course);
-      }
-    }
-    return results;
-  }
-
-  // Currently unused: retained for a future decision about automatic filters.
-  static ArrayList<Course> removeHonors(ArrayList<Course> list) {
-    ArrayList<Course> results = new ArrayList<>();
-    for (Course course : list) {
-      ArrayList<String> attributes = new ArrayList<>(Arrays.asList(course.getAttributes()));
-      if (!attributes.contains("HONR")) {
-        results.add(course);
-      }
-    }
-    return results;
-  }
+  
 }
