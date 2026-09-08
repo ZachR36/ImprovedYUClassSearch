@@ -10,7 +10,7 @@ public class UserSetup {
     boolean validChoice = false;
     while (!validChoice) {
       System.out.println(
-          "Do you want to make an update to this User, save this one, or switch users? (\"update\",\"save\",\"switch\",\"exit\"");
+          "Do you want to make an update to this User, save this one, or switch users? (\"update\",\"save\",\"switch\",\"exit\")");
       choice = scan.nextLine().trim();
       if (choice.equalsIgnoreCase("update")) {
         updateUserData(scan);
@@ -37,8 +37,8 @@ public class UserSetup {
     String choice = "";
     boolean validGiven = false;
     while (!validGiven) {
-      System.out.println("What attribute do you want to update: "
-          + "(\"name\", \"honors\", \"campus\", \"school\", \"completed\")");
+      System.out.println("What attribute do you want to update: " +
+              "(\"name\", \"honors\", \"campus\", \"school\", \"completed\", \"major\", \"minor\")");
       choice = scan.nextLine().trim();
       switch (choice.toLowerCase()) {
         case "name" -> {
@@ -73,10 +73,36 @@ public class UserSetup {
             default -> System.out.println("Invalid school name");
           }
         }
+        case "major" -> {
+          System.out.println("What is your major? ");
+          String major = scan.nextLine().trim();
+          UserSession.currentUser.setMajor(major);
+          System.out.println("Set major to " + major);
+          validGiven = true;
+        }
+        case "minor" -> {
+          validGiven = updateMinor(scan);
+        }
         case "completed" -> validGiven = updateCompletedCourse(scan);
         default -> System.out.println("Invalid choice");
       }
     }
+  }
+  private static boolean updateMinor(Scanner scan) {
+    System.out.println("Give the minor to add (or remove, if already added): ");
+    String minor = scan.nextLine().trim();
+    if (minor.isBlank()) {
+      System.out.println("Minor name can't be blank");
+      return false;
+    }
+    if (UserSession.currentUser.getMinors().contains(minor)) {
+      UserSession.currentUser.removeMinor(minor);
+      System.out.println("Removed " + minor + " from minors");
+    } else {
+      UserSession.currentUser.addMinor(minor);
+      System.out.println("Added " + minor + " to minors");
+    }
+    return true;
   }
 
   /** Toggles a completed course code, including courses from prior semesters. */
@@ -140,6 +166,15 @@ public class UserSetup {
           UserSession.currentUser.setCampus(scan.nextLine().trim().equalsIgnoreCase("wilf") ? "wilf" : "beren");
           System.out.println("What school are you in? (YC, Syms, Beren): ");
           UserSession.currentUser.setSchool(scan.nextLine().trim());
+          System.out.println("What is your major? ");
+          UserSession.currentUser.setMajor(scan.nextLine().trim());
+          System.out.println("List any minors, separated by semicolons (or leave blank for none): ");
+          String minorsInput = scan.nextLine().trim();
+          if (!minorsInput.isBlank()) {
+            for (String minor : minorsInput.split(";")) {
+              UserSession.currentUser.addMinor(minor);
+            }
+          }
           finished = true;
         }
         case "guest" -> {

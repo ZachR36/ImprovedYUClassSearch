@@ -12,7 +12,7 @@ public class SearchEngine {
   static HashMap<String, ArrayList<Course>> mapByDep = new HashMap<>();
   static HashMap<String, ArrayList<Course>> mapByTeacher = new HashMap<>();
   static HashMap<Double, ArrayList<Course>> mapByCredits = new HashMap<>();
-  static HashMap<String, Course> mapByName = new HashMap<>();
+  static HashMap<String, ArrayList<Course>> mapByName = new HashMap<>();
   static HashMap<String, ArrayList<Course>> mapByAttribute = new HashMap<>();
   static HashMap<String, ArrayList<Course>> mapByCampus = new HashMap<>();
 
@@ -23,7 +23,11 @@ public class SearchEngine {
       while ((line = reader.readLine()) != null) {
         Course newCourse = new Course(line);
         mapByCRN.put(newCourse.getCRN(), newCourse);
-        mapByName.put(newCourse.getName().toLowerCase(), newCourse);
+        String name = newCourse.getName().toLowerCase();
+        if (!mapByName.containsKey(name)) {
+          mapByName.put(name, new ArrayList<Course>());
+        }
+        mapByName.get(name).add(newCourse);
         if (!mapByDep.containsKey(newCourse.getDepartment().toLowerCase())) {
           mapByDep.put(newCourse.getDepartment().toLowerCase(), new ArrayList<Course>());
         }
@@ -105,7 +109,7 @@ public class SearchEngine {
     ArrayList<Course> result = new ArrayList<>();
     for (String name : mapByName.keySet()) {
       if (name.contains(nameFrag)) {
-        result.add(mapByName.get(name));
+        result.addAll(mapByName.get(name));
       }
     }
     return result;

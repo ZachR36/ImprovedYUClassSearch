@@ -22,6 +22,8 @@ public class User {
     // semester's course data - the course code is what's stable and what
     // Course.prerequisitesSatisfied(...) actually checks against.
     private Set<String> completedCourses;
+    private String major;
+    private Set<String> minors;
 
     public User(Path filePath) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(filePath)) {
@@ -29,7 +31,14 @@ public class User {
             this.honors = Boolean.parseBoolean(reader.readLine());
             this.campus = reader.readLine();
             this.school = reader.readLine();
-
+            this.major = reader.readLine();
+            String minorsLine = reader.readLine();
+            this.minors = new HashSet<>();
+            if (minorsLine != null && !minorsLine.isBlank()) {
+                for (String minor : minorsLine.split(";")) {
+                    minors.add(minor.trim());
+                }
+            }
             this.completedCourses = new HashSet<>();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -40,11 +49,17 @@ public class User {
         }
     }
 
-    public User(String name, boolean honors, String campus, String school, Set<String> completedCourseCodes) {
+    public User(String name, boolean honors, String campus, String school, String major,
+                Set<String> minors, Set<String> completedCourseCodes) {
         this.name = name;
         this.honors = honors;
         this.campus = campus;
         this.school = school;
+        this.major = major;
+        this.minors = new HashSet<>();
+        for (String minor : minors) {
+            this.minors.add(minor.trim());
+        }
         this.completedCourses = new HashSet<>();
         for (String code : completedCourseCodes) {
             this.completedCourses.add(normalizeCourseCode(code));
@@ -56,6 +71,8 @@ public class User {
         this.honors = false;
         this.campus = "wilf beren"; // Temporarily setting these like this so errors aren't thrown
         this.school = "yc syms beren";
+        this.major = "undeclared";
+        this.minors = new HashSet<>();
         this.completedCourses = new HashSet<>();
     }
 
@@ -91,6 +108,26 @@ public class User {
         return school;
     }
 
+    public void setMajor(String major) {
+        this.major = major.trim();
+    }
+
+    public void addMinor(String minor) {
+        minors.add(minor.trim());
+    }
+
+    public void removeMinor(String minor) {
+        minors.remove(minor.trim());
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public Set<String> getMinors() {
+        return minors;
+    }
+
     public Set<String> getCompletedCourses() {
         return completedCourses;
     }
@@ -118,6 +155,10 @@ public class User {
             writer.write(campus);
             writer.newLine();
             writer.write(school);
+            writer.newLine();
+            writer.write(major);
+            writer.newLine();
+            writer.write(String.join(";", minors));
             writer.newLine();
             for (String courseCode : completedCourses) {
                 writer.write(courseCode);
