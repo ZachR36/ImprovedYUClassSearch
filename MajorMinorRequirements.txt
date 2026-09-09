@@ -1,0 +1,2088 @@
+=== Liberal Arts, AA ===
+name: Liberal Arts, AA
+school: Katz
+degreeType: AA
+totalCredits: 60
+
+MANUAL_NOTE: General Education Distribution (broad categories, not specific courses):
+  Writing and Expression (2 courses / 6 credits)
+  Social and Behavioral Sciences (1 course / 3 credits)
+  Creative Arts (1 course / 3 credits)
+  US and World Cultures (1 course / 3 credits)
+  Experimental and Quantitative Methods (1 course / 3 credits)
+  Science and Technology (1 course / 3 credits)
+  College Experience (2 courses / 6 credits)
+  Liberal Arts Electives (8 courses / 24 credits)
+
+MANUAL_NOTE: Jewish Studies Requirement - Beren Campus students:
+  2 Jewish Studies courses per semester (Rebecca Ivry Dept of Jewish
+  Studies, Stern College). Distribution: 2 courses Bible, 2 courses Judaic
+  Studies, 1 course Jewish History (or additional Bible), 1 course Jewish
+  Philosophy (or additional Judaic Studies). Hebrew may count as one of the
+  2/semester but is not mandatory.
+
+MANUAL_NOTE: Jewish Studies Requirement - Wilf Campus students:
+  Enrolled in a Torah Studies program each fall/spring semester, plus 1-2
+  semesters of Hebrew language (by placement) and 1 semester of a course in
+  Bible, Jewish History, or Jewish Thought and Philosophy.
+
+=== Management, AS ===
+name: Management, AS
+school: Katz
+degreeType: AS
+totalCredits: 60
+
+MANUAL_NOTE: General Education Distribution (broad categories, not specific courses):
+  Communication (3 courses / 9 credits)
+  Quantitative Reasoning (4 courses / 12 credits)
+  Economics (1 course / 3 credits)
+  Management (4 courses / 12 credits)
+  Accounting (2 courses / 6 credits)
+  Liberal Arts Elective (1 course / 3 credits)
+  College Experience (2 courses / 6 credits)
+
+MANUAL_NOTE: Jewish Studies Requirement - Beren Campus students:
+  2 Jewish Studies courses per semester (Rebecca Ivry Dept of Jewish
+  Studies, Stern College). Distribution: 2 courses Bible, 2 courses Judaic
+  Studies, 1 course Jewish History (or additional Bible), 1 course Jewish
+  Philosophy (or additional Judaic Studies). Hebrew may count as one of the
+  2/semester but is not mandatory.
+
+MANUAL_NOTE: Jewish Studies Requirement - Wilf Campus students:
+  Enrolled full-time in an Undergraduate Torah Studies program each
+  fall/spring semester, plus 1-2 semesters of Hebrew language (by
+  placement) and 1 semester of a course in Jewish Values.
+
+=== Nursing, BS ===
+name: Nursing, BS
+school: Katz
+degreeType: BS
+totalCredits: 62
+
+COURSE_LIST: Required Courses
+  NUR2010
+  NUR2011
+  NUR2012
+  NUR2013
+  NUR2033
+  NUR2020
+  NUR2040
+  NUR2023
+  NUR2043
+  NUR2024
+  NUR2044
+  NUR3030
+  NUR3050
+  NUR3040
+  NUR3031
+  NUR3051
+  NUR3041
+  NUR3032
+  NUR3052
+  NUR3042
+  NUR3033
+  NUR3043
+  NUR4040
+  NUR4060
+  NUR4041
+  NUR4061
+  NUR4042
+  NUR4062
+  NUR4063
+
+=== Nursing Transfer, BS ===
+name: Nursing Transfer, BS
+school: Katz
+degreeType: BS
+totalCredits: 62
+
+COURSE_LIST: Required Courses
+  NUR2010
+  NUR2011
+  NUR2012
+  NUR2013
+  NUR2033
+  NUR2020
+  NUR2040
+  NUR2023
+  NUR2043
+  NUR2024
+  NUR2044
+  NUR3030
+  NUR3050
+  NUR3040
+  NUR3031
+  NUR3051
+  NUR3041
+  NUR3032
+  NUR3052
+  NUR3042
+  NUR3033
+  NUR3043
+  NUR4040
+  NUR4060
+  NUR4041
+  NUR4061
+  NUR4042
+  NUR4062
+  NUR4063
+
+MANUAL_NOTE: Optional elective (does not count toward the 62-credit total):
+  NUR4065 - Implications of Artificial Intelligence in Nursing Practice
+  (1 credit)
+
+=== American Studies Minor ===
+name: American Studies Minor
+school: Stern
+degreeType: Minor
+totalCredits: 18
+
+MANUAL_NOTE: Choose 6 courses (18 credits) across 3 categories - History and Political Science (HIST1201, HIST1202, POLI1101, POLI2430), Literature and Art History (ARTS1613, ENGL2006, ENGL2007), and Electives (ARTS1635, ENGL2520, ENGL2720, ENGL2779, ENGL3922, HIST2231, POLI2175, SOCI1746, SOCI1934). Exact distribution across categories not stated in source.
+
+=== Art History Minor ===
+name: Art History Minor
+school: Stern
+degreeType: Minor
+totalCredits: 15
+
+MANUAL_NOTE: No course table found on source page - requirements may be listed elsewhere on the live catalog site.
+
+=== Biochemistry, BA ===
+name: Biochemistry, BA
+school: Stern
+degreeType: BA
+totalCredits: 51
+
+COURSE_LIST: Core Courses
+  BIOL1011
+  BIOL1012
+  BIOL1013
+  BIOL1014
+  CHEM1045
+  CHEM1046
+  CHEM1047
+  CHEM1213
+  CHEM1214
+  CHEM1215
+  MATH1412
+  CHEM1376
+  CHEM1377
+  CHEM1378
+
+CHOOSE_N: 1  # Physical Chemistry choice (part of Core)
+  OPTION: CHEM1415
+  OPTION: CHEM1416
+
+TRACK_CHOICE: Physics Sequence (pick exactly 1)
+  TRACK: Introductory Physics
+    COURSE_LIST:
+      PHYS1031
+      PHYS1032
+      PHYS1033
+      PHYS1034
+  TRACK: General Physics
+    COURSE_LIST:
+      PHYS1051
+      PHYS1052
+      PHYS1053
+      PHYS1054
+
+CHOOSE_N: 1  # final elective choice
+  OPTION: BIOL3207
+  OPTION: BIOL3513
+  OPTION: BIOL4023
+
+=== Biology, BA ===
+name: Biology, BA
+school: Stern
+degreeType: BA
+totalCredits: 42-44
+
+COURSE_LIST: Core Courses
+  BIOL1011
+  BIOL1012
+  BIOL1013
+  BIOL1014
+  CHEM1045
+  CHEM1046
+  CHEM1047
+
+CHOOSE_N: 2  # Complete two of the following
+  OPTION:
+    CHOOSE_N: 1
+      OPTION: COMP1001
+      OPTION: COMP1300
+  OPTION:
+    CHOOSE_N: 1
+      OPTION: MATH1410
+      OPTION: MATH1412
+  OPTION: MATH1413
+  OPTION: STAT1021
+
+CHOOSE_N: 1  # Advanced BIOL elective pair 1
+  OPTION: BIOL3207
+  OPTION: BIOL3521
+
+CHOOSE_N: 1  # Advanced BIOL elective pair 2
+  OPTION: BIOL3513
+  OPTION: BIOL4023
+
+MANUAL_NOTE: Remaining ~12 credits from Advanced BIOL courses (flexible mix of 4-credit lecture/lab or 2-3 credit lecture-only courses). "Advanced" course-number cutoff not specified in source.
+
+=== Biology Minor ===
+name: Biology Minor
+school: Stern
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  BIOL1011
+  BIOL1012
+  BIOL1013
+  BIOL1014
+
+MANUAL_NOTE: Two Advanced (4-credit) lecture/lab BIOL courses, plus one additional BIOL course (2+ credits). "Advanced" course-number cutoff not specified in source.
+
+=== Chemistry, BA ===
+name: Chemistry, BA
+school: Stern
+degreeType: BA
+totalCredits: 46-47
+
+COURSE_LIST: Required Courses
+  CHEM1045
+  CHEM1046
+  CHEM1047
+  CHEM1125
+  CHEM1213
+  CHEM1214
+  CHEM1215
+  CHEM1415
+  CHEM1416
+  CHEM1937
+  MATH1412
+  MATH1413
+
+TRACK_CHOICE: Physics Sequence (pick exactly 1)
+  TRACK: Introductory Physics
+    COURSE_LIST:
+      PHYS1031
+      PHYS1032
+      PHYS1033
+      PHYS1034
+  TRACK: General Physics
+    COURSE_LIST:
+      PHYS1051
+      PHYS1052
+      PHYS1053
+      PHYS1054
+
+RANGE: CHEM 1000-4999 | count: 1  # "One CHEM course" - no restriction given in source, assumed any CHEM course
+
+=== Chemistry Minor ===
+name: Chemistry Minor
+school: Stern
+degreeType: Minor
+totalCredits: 22-23
+
+COURSE_LIST: Core Courses
+  CHEM1045
+  CHEM1046
+  CHEM1047
+  CHEM1213
+  CHEM1214
+  CHEM1215
+
+CHOOSE_N: 2
+  OPTION: CHEM1125
+  OPTION: CHEM1376
+  OPTION: CHEM1415
+  OPTION: CHEM1416
+
+=== Childhood Education, BA ===
+name: Childhood Education, BA
+school: Stern
+degreeType: BA
+totalCredits: 33
+
+COURSE_LIST: Major Requirements
+  EDUC2300
+  EDUC2301
+  EDUC2302
+  EDUC2303
+  EDUC2304
+  EDUC2307
+  EDUC2930
+  EDUC2940
+  EDUC4003
+
+RANGE: EDUC 1000-4999 | count: 1  # "Complete one EDUC course" - open, no restriction given
+
+COURSE_LIST: Additional Requirements
+  EDUC1210
+  MATH1010
+  PSYC1010
+  PSYC1107
+
+=== Computer Science, BA ===
+name: Computer Science, BA
+school: Stern
+degreeType: BA
+totalCredits: 42
+
+COURSE_LIST: Core Courses
+  COMP1300
+  COMP1320
+  COMP1504
+  COMP2113
+  COMP2545
+  COMP3562
+  COMP3610
+  COMP3640
+  COMP3650
+  MATH1412
+  MATH2105
+
+MANUAL_NOTE: Remaining ~6 credits of electives from: COMP2314, COMP2512, COMP3770, COMP3780, COMP3921. Exact required count not stated in source.
+
+=== Computer Science Minor ===
+name: Computer Science Minor
+school: Stern
+degreeType: Minor
+totalCredits: 20
+
+COURSE_LIST: Core Courses
+  COMP1300
+  COMP1320
+
+RANGE: COMP 1000-4999 | count: 4  # "Complete four additional Computer Science (COMP) courses" - explicit in source
+
+=== Early Childhood Education, BA ===
+name: Early Childhood Education, BA
+school: Stern
+degreeType: BA
+totalCredits: 33
+
+COURSE_LIST: Major Requirements
+  EDUC2130
+  EDUC2133
+  EDUC2134
+  EDUC2138
+  EDUC2303
+  EDUC2890
+  EDUC2935
+  EDUC2945
+  EDUC4003
+
+RANGE: EDUC 1000-4999 | count: 1  # "Complete one EDUC course" - open, no restriction given
+
+COURSE_LIST: Additional Requirements
+  EDUC1210
+  MATH1010
+  PSYC1010
+  PSYC1107
+
+=== Economics Minor ===
+name: Economics Minor
+school: Stern
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  ECON1010
+
+CHOOSE_N: 1
+  OPTION: ECON1101
+  OPTION: ECON1201
+
+MANUAL_NOTE: Remaining ~12 credits of electives from: ECON1177, ECON1201, ECON1221, ECON1421, ECON2531, ECON2601, STAT1021. Exact required count not stated in source.
+
+=== Education Minor ===
+name: Education Minor
+school: Stern
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Introductory Requirements
+  EDUC2130
+  EDUC2300
+  EDUC2807
+
+COURSE_LIST: Education Requirements
+  EDUC2201
+
+CHOOSE_N: 1
+  OPTION: EDUC1210
+  OPTION: PSYC1100
+  OPTION: PSYC1107
+
+MANUAL_NOTE: Remaining ~3 credits - one course from EDUC2303, EDUC2807, EDUC2890, EDUC4932, SOCI2101, or any other EDUC course.
+
+=== English, BA ===
+name: English, BA
+school: Stern
+degreeType: BA
+totalCredits: 33
+
+COURSE_LIST: Core Courses
+  ENGL2000
+
+RANGE: ENGL 1000-4999 | count: 1  # "Complete one ENGL course" (additional core course, unspecified)
+
+MANUAL_NOTE: Electives (24 credits, ~8 ENGL courses). Students may optionally follow one of three focuses (English Literature, Creative Writing, Media Studies), each with specific sub-category course requirements not captured in our scraped data (course "category" tags like Historical/Topics,Methods aren't available). Known Creative Writing courses: ENGL1800, ENGL1900.
+
+=== English Minor ===
+name: English Minor
+school: Stern
+degreeType: Minor
+totalCredits: 15
+
+COURSE_LIST: Core Courses
+  ENGL2000
+
+RANGE: ENGL 1000-4999 | count: 4  # "Complete four ENGL courses" - explicit in source
+
+=== History, BA ===
+name: History, BA
+school: Stern
+degreeType: BA
+totalCredits: 33
+
+COURSE_LIST: Core Courses
+  HIST1101
+  HIST1102
+  HIST3001
+
+CHOOSE_N: 2
+  OPTION: HIST1201
+  OPTION: HIST1202
+  OPTION: HIST2220
+  OPTION: HIST2225
+  OPTION: HIST2231
+  OPTION: HIST2232
+  OPTION: HIST2520
+  OPTION: HIST2913
+
+RANGE: HIST 2000-4999 | count: 6  # Electives - explicit in source
+
+=== History Minor ===
+name: History Minor
+school: Stern
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  HIST1101
+  HIST1102
+
+RANGE: HIST 1000-4999 | count: 4  # "Complete four History courses" - NOTE: source specifies "at least one must be in American History"; this sub-constraint is NOT enforced here (any 4 HIST courses satisfy this RANGE as written) - known simplification.
+
+=== Jewish Studies, AA ===
+name: Jewish Studies, AA
+school: Stern
+degreeType: AA
+totalCredits: 34
+
+MANUAL_NOTE: 17 Jewish studies courses (34 credits) with Credit/Residency/Grade/Administrative requirements - free text only, no specific course codes given. Not a priority per user - left unstructured.
+
+=== Jewish Studies, BA ===
+name: Jewish Studies, BA
+school: Stern
+degreeType: BA
+totalCredits: 24
+
+MANUAL_NOTE: Distribution across Bible, Judaic Studies, Jewish History, and Jewish Philosophy categories (roughly one ancient/medieval + one modern course per area) - free text only, no specific course codes given in most slots. Not a priority per user - left unstructured.
+
+=== Jewish Studies Minor ===
+name: Jewish Studies Minor
+school: Stern
+degreeType: Minor
+totalCredits: 15
+
+MANUAL_NOTE: No course table found on source page. Not a priority per user - left unstructured.
+
+=== Mathematics, BA ===
+name: Mathematics, BA
+school: Stern
+degreeType: BA
+totalCredits: 42-48
+
+COURSE_LIST: Core Courses
+  MATH1412
+  MATH1413
+  MATH1510
+  MATH2105
+  MATH2461
+
+TRACK_CHOICE: Concentration (pick exactly 1)
+  TRACK: Pure and Applied Mathematics
+    COURSE_LIST:
+      MATH1504
+      MATH1520
+      MATH2601
+    CHOOSE_N: 4
+      OPTION: MATH1521
+      OPTION: MATH1540
+      OPTION: MATH2170
+      OPTION: MATH2215
+      OPTION: MATH2462
+      OPTION: MATH2611
+    CHOOSE_N: 1
+      OPTION:
+        RANGE: COMP 1000-4999
+      OPTION:
+        RANGE: IDS 1500-4999
+      OPTION:
+        RANGE: MATH 1000-4999
+  TRACK: Computational Mathematics
+    COURSE_LIST:
+      MATH2462
+      MATH2601
+      MATH2651
+    CHOOSE_N: 4
+      OPTION: COMP1300
+      OPTION: COMP1320
+      OPTION: COMP1504
+      OPTION: COMP2545
+      OPTION: COMP3920
+    CHOOSE_N: 1
+      OPTION:
+        RANGE: COMP 1000-4999
+      OPTION:
+        RANGE: IDS 1500-4999
+      OPTION:
+        RANGE: MATH 1000-4999
+  TRACK: Actuarial and Financial Mathematics
+    COURSE_LIST:
+      MATH2462
+      MATH2601
+      MATH2901
+    CHOOSE_N: 4
+      OPTION: ACC1001
+      OPTION: ACC1002
+      OPTION: ECON1010
+      OPTION: ECON1101
+      OPTION: ECON1201
+      OPTION: ECON1421
+      OPTION: ECON1601
+      OPTION: FIN1001
+      OPTION: IDS2020
+      OPTION: IDS2030
+      OPTION: IDS2160
+      OPTION: IDS2550
+      OPTION: IDS3000
+    CHOOSE_N: 1
+      OPTION:
+        RANGE: COMP 1000-4999
+      OPTION:
+        RANGE: IDS 1500-4999
+      OPTION:
+        RANGE: MATH 1000-4999
+  TRACK: Applied Mathematics
+    COURSE_LIST:
+      MATH1073
+      MATH2031
+      MATH2032
+      MATH2462
+      MATH2601
+      MATH3033
+      MATH3034
+      MATH3035
+      MATH3072
+
+=== Mathematics Minor ===
+name: Mathematics Minor
+school: Stern
+degreeType: Minor
+totalCredits: 21
+
+COURSE_LIST: Core Courses
+  MATH1412
+  MATH1413
+  MATH1510
+  MATH2105
+
+RANGE: MATH 1500-4999 | count: 2  # "Complete two MATH courses numbered 1500 or higher" - explicit in source
+
+=== Music, BA ===
+name: Music, BA
+school: Stern
+degreeType: BA
+totalCredits: 30
+
+COURSE_LIST: Core Courses
+  MUSI1111
+  MUSI1350
+  MUSI1351
+  MUSI2011
+  MUSI2012
+  MUSI2105
+  MUSI2111
+  MUSI2112
+  MUSI2113
+  MUSI2120
+
+MANUAL_NOTE: Participation in chamber ensemble and/or chorus required (non-course, non-credit-count based - can't be represented as course codes).
+
+=== Music Minor ===
+name: Music Minor
+school: Stern
+degreeType: Minor
+totalCredits: 20
+
+COURSE_LIST: Core Courses
+  MUSI1111
+  MUSI2105
+  MUSI2011
+  MUSI2012
+  MUSI2111
+  MUSI2112
+
+MANUAL_NOTE: Complete seven additional credits including at least one Music history course, plus ensemble/chorus participation (not encoded as specific courses).
+
+=== Philosophy, BA ===
+name: Philosophy, BA
+school: Stern
+degreeType: BA
+totalCredits: 30
+
+MANUAL_NOTE: Choose 10 courses (30 credits) across 3 categories - Ethics and Value Theory (PHIL1600, PHIL1401, PHIL2407, PHIL2532, PHIL3100, PHIL3300, PHIL3402, PHIL3500, PHIL3620, PHIL4930, PHIL4931), History of Philosophy (PHIL2170, PHIL2420, PHIL2560, PHIL4930, PHIL4931), and Electives (PHIL1100, PHIL1320, PHIL1360, PHIL1710, PHIL2405, PHIL2407, PHIL2532, PHIL2740, PHIL4930, PHIL4931). Exact distribution across categories not stated in source.
+
+MANUAL_NOTE: Up to 6 credits in JPHI courses (beyond the Jewish Studies requirement) may count as electives with approval - not encoded as specific courses.
+
+=== Philosophy Minor ===
+name: Philosophy Minor
+school: Stern
+degreeType: Minor
+totalCredits: 15
+
+MANUAL_NOTE: No course table found on source page.
+
+=== Physical Sciences, BA ===
+name: Physical Sciences, BA
+school: Stern
+degreeType: BA
+totalCredits: 51-52
+
+COURSE_LIST: Core Courses
+  CHEM1045
+  COMP1300
+  ECON1010
+  MATH1412
+  MATH1413
+  MATH1510
+  MATH2105
+  MATH2601
+  PHYS1051
+  PHYS1052
+  PHYS1053
+  PHYS1054
+  PHYS2051
+  PHYS2052
+
+MANUAL_NOTE: "Electives" section listed in source page with no content following it - apparent data gap; may need manual lookup of the live catalog page.
+
+=== Physics, BA ===
+name: Physics, BA
+school: Stern
+degreeType: BA
+totalCredits: 49-57
+
+COURSE_LIST: Core Courses
+  PHYS1051
+  PHYS1053
+  PHYS1052
+  PHYS1054
+  PHYS2051
+  PHYS4221
+  PHYS4321
+  PHYS4510
+  PHYS4621
+  MATH1412
+  MATH1413
+  MATH1510
+
+TRACK_CHOICE: Program (pick exactly 1)
+  TRACK: Standard Program
+    COURSE_LIST:
+      PHYS2052
+      PHYS4810
+  TRACK: Applied Physics Concentration
+    COURSE_LIST:
+      PHYS1011
+      PHYS1073
+      PHYS2031
+      PHYS2032
+      PHYS3033
+      PHYS3034
+
+=== Physics Minor ===
+name: Physics Minor
+school: Stern
+degreeType: Minor
+totalCredits: 28
+
+COURSE_LIST: Required Courses
+  PHYS1051
+  PHYS1052
+  PHYS1053
+  PHYS1054
+  PHYS2051
+  PHYS2052
+  MATH1412
+  MATH1413
+  MATH1510
+
+=== Political Science, BA ===
+name: Political Science, BA
+school: Stern
+degreeType: BA
+totalCredits: 33
+
+COURSE_LIST: Core Courses
+  POLI1101
+  POLI1201
+  POLI1301
+  POLI1401
+  POLI1501
+
+MANUAL_NOTE: Remaining ~18 credits (6 courses) of any POLI 1000-4999 elective, for students not pursuing a concentration.
+
+MANUAL_NOTE: Optional concentration (pick at most 1) - YC's version of this page states concentrations require 5 courses; Stern's page doesn't restate a number.
+  American Politics and Policy: POLI1101, POLI1501, POLI2100, POLI2105, POLI2121, POLI2135, POLI2145, POLI2160, POLI2165, POLI2170, POLI2175, POLI2185, POLI2190, POLI2505, POLI3560, POLI3575
+  Comparative Political Studies: POLI1201, POLI1501, POLI2210, POLI2215, POLI2220, POLI2260, POLI2290, POLI2505, POLI3575
+  International Affairs and Security Studies: POLI1301, POLI1501, POLI2260, POLI2290, POLI2305, POLI2330, POLI2360, POLI2395, POLI2505, POLI3300, POLI3560, POLI3575
+  Law and Justice: POLI1101, POLI1401, POLI1501, POLI2100, POLI2105, POLI2135, POLI2145, POLI2175, POLI2185, POLI2190, POLI2405, POLI2410, POLI2430, POLI2495, POLI2505, POLI3560, POLI3575
+
+=== Political Science Minor ===
+name: Political Science Minor
+school: Stern
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  POLI1101
+  POLI1201
+  POLI1301
+  POLI1401
+  POLI1501
+
+MANUAL_NOTE: Remaining ~3 credits (1 course) of any POLI 1000-4999 elective.
+
+=== Psychology, BA ===
+name: Psychology, BA
+school: Stern
+degreeType: BA
+totalCredits: 37-40
+
+COURSE_LIST: Core Courses
+  PSYC1010
+  STAT1021
+  PSYC1107
+  PSYC2100
+  PSYC2120
+  PSYC2150
+  PSYC2414
+  PSYC3105
+
+TRACK_CHOICE: Track (pick exactly 1)
+  TRACK: General Psychology
+    COURSE_LIST:
+      PSYC2140
+      PSYC3804
+    RANGE: PSYC 1000-4999 | count: 4
+  TRACK: Neuroscience
+    COURSE_LIST:
+      PSYC3804
+      PSYC3810
+      PSYC3815
+    RANGE: PSYC 1000-4999 | count: 3
+
+=== Psychology Minor ===
+name: Psychology Minor
+school: Stern
+degreeType: Minor
+totalCredits: 19
+
+COURSE_LIST: Core Courses
+  PSYC1010
+  PSYC1107
+  PSYC2100
+  PSYC2120
+  PSYC3105
+  STAT1021
+
+CHOOSE_N: 1
+  OPTION: PSYC2150
+  OPTION: PSYC2414
+
+=== Public Health Minor ===
+name: Public Health Minor
+school: Stern
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  SOCI2403
+  STAT1021
+
+CHOOSE_N: 1
+  OPTION: PUB2407
+  OPTION: SOCI2407
+
+MANUAL_NOTE: Remaining ~9 credits of electives from: BIOL3221, BIOL4023, ECON2531, PHIL3500, PHIL3620, PSYC2414, PSYC3165, SOCI1950, SOCI2402, SOCI2405, SOCI2406, SOCI3003. Exact required count not stated in source.
+
+=== Shaped Major (Stern) ===
+name: Shaped Major
+school: Stern
+degreeType: Major
+totalCredits: 30 (minimum)
+
+TRACK_CHOICE: Shaped Major Option (pick exactly 1 of the two currently-defined options; others possible with advisor approval - not encoded here)
+  TRACK: Art History (34 credits)
+    COURSE_LIST: Core Courses
+      ARTS1051
+      ARTS1052
+      ARTS1985
+      ARTS1990
+    RANGE: ARTS 2201-3970 | count: 1  # Studio Art Elective
+    MANUAL_NOTE: Remaining ~21 credits of electives from: ARTS1350, ARTS1431, ARTS1432, ARTS1451, ARTS1452, ARTS1471, ARTS1613, ARTS1635, ARTS1637, ARTS1645. Exact required count not stated in source.
+  TRACK: Studio Art (40 credits)
+    COURSE_LIST: Studio Courses
+      ARTS2201
+      ARTS2301
+      ARTS2511
+    RANGE: ARTS 1000-4999 | count: 4  # Four elective courses in student's area of emphasis
+    RANGE: ARTS 1000-4999 | count: 3  # Three additional elective courses
+    COURSE_LIST: Art History Courses
+      ARTS1051
+      ARTS1052
+    RANGE: ARTS 1000-4999 | count: 1  # Art History elective
+    COURSE_LIST: Exit Requirement
+      ARTS4974
+      ARTS4975
+
+=== Sociology, BA ===
+name: Sociology, BA
+school: Stern
+degreeType: BA
+totalCredits: 30
+
+COURSE_LIST: Core Courses
+  SOCI1001
+  SOCI3002
+  SOCI3003
+
+RANGE: SOCI 1000-4999 | count: 7  # explicit in source
+
+=== Sociology Minor ===
+name: Sociology Minor
+school: Stern
+degreeType: Minor
+totalCredits: 15
+
+COURSE_LIST: Core Courses
+  SOCI1001
+
+CHOOSE_N: 1
+  OPTION: SOCI3002
+  OPTION: SOCI3003
+
+RANGE: SOCI 1000-4999 | count: 3  # "Complete three SOCI courses" - explicit in source
+
+=== Speech Pathology/Audiology, BA ===
+name: Speech Pathology/Audiology, BA
+school: Stern
+degreeType: BA
+totalCredits: 36
+
+COURSE_LIST: Required Courses
+  SPAU3000
+  SPAU3001
+  SPAU3009
+  SPAU3015
+  SPAU3031
+  SPAU3112
+  SPAU3201
+  SPAU3205
+  SPAU3210
+  SPAU3320
+  SPAU3938
+  SPAU3999
+
+MANUAL_NOTE: Recommended (NOT required for the major): STAT1021, PSYC1010, BIOL1006, one Physical Science course (CHEM or PHY), SPAU4925.
+
+=== Studio Art Minor ===
+name: Studio Art Minor
+school: Stern
+degreeType: Minor
+totalCredits: 15
+
+COURSE_LIST: Art History Courses
+  ARTS1050
+  ARTS1051
+  ARTS1052
+
+MANUAL_NOTE: "Studio Art Courses" section listed in source page with no content following it - apparent data gap; may need manual lookup of the live catalog page.
+
+=== Women's Studies Minor ===
+name: Women's Studies Minor
+school: Stern
+degreeType: Minor
+totalCredits: 15
+
+COURSE_LIST: Core Courses
+  ENGL2901
+
+MANUAL_NOTE: Remaining ~12 credits (4 courses) from "designated courses" across Art, English, History, Jewish Studies, Psychology, and Sociology departments - no specific list or numeric range given in source. Cannot be encoded as a RANGE (spans multiple departments with no shared numeric pattern) - would need the specific designated-courses list from elsewhere in the catalog to make this checkable.
+
+=== Writing Minor ===
+name: Writing Minor
+school: Stern
+degreeType: Minor
+totalCredits: 15
+
+MANUAL_NOTE: 15 credits (~5 courses) of any ENGL 1501-1920 elective.
+
+=== Accounting, BS ===
+name: Accounting, BS
+school: Syms
+degreeType: BS
+totalCredits: 27
+
+COURSE_LIST: Core Courses
+  ACC1101
+  ACC1102
+  ACC2403
+  ACC2625
+  ACC3601
+  TAX2501
+
+RANGE: ACC|FIN|MAR|ENT|IDS 1000-4999 | count: 3  # "upper-level business courses" - subject list = any Sy Syms major's courses (per user). Number floor TEMP set to full range (1000-4999) pending confirmed "upper-level" cutoff.
+
+=== Accounting Minor ===
+name: Accounting Minor
+school: Syms
+degreeType: Minor
+totalCredits: 9-18 (varies by home school)
+
+TRACK_CHOICE: Requirements (based on student's home school)
+  TRACK: Sy Syms students
+    COURSE_LIST:
+      ACC1101
+      ACC1102
+      ACC2403
+  TRACK: Stern/YC students
+    COURSE_LIST:
+      ACC1001
+      ACC1002
+      ACC1101
+      ACC1102
+      FIN1001
+      IDS1010
+
+=== Business Analytics, BS ===
+name: Business Analytics, BS
+school: Syms
+degreeType: BS
+totalCredits: 27
+
+COURSE_LIST: Core Courses
+  IDS2030
+  IDS2550
+  IDS2460
+  IDS3000
+
+RANGE: IDS 1000-4999 | count: 2  # "Complete two additional IDS courses" - open, no restriction given
+
+CHOOSE_N: 1  # "And" one of the following two elective paths
+  OPTION:
+RANGE: ACC|FIN|MAR|ENT|IDS 1000-4999 | count: 3  # "upper-level business courses from a single subject area" - subject list = any Sy Syms major's courses (per user); single-subject-only constraint NOT enforced (accepted limitation per user). Number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+  OPTION:
+    MANUAL_NOTE: Three courses from a combination of Computer Science (COMP) and IDS courses - open, no course-number restriction stated in source.
+
+=== Business Analytics Minor ===
+name: Business Analytics Minor
+school: Syms
+degreeType: Minor
+totalCredits: 9-18 (varies by home school)
+
+TRACK_CHOICE: Requirements (based on student's home school)
+  TRACK: Sy Syms students
+RANGE: IDS 1000-4999 | count: 3  # "upper-level IDS courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+  TRACK: Stern/YC students
+    COURSE_LIST:
+      IDS1010
+      IDS1020
+      IDS1131
+      IDS1556
+      IDS2030
+    CHOOSE_N: 1
+      OPTION: IDS2550
+      OPTION: IDS2460
+
+=== Business Minor ===
+name: Business Minor
+school: Syms
+degreeType: Minor
+totalCredits: 18
+
+MANUAL_NOTE: Not open to Sy Syms School of Business students - only for Stern/YC students.
+
+COURSE_LIST: Core Courses
+  IDS1010
+  ENT1020
+
+RANGE: BUS 1000-4999 | count: 2  # "Complete two BUS Core courses" - number floor TEMP set to full range pending confirmed "upper-level"/tier cutoff, if any
+RANGE: BUS 1000-4999 | count: 2  # "Complete two BUS Elective courses" - same as above; source distinguishes Core vs Elective but we can't tell them apart within BUS yet, so both draw from the full BUS range for now
+
+=== Finance, BS ===
+name: Finance, BS
+school: Syms
+degreeType: BS
+totalCredits: 27
+
+COURSE_LIST: Core Courses
+  FIN1408
+  FIN2505
+  FIN2409
+
+CHOOSE_N: 1
+  OPTION: FIN2521
+  OPTION: FIN3510
+  OPTION: FIN3720
+
+RANGE: FIN 1000-4999 | count: 2  # "Complete two (3-credit) FIN courses" - open, no restriction given
+
+RANGE: ACC|FIN|MAR|ENT|IDS 1000-4999 | count: 3  # "additional upper-level business courses" - subject list = any Sy Syms major's courses (per user). Number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+
+=== Finance Minor ===
+name: Finance Minor
+school: Syms
+degreeType: Minor
+totalCredits: 9-18 (varies by home school)
+
+TRACK_CHOICE: Requirements (based on student's home school)
+  TRACK: Sy Syms students
+RANGE: FIN 1000-4999 | count: 3  # "upper-level FIN courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+  TRACK: Stern/YC students
+    COURSE_LIST:
+      ACC1001
+      FIN1001
+      IDS1010
+      IDS1131
+    RANGE: FIN 1000-4999 | count: 2  # "Two (3-credit) FIN courses" - open, no restriction given
+
+=== Marketing, BS ===
+name: Marketing, BS
+school: Syms
+degreeType: BS
+totalCredits: 27
+
+COURSE_LIST: Core Courses
+  MAR2501
+  MAR3318
+  MAR3720
+
+CHOOSE_N: 1
+  OPTION: MAR2621
+  OPTION: MAR3320
+
+RANGE: MAR 1000-4999 | count: 2  # "Complete two Marketing courses" - open, no restriction given
+
+RANGE: ACC|FIN|MAR|ENT|IDS 1000-4999 | count: 3  # "additional upper-level business courses" - subject list = any Sy Syms major's courses (per user). Number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+
+=== Marketing Minor ===
+name: Marketing Minor
+school: Syms
+degreeType: Minor
+totalCredits: 9-18 (varies by home school)
+
+TRACK_CHOICE: Requirements (based on student's home school)
+  TRACK: Sy Syms students
+RANGE: MAR 1000-4999 | count: 3  # "upper-level MAR courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+  TRACK: Stern/YC students
+    COURSE_LIST:
+      IDS1010
+      MAR1001
+      MAR2501
+      MAR3318
+    RANGE: MAR 1000-4999 | count: 2  # "Complete two MAR courses" - open, no restriction given
+
+=== Real Estate Minor ===
+name: Real Estate Minor
+school: Syms
+degreeType: Minor
+totalCredits: 8-20 (varies by home school)
+
+TRACK_CHOICE: Requirements (based on student's home school)
+  TRACK: Sy Syms students
+    COURSE_LIST:
+      FIN2949
+      FIN3149
+    RANGE: REA 1000-4999 | count: 1  # "Real Estate elective"
+  TRACK: Stern/YC students
+    COURSE_LIST:
+      ACC1001
+      FIN1001
+      FIN2949
+      FIN3149
+      IDS1010
+      IDS1131
+    RANGE: REA 1000-4999 | count: 1  # "Real Estate elective" - same as the Sy Syms track above
+
+=== Strategy and Entrepreneurship, BS ===
+name: Strategy and Entrepreneurship, BS
+school: Syms
+degreeType: BS
+totalCredits: 27
+
+COURSE_LIST: Core Courses
+  ENT2110
+  ENT3015
+  ENT3720
+  ENT3780
+
+RANGE: ENT 1000-4999 | count: 2  # "Complete two additional ENT courses" - open, no restriction given
+
+RANGE: ACC|FIN|MAR|ENT|IDS 1000-4999 | count: 3  # "additional upper-level business courses" - subject list = any Sy Syms major's courses (per user). Number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+
+=== Strategy and Entrepreneurship Minor ===
+name: Strategy and Entrepreneurship Minor
+school: Syms
+degreeType: Minor
+totalCredits: 9-18 (varies by home school)
+
+TRACK_CHOICE: Requirements (based on student's home school)
+  TRACK: Sy Syms students
+RANGE: ENT 1000-4999 | count: 3  # "upper-level ENT courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+  TRACK: Stern/YC students
+    CHOOSE_N: 1
+      OPTION: ACC1001
+      OPTION: IDS1010
+    COURSE_LIST:
+      ENT1020
+      ENT3015
+      ENT3780
+    RANGE: ENT 1000-4999 | count: 2  # "Complete two ENT courses" - open, no restriction given
+
+=== Architecture Minor ===
+name: Architecture Minor
+school: YC
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  ART1633
+  ART1831
+  ART1832
+
+CHOOSE_N: 3  # "at least three elective courses (9 credits)" - explicit in source
+  OPTION:
+    CHOOSE_N: 1
+      OPTION: ART1019
+      OPTION: ART1660
+  OPTION: ART1630
+  OPTION: ART1635
+  OPTION: ART1650
+  OPTION:
+    CHOOSE_N: 1
+      OPTION: ART2201
+      OPTION: ART2301
+      OPTION: ART2302
+      OPTION: ART2511
+      OPTION: ART2901
+
+=== Biochemistry, BA ===
+name: Biochemistry, BA
+school: YC
+degreeType: BA
+totalCredits: 53-55
+
+COURSE_LIST: Core Courses
+  BIO1011
+  BIO1012
+  BIO1013
+  BIO1014
+  CHE1045
+  CHE1046
+  CHE1047
+  CHE1213
+  CHE1214
+  CHE1215
+  MAT1412
+
+CHOOSE_N: 1  # Physical Chemistry choice
+  OPTION: CHE1415
+  OPTION: CHE1416
+
+CHOOSE_N: 1  # Biochemistry choice (BIO or CHE prefix, same course)
+  OPTION: BIO1376
+  OPTION: CHE1376
+
+CHOOSE_N: 1  # Biochemistry Lab choice
+  OPTION: BIO1377
+  OPTION: CHE1377
+
+CHOOSE_N: 1  # Advanced Biochemistry choice
+  OPTION: BIO1378
+  OPTION: CHE1378
+
+CHOOSE_N: 1  # Bioinformatics/Metals choice
+  OPTION: BIO1372
+  OPTION: CHE1372
+  OPTION: CHE1379
+
+TRACK_CHOICE: Physics Sequence (pick exactly 1)
+  TRACK: Introductory Physics
+    COURSE_LIST:
+      PHY1031
+      PHY1032
+      PHY1033
+      PHY1034
+  TRACK: General Physics
+    COURSE_LIST:
+      PHY1051
+      PHY1052
+      PHY1053
+      PHY1054
+
+CHOOSE_N: 1  # confirmed
+  OPTION: BIO3207
+  OPTION: BIO3230
+  OPTION: BIO3513
+  OPTION: BIO3521
+
+=== Biology, BA ===
+name: Biology, BA
+school: YC
+degreeType: BA
+totalCredits: 43-44
+
+COURSE_LIST: Core Courses
+  BIO1011
+  BIO1012
+  BIO1013
+  BIO1014
+  CHE1045
+  CHE1046
+  CHE1047
+
+CHOOSE_N: 1  # Calculus choice
+  OPTION: MAT1410
+  OPTION: MAT1412
+
+CHOOSE_N: 1  # Calc II / Stats choice
+  OPTION: MAT1413
+  OPTION: STA1021
+
+CHOOSE_N: 1  # Advanced lab pair 1
+  OPTION: BIO3513
+  OPTION: BIO3521
+
+CHOOSE_N: 1  # Advanced lab pair 2
+  OPTION: BIO3207
+  OPTION: BIO4023
+
+MANUAL_NOTE: Remaining electives (in addition to the two CHOOSE_N pairs above) - genuinely a credit-threshold pool with variable-credit courses, not a clean course count:
+  Complete a minimum of 8 credits from: one or more advanced lab courses not already used in the two pairs above (4-8cr, reuse of unused options); BIO1376 (3cr) AND BIO1377 (2cr) taken together (5cr); BIO2320 (4cr); BIO3728 (4cr).
+  Complete a minimum of 4 credits from: BIO1372 (4cr), BIO1376 (3cr), BIO3230 (2cr), BIO3804 (3cr), BIO4901 (1-3cr), BIO4931 (2-4cr), BIO4934 (0-2cr).
+  BIO1376 appears in both lists above but may only count once toward the elective requirement overall - this overlap rule isn't enforced by our data model.
+
+=== Biology Minor ===
+name: Biology Minor
+school: YC
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  BIO1011
+  BIO1012
+  BIO1013
+  BIO1014
+
+RANGE: BIO 2000-4999 | count: 2  # "Two Advanced (4-credit) lecture/lab courses" - "Advanced" cutoff confirmed as 2000+
+RANGE: BIO 2000-4999 | count: 1  # "One additional BIO course (2+ credits)"
+
+=== Chemistry, BA ===
+name: Chemistry, BA
+school: YC
+degreeType: BA
+totalCredits: 49
+
+COURSE_LIST: Core Courses
+  CHE1045
+  CHE1046
+  CHE1047
+  CHE1122
+  CHE1213
+  CHE1214
+  CHE1215
+  CHE1222
+  CHE1415
+  CHE1416
+  CHE1937
+  MAT1412
+  MAT1413
+  PHY1031
+  PHY1032
+  PHY1033
+  PHY1034
+
+CHOOSE_N: 1  # confirmed
+  OPTION: CHE1372
+  OPTION:
+    CHOOSE_N: 1
+      OPTION: CHE1376
+      OPTION: BIO1376
+  OPTION: CHE1379
+
+MANUAL_NOTE: Recommended (NOT required for the major): BIO1011, BIO1012, BIO1013, BIO1014.
+
+=== Chemistry Minor ===
+name: Chemistry Minor
+school: YC
+degreeType: Minor
+totalCredits: 23
+
+COURSE_LIST: Core Courses
+  CHE1045
+  CHE1046
+  CHE1047
+  CHE1213
+  CHE1214
+  CHE1215
+
+CHOOSE_N: 1
+  OPTION: CHE1122
+  OPTION: CHE1415
+
+CHOOSE_N: 1  # "Complete one of the following courses" - explicit in source
+  OPTION: CHE1372
+  OPTION:
+    CHOOSE_N: 1
+      OPTION: CHE1376
+      OPTION: BIO1376
+  OPTION: CHE1379
+  OPTION: CHE1415
+  OPTION: CHE1416
+
+=== Computer Science, BS ===
+name: Computer Science, BS
+school: YC
+degreeType: BS
+totalCredits: 67-75 (varies by concentration)
+
+TRACK_CHOICE: Concentration (pick exactly 1)
+  TRACK: Artificial Intelligence (75 credits)
+    COURSE_LIST:
+      COM1300
+      COM1310
+      COM1320
+      COM2113
+      COM2545
+      COM2546
+      COM3580
+      COM3610
+      COM3640
+      COM3760
+      COM3800
+      COM3820
+      COM3920
+      COM3930
+      COM4010
+      COM4020
+      MAT1412
+      MAT1413
+      MAT1510
+      MAT2105
+      MAT2461
+      MAT2462
+  TRACK: Distributed Systems (67 credits)
+    COURSE_LIST:
+      COM1300
+      COM1310
+      COM1320
+      COM2113
+      COM2512
+      COM2545
+      COM2546
+      COM3563
+      COM3580
+      COM3610
+      COM3640
+      COM3645
+      COM3760
+      COM3800
+      COM3810
+      COM3820
+      COM4020
+      COM4580
+      MAT1412
+      MAT2105
+
+=== Computer Science Minor ===
+name: Computer Science Minor
+school: YC
+degreeType: Minor
+totalCredits: 26
+
+COURSE_LIST: Core Courses
+  COM1300
+  COM1310
+  COM1320
+  COM2545
+  MAT1412
+  MAT2105
+
+RANGE: COM 1000-4999 | count: 1  # "Complete one additional COM course" - explicit in source
+
+=== Economics, BA ===
+name: Economics, BA
+school: YC
+degreeType: BA
+totalCredits: 34-36 (varies by track)
+
+TRACK_CHOICE: Program (pick exactly 1)
+  TRACK: Economics Major (34 credits)
+    COURSE_LIST: Core Courses
+      ECO1101
+      ECO1201
+      ECO1010
+      ECO1421
+    CHOOSE_N: 1
+      OPTION: MAT1410
+      OPTION: MAT1412
+    COURSE_LIST:
+      STA1021
+    CHOOSE_N: 3  # "Complete three courses from the list below (9 credits total)" - explicit in source. NOTE: source caps at most 6 combined credits from finance/accounting courses, max 3 from accounting - NOT enforced here, known limitation.
+      OPTION: ECO1221
+      OPTION: ECO1501
+      OPTION: ECO1601
+      OPTION: ECO1701
+      OPTION: ECO2005
+      OPTION: ECO2201
+      OPTION: ECO2531
+      OPTION: ECO4930
+    MANUAL_NOTE: "Advanced Electives" also count as substitutes within the same 3-course requirement above: ECO1177, ECO2601, ECO2801, ECO4931.
+  TRACK: Economics with Mathematics Concentration (36 credits)
+    COURSE_LIST: Core Courses
+      ECO1101
+      ECO1201
+    CHOOSE_N: 1
+      OPTION: ECO1421
+      OPTION: MAT2462
+    COURSE_LIST:
+      MAT1412
+      MAT1413
+      MAT1510
+    CHOOSE_N: 1
+      OPTION: STA1021
+      OPTION: MAT2461
+    CHOOSE_N: 2  # "two electives" - confirmed. ECO1010 and "one Finance/Accounting course" are mutually exclusive with each other (can't pick both) - this exclusivity isn't enforced by this CHOOSE_N
+    OPTION: ECO1010
+    OPTION:
+      MANUAL_NOTE: "One Finance/Accounting course" - specific ACC/FIN courses that qualify not stated in source.
+    OPTION: ECO1221
+    OPTION: ECO1501
+    OPTION: ECO1601
+    OPTION: ECO1701
+    OPTION: ECO2005
+    OPTION: ECO2201
+    OPTION: ECO2531
+    OPTION: ECO4930
+    MANUAL_NOTE: "Advanced Electives" also count as substitutes within the same elective requirement above: ECO1177, ECO2601, ECO2801, ECO4931.
+
+=== Economics Minor ===
+name: Economics Minor
+school: YC
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  ECO1010
+
+CHOOSE_N: 1
+  OPTION: ECO1101
+  OPTION: ECO1201
+
+RANGE: ECO 1000-4999 | count: 4  # "Four additional ECO courses" - explicit in source
+
+=== English, BA ===
+name: English, BA
+school: YC
+degreeType: BA
+totalCredits: 33
+
+COURSE_LIST: Core Courses
+  ENG2010
+  ENG3005
+  ENG4001
+
+MANUAL_NOTE: Electives (24 credits). Two focus paths exist, each with sub-rules our RANGE/CHOOSE_N primitives can't express (limits like "at most 2 from range X" combined with "at least 2 from range Y" within one pool):
+  Literary Studies Electives: complete 3 ENG courses outside ENG1300-1899 (at most 2 may be Gen Ed Core courses numbered ENG1000-1099).
+  English Literature focus rules: at most 2 electives numbered ENG1000-1099; at most 2 creative-writing courses numbered ENG1300-1899; at least 2 courses numbered ENG2011-3999 covering both a Pre-1700 British Literature category and a 1700-1900 period category.
+  Creative Writing Electives: complete 5 ENG courses from ENG1300-1899.
+
+=== English Minor ===
+name: English Minor
+school: YC
+degreeType: Minor
+totalCredits: 15
+
+COURSE_LIST: Core Courses
+  ENG2010
+
+RANGE: ENG 1000-4999 | count: 4  # "Complete four ENG courses" - explicit in source
+
+=== History, BA ===
+name: History, BA
+school: YC
+degreeType: BA
+totalCredits: 33
+
+COURSE_LIST: Core Courses
+  HIS1101
+  HIS1102
+  HIS3001
+
+CHOOSE_N: 2
+  OPTION: HIS1201
+  OPTION: HIS1202
+  OPTION: HIS2220
+  OPTION: HIS2225
+  OPTION: HIS2231
+  OPTION: HIS2232
+  OPTION: HIS2520
+  OPTION: HIS2913
+
+RANGE: HIS 2000-4999 | count: 6  # Electives - explicit in source
+
+=== History Minor ===
+name: History Minor
+school: YC
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  HIS1101
+  HIS1102
+
+RANGE: HIS 1000-4999 | count: 4  # "Complete four History courses" - NOTE: source specifies "at least one must be in American History"; this sub-constraint is NOT enforced here (any 4 HIS courses satisfy this RANGE as written) - known simplification.
+
+=== Jewish Studies, BA ===
+name: Jewish Studies, BA
+school: YC
+degreeType: BA
+totalCredits: 24
+
+MANUAL_NOTE: Distribution across Jewish History (JHI), Hebrew (HEB), Bible (BIB), and Jewish Thought and Philosophy (JTP) categories, plus period-based requirements (Ancient/Medieval/Modern) - free text only, mostly no specific course codes given. Not a priority per user - left unstructured.
+
+=== Jewish Studies Minor ===
+name: Jewish Studies Minor
+school: YC
+degreeType: Minor
+totalCredits: 13
+
+MANUAL_NOTE: No course table found on source page. Not a priority per user - left unstructured.
+
+=== Mathematics, BA ===
+name: Mathematics, BA
+school: YC
+degreeType: BA
+totalCredits: 42-48
+
+COURSE_LIST: Core Courses
+  MAT1412
+  MAT1413
+  MAT1510
+  MAT2105
+  MAT2461
+
+TRACK_CHOICE: Concentration (pick exactly 1)
+  TRACK: Pure and Applied Mathematics
+    COURSE_LIST:
+      MAT1504
+      MAT1520
+      MAT2601
+    CHOOSE_N: 4
+      OPTION: MAT1521
+      OPTION: MAT1540
+      OPTION: MAT2170
+      OPTION: MAT2215
+      OPTION: MAT2462
+      OPTION: MAT2611
+    CHOOSE_N: 1
+      OPTION:
+        RANGE: COM 1000-4999
+      OPTION:
+        RANGE: IDS 1500-4999
+      OPTION:
+        RANGE: MAT 1000-4999
+  TRACK: Computational Mathematics
+    COURSE_LIST:
+      MAT2462
+      MAT2601
+      MAT2651
+    CHOOSE_N: 4
+      OPTION: COM1300
+      OPTION: COM1310
+      OPTION: COM1320
+      OPTION: COM2545
+      OPTION: COM3920
+    CHOOSE_N: 1
+      OPTION:
+        RANGE: COM 1000-4999
+      OPTION:
+        RANGE: IDS 1500-4999
+      OPTION:
+        RANGE: MAT 1000-4999
+  TRACK: Actuarial and Financial Mathematics
+    COURSE_LIST:
+      MAT2462
+      MAT2601
+      MAT2901
+    CHOOSE_N: 4
+      OPTION: ACC1001
+      OPTION: ACC1002
+      OPTION: ECO1010
+      OPTION: ECO1101
+      OPTION: ECO1201
+      OPTION: ECO1421
+      OPTION: ECO1601
+      OPTION: FIN1001
+      OPTION: IDS2020
+      OPTION: IDS2030
+      OPTION: IDS2160
+      OPTION: IDS2550
+      OPTION: IDS3000
+    CHOOSE_N: 1
+      OPTION:
+        RANGE: COM 1000-4999
+      OPTION:
+        RANGE: IDS 1500-4999
+      OPTION:
+        RANGE: MAT 1000-4999
+  TRACK: Applied Mathematics
+    COURSE_LIST:
+      MAT1073
+      MAT2031
+      MAT2032
+      MAT2462
+      MAT2601
+      MAT3033
+      MAT3034
+      MAT3035
+      MAT3072
+
+=== Mathematics Minor ===
+name: Mathematics Minor
+school: YC
+degreeType: Minor
+totalCredits: 21
+
+COURSE_LIST: Core Courses
+  MAT1412
+  MAT1413
+  MAT1510
+  MAT2105
+
+RANGE: MAT 1500-4999 | count: 2  # "Complete two Advanced MAT courses, numbered 1500 or higher" - explicit in source
+
+=== Media Studies Minor ===
+name: Media Studies Minor
+school: YC
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  ENG2010
+
+CHOOSE_N: 1  # "Complete one of the following Advanced Writing courses" - explicit
+  OPTION: ENG1833
+  OPTION: ENG1895
+
+CHOOSE_N: 1  # "Complete one of the following 2000/3000 ENG courses" - explicit
+  OPTION: ENG2963
+  OPTION: ENG2920
+  OPTION: ENG3575
+
+CHOOSE_N: 1  # "Complete one of the following related courses from another discipline" - explicit
+  OPTION: ART2901
+  OPTION: ART2201
+  OPTION: COM1001
+  OPTION: COM3571
+  OPTION: HIS2124
+  OPTION: JHI3840
+  OPTION: MAR3318
+  OPTION: MAR3320
+  OPTION: MAR3323
+  OPTION: MUS1354
+  OPTION: POL2170
+  OPTION: SOC2104
+
+CHOOSE_N: 2  # "Complete two additional courses from any of the above categories &/or from the following" - explicit count; reuse of unused options from the 3 groups above is NOT enforced (known limitation)
+  OPTION: ART1019
+  OPTION: ENG1001
+  OPTION: ENG1026
+  OPTION: PSY3110
+
+=== Music Minor ===
+name: Music Minor
+school: YC
+degreeType: Minor
+totalCredits: 20
+
+CHOOSE_N: 2  # Music History - "6 credits from the following" (all options are 3 credits)
+  OPTION: MUS1013
+  OPTION: MUS1111
+  OPTION: MUS1014
+  OPTION: MUS1018
+  OPTION: MUS1024
+  OPTION: MUS1350
+  OPTION: MUS1351
+  OPTION: MUS1352
+  OPTION: MUS1353
+  OPTION: MUS1354
+  OPTION: MUS1371
+  OPTION: MUS1391
+  OPTION: MUS4930
+
+MANUAL_NOTE: Music Theory - complete 8 credits from: MUS2105 (3cr), MUS2011 (1cr), MUS2012 (1cr), MUS2113 (3cr), MUS2114 (1cr). Credits vary per course (not a clean "N courses" count) so not encoded as CHOOSE_N. Students may be exempt from MUS2105 by passing a placement test at least one semester before enrolling in MUS2111.
+
+MANUAL_NOTE: Performance - complete 3 credits from: MUS1117 (3cr), MUS2120 (1cr), MUS2121 (1cr), MUS3461 (1cr), MUS3467 (1cr), MUS4111 (1-3cr). Credits vary per course (not a clean "N courses" count) so not encoded as CHOOSE_N.
+
+=== Philosophy, BA ===
+name: Philosophy, BA
+school: YC
+degreeType: BA
+totalCredits: 30
+
+CHOOSE_N: 1  # Ethics and Value Theory - "complete one of the following courses"
+  OPTION: PHI1401
+  OPTION: PHI1600
+  OPTION: PHI1612
+  OPTION: PHI2532
+  OPTION: PHI3100
+  OPTION: PHI3402
+  OPTION: PHI4930
+  OPTION: PHI4931
+
+CHOOSE_N: 2  # History of Philosophy - "complete two of the following courses" (only 2 options given, so both are effectively required)
+  OPTION: PHI2170
+  OPTION: PHI2420
+
+CHOOSE_N: 3  # Metaphysics and Epistemology - "complete three of the following courses"
+  OPTION: PHI1100
+  OPTION: PHI1214
+  OPTION: PHI1220
+  OPTION: PHI1320
+  OPTION: PHI1360
+  OPTION: PHI1400
+  OPTION: PHI1550
+  OPTION: PHI1710
+  OPTION: PHI2560
+
+RANGE: PHI 1000-4999 | count: 4  # Electives - "complete any four additional PHI courses from the categories above and/or the following: PHI1011, PHI2560, PHI4930, PHI4931, PHI4901"
+
+MANUAL_NOTE: PHI4930 and PHI4931 count toward Ethics and Value Theory OR Metaphysics and Epistemology depending on the approved topic - this topic-dependent eligibility isn't enforced by the CHOOSE_N groups above (both list them as plain options).
+
+=== Philosophy Minor ===
+name: Philosophy Minor
+school: YC
+degreeType: Minor
+totalCredits: 18
+
+CHOOSE_N: 1  # "Complete one of the following courses" - explicit
+  OPTION: PHI1600
+  OPTION: PHI2405
+  OPTION:
+    MANUAL_NOTE: "One approved course in Value theory" - specific qualifying courses not stated in source.
+
+CHOOSE_N: 2  # "Complete two of the following courses" - explicit
+  OPTION: PHI1100
+  OPTION: PHI1220
+  OPTION: PHI1320
+  OPTION: PHI1360
+  OPTION: PHI1400
+  OPTION: PHI1550
+  OPTION:
+    MANUAL_NOTE: "One approved course in Metaphysics and Epistemology" - specific qualifying courses not stated in source.
+
+CHOOSE_N: 1
+  OPTION: PHI2170
+  OPTION: PHI2420
+
+RANGE: PHI 1000-4999 | count: 2  # "Complete two PHI courses" (Electives) - explicit
+
+=== Physics, BA ===
+name: Physics, BA
+school: YC
+degreeType: BA
+totalCredits: 49-57
+
+COURSE_LIST: Core Courses
+  PHY1051
+  PHY1053
+  PHY1052
+  PHY1054
+  PHY2051
+  PHY4221
+  PHY4321
+  PHY4510
+  PHY4621
+  MAT1412
+  MAT1413
+  MAT1510
+
+TRACK_CHOICE: Program (pick exactly 1)
+  TRACK: Standard Program
+    COURSE_LIST:
+      PHY2052
+      PHY4810
+  TRACK: Applied Physics Concentration
+    COURSE_LIST:
+      PHY1011
+      PHY1073
+      PHY2031
+      PHY2032
+      PHY3033
+      PHY3034
+
+=== Physics Minor ===
+name: Physics Minor
+school: YC
+degreeType: Minor
+totalCredits: 28
+
+COURSE_LIST: Required Courses
+  PHY1051
+  PHY1052
+  PHY1053
+  PHY1054
+  PHY2051
+  PHY2052
+  MAT1412
+  MAT1413
+  MAT1510
+
+=== Political Science, BA ===
+name: Political Science, BA
+school: YC
+degreeType: BA
+totalCredits: 33
+
+COURSE_LIST: Core Courses
+  POL1101
+  POL1201
+  POL1301
+  POL1401
+  POL1501
+
+RANGE: POL 1000-4999 | count: 4  # "four additional Political Science (POLI) courses" for students not pursuing a concentration - explicit in source
+
+TRACK_CHOICE: Concentration (optional - pick at most 1; requires 5 total courses per source, core courses may count toward this total)
+  TRACK: American Politics and Policy
+    CHOOSE_N: 4  # explicit in source ("complete four of the following")
+      OPTION: POL1101
+      OPTION: POL1501
+      OPTION: POL2100
+      OPTION: POL2105
+      OPTION: POL2121
+      OPTION: POL2135
+      OPTION: POL2145
+      OPTION: POL2160
+      OPTION: POL2170
+      OPTION: POL2175
+      OPTION: POL2185
+      OPTION: POL2190
+      OPTION: POL2505
+      OPTION: POL3560
+      OPTION: POL3575
+  TRACK: Comparative Political Studies
+    CHOOSE_N: 4
+      OPTION: POL1201
+      OPTION: POL1501
+      OPTION: POL2210
+      OPTION: POL2215
+      OPTION: POL2220
+      OPTION: POL2260
+      OPTION: POL2290
+      OPTION: POL2505
+      OPTION: POL3575
+  TRACK: International Affairs and Security Studies
+    CHOOSE_N: 4
+      OPTION: POL1301
+      OPTION: POL1501
+      OPTION: POL2260
+      OPTION: POL2290
+      OPTION: POL2305
+      OPTION: POL2330
+      OPTION: POL2360
+      OPTION: POL2395
+      OPTION: POL2505
+      OPTION: POL3300
+      OPTION: POL3560
+      OPTION: POL3575
+  TRACK: Law and Justice
+    CHOOSE_N: 4
+      OPTION: POL1101
+      OPTION: POL1401
+      OPTION: POL1501
+      OPTION: POL2100
+      OPTION: POL2105
+      OPTION: POL2135
+      OPTION: POL2145
+      OPTION: POL2175
+      OPTION: POL2185
+      OPTION: POL2190
+      OPTION: POL2405
+      OPTION: POL2410
+      OPTION: POL2430
+      OPTION: POL2495
+      OPTION: POL2505
+      OPTION: POL3560
+      OPTION: POL3575
+
+=== Political Science Minor ===
+name: Political Science Minor
+school: YC
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  POL1101
+  POL1201
+  POL1301
+  POL1401
+  POL1501
+
+RANGE: POL 1000-4999 | count: 1  # confirmed
+
+=== Public Health Minor ===
+name: Public Health Minor
+school: YC
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  SOC2403
+  SOC2407
+
+CHOOSE_N: 1
+  OPTION: STA1021
+  OPTION: PSY1021
+
+CHOOSE_N: 3  # confirmed
+  OPTION: BIO4023
+  OPTION: ECO2531
+  OPTION: PSY2414
+  OPTION: PSY3601
+  OPTION: SOC1950
+  OPTION: SOC2210
+  OPTION: SOC2402
+  OPTION: SOC2405
+  OPTION: SOC2406
+  OPTION: SOC3003
+
+=== Psychology, BA ===
+name: Psychology, BA
+school: YC
+degreeType: BA
+totalCredits: 37
+
+COURSE_LIST: Core Courses
+  PSY1010
+  PSY1021
+  PSY1110
+  PSY2100
+  PSY2120
+  PSY3105
+
+CHOOSE_N: 1
+  OPTION: PSY2414
+  OPTION: PSY3800
+
+TRACK_CHOICE: Track (pick exactly 1)
+  TRACK: General Psychology
+    COURSE_LIST:
+      PSY3804
+    RANGE: PSY 1000-4999 | count: 4  # "any additional four PSY courses" - explicit in source
+  TRACK: Psychology and the Community
+    CHOOSE_N: 5  # confirmed
+      OPTION: PSY1124
+      OPTION: PSY2430
+      OPTION: PSY3400
+      OPTION: PSY3804
+      OPTION: PSY3842
+      OPTION: PSY4930
+      OPTION: SOC2101
+      OPTION: SOC2305
+      OPTION: SOC2311
+
+=== Psychology Minor ===
+name: Psychology Minor
+school: YC
+degreeType: Minor
+totalCredits: 18
+
+COURSE_LIST: Core Courses
+  PSY1010
+
+CHOOSE_N: 1
+  OPTION: PSY1021
+  OPTION: STA1021
+
+RANGE: PSY 1000-4999 | count: 4  # "Complete 4 PSY courses" - explicit in source
+
+=== Shaped Major ===
+name: Shaped Major
+school: YC
+degreeType: Major
+totalCredits: 30 (minimum)
+
+MANUAL_NOTE: Fully custom, advisor-defined program with no fixed course list by design (student's goals must not be achievable within an existing departmental major). Not something a fixed data structure can check - genuinely unstructured, not a data gap.
+
+=== Shaped Minor ===
+name: Shaped Minor
+school: YC
+degreeType: Minor
+totalCredits: 15 (minimum)
+
+MANUAL_NOTE: Same as Shaped Major - fully custom, advisor-defined program with no fixed course list by design.
+
+=== Sociology, BA ===
+name: Sociology, BA
+school: YC
+degreeType: BA
+totalCredits: 30
+
+COURSE_LIST: Core Courses
+  SOC1001
+  SOC3002
+  SOC3003
+
+RANGE: SOC 1000-4999 | count: 7  # "Complete 7 courses from SOC (1000-4999)" - explicit in source
+
+=== Sociology Minor ===
+name: Sociology Minor
+school: YC
+degreeType: Minor
+totalCredits: 15
+
+COURSE_LIST: Core Courses
+  SOC1001
+
+CHOOSE_N: 1
+  OPTION: SOC3002
+  OPTION: SOC3003
+
+RANGE: SOC 1000-4999 | count: 3  # "Complete 3 SOC courses" - explicit in source
+
+=== Writing Minor ===
+name: Writing Minor
+school: YC
+degreeType: Minor
+totalCredits: 15
+
+RANGE: ENG 1300-1899 | count: 5  # "Complete five Writing Courses from ENG 1300-1899" - explicit in source
