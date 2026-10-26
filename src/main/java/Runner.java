@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -17,6 +18,7 @@ public class Runner {
       + "To get your \"Bookmarked\" list: \"get bookmarked\" \n"
       + "To view a course's full description and requirements: \"details\" \n"
       + "To see your degree progress for your major and minors: \"progress\" \n"
+      + "To look up exact major/minor program names: \"list programs\" \n"
       + "To clear the screen: \"clear\" \n"
       + "To exit the program: \"exit\"";
 
@@ -100,7 +102,11 @@ public class Runner {
         case "get bookmarked" -> CoursePrinter.coursePrinting(UserSession.getBookmarked(), 1);
         case "get interested" -> CoursePrinter.coursePrinting(UserSession.getInterested(), 1);
         case "details" -> displayCourseDetails(scan);
-        case "progress" -> displayDegreeProgress();
+        case "progress" -> displayDegreeProgress(scan);
+        case "list programs" -> {
+          System.out.println("Search term (or leave blank to list every program): ");
+          UserSetup.printProgramList(scan.nextLine().trim());
+        }
         case "<" -> {
           System.out.print("\033[H\033[2J");
           System.out.flush();
@@ -133,31 +139,64 @@ public class Runner {
   }
 
   /** Checks and prints progress toward the current user's major and every
-   *  minor, applying the Sy Syms home-school fallback for minor lookups. */
-  private static void displayDegreeProgress() {
+   *  minor, applying the Sy Syms home-school fallback for minor lookups and
+   *  falling back to substring matching (with disambiguation) when the
+   *  student's typed major/minor doesn't exactly match the catalog. */
+  private static void displayDegreeProgress(Scanner scan) {
     User user = UserSession.currentUser;
     Map<String, DegreeProgram> catalog = DegreeProgram.getCatalog();
     if (catalog == null) {
       System.out.println("Degree program data was not loaded.");
       return;
     }
-    DegreeProgram majorProgram = catalog.get(DegreeProgram.makeKey(user.getMajor(), user.getSchool()));
-    if (majorProgram == null) {
-      System.out.println("No degree program data found for major \"" + user.getMajor()
-          + "\" at school \"" + user.getSchool() + "\".");
-    } else {
+    DegreeProgram majorProgram = resolveProgram(scan, catalog, user.getMajor(), user.getSchool(), "major");
+    if (majorProgram != null) {
       RequirementStatus status = DegreeProgressChecker.check(majorProgram, user.getCompletedCourses());
       CoursePrinter.degreeProgressPrinting(majorProgram.getName(), status);
     }
     for (String minor : user.getMinors()) {
-      DegreeProgram minorProgram = DegreeProgram.findForStudent(catalog, minor, user.getSchool());
-      if (minorProgram == null) {
-        System.out.println("No degree program data found for minor \"" + minor + "\".");
-        continue;
+      DegreeProgram minorProgram = resolveProgram(scan, catalog, minor, user.getSchool(), "minor");
+      if (minorProgram != null) {
+        RequirementStatus status = DegreeProgressChecker.check(minorProgram, user.getCompletedCourses());
+        CoursePrinter.degreeProgressPrinting(minorProgram.getName(), status);
       }
-      RequirementStatus status = DegreeProgressChecker.check(minorProgram, user.getCompletedCourses());
-      CoursePrinter.degreeProgressPrinting(minorProgram.getName(), status);
     }
+  }
+
+  /** Resolves one major/minor name to a catalog program: tries the exact
+   *  (Sy-Syms-aware) lookup first, then falls back to substring matching,
+   *  asking the student to pick when that's ambiguous. Returns null if
+   *  nothing matches or the student doesn't resolve the ambiguity. */
+  private static DegreeProgram resolveProgram(Scanner scan, Map<String, DegreeProgram> catalog, String query,
+                                               String studentSchool, String kind) {
+    DegreeProgram direct = DegreeProgram.findForStudent(catalog, query, studentSchool);
+    if (direct != null) {
+      return direct;
+    }
+    List<DegreeProgram> matches = DegreeProgram.findMatches(catalog, query);
+    if (matches.isEmpty()) {
+      System.out.println("No degree program data found matching " + kind + " \"" + query
+          + "\". Try \"progress\" again, or use \"list\" when entering your " + kind + " to see exact spellings.");
+      return null;
+    }
+    if (matches.size() == 1) {
+      return matches.get(0);
+    }
+    System.out.println("Multiple programs match " + kind + " \"" + query + "\" - which did you mean?");
+    for (int i = 0; i < matches.size(); i++) {
+      System.out.println("  " + (i + 1) + ") " + matches.get(i).getDisplayLabel());
+    }
+    System.out.println("Enter a number, or anything else to skip: ");
+    try {
+      int index = Integer.parseInt(scan.nextLine().trim()) - 1;
+      if (index >= 0 && index < matches.size()) {
+        return matches.get(index);
+      }
+    } catch (NumberFormatException ignored) {
+      // falls through to the skip message below
+    }
+    System.out.println("Skipping " + kind + " progress check for \"" + query + "\".");
+    return null;
   }
 
   private static void displayCourseDetails(Scanner scan) {

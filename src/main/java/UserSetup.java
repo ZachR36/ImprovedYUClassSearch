@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 /** Creates, loads, saves, and updates user profiles. */
@@ -74,8 +76,8 @@ public class UserSetup {
           }
         }
         case "major" -> {
-          System.out.println("What is your major? ");
-          String major = scan.nextLine().trim();
+          String major = promptProgramName(scan, "What is your major? (type \"list\" to see exact program names, "
+              + "optionally followed by a search term): ");
           UserSession.currentUser.setMajor(major);
           System.out.println("Set major to " + major);
           validGiven = true;
@@ -89,8 +91,8 @@ public class UserSetup {
     }
   }
   private static boolean updateMinor(Scanner scan) {
-    System.out.println("Give the minor to add (or remove, if already added): ");
-    String minor = scan.nextLine().trim();
+    String minor = promptProgramName(scan, "Give the minor to add (or remove, if already added) - "
+        + "type \"list\" to see exact program names, optionally followed by a search term: ");
     if (minor.isBlank()) {
       System.out.println("Minor name can't be blank");
       return false;
@@ -118,6 +120,49 @@ public class UserSetup {
       System.out.println("Added " + courseCode + " to completed courses");
     }
     return true;
+  }
+
+  /** Reads one line for a major/minor field, intercepting "list" (optionally
+   *  followed by a search term, e.g. "list computer") to show the student the
+   *  catalog's exact spellings before re-prompting for the real value. */
+  private static String promptProgramName(Scanner scan, String prompt) {
+    while (true) {
+      System.out.println(prompt);
+      String input = scan.nextLine().trim();
+      if (input.equalsIgnoreCase("list") || input.toLowerCase().startsWith("list ")) {
+        String query = input.length() > 4 ? input.substring(4).trim() : "";
+        printProgramList(query);
+        continue;
+      }
+      return input;
+    }
+  }
+
+  /** Prints every catalog program name (optionally filtered by a substring
+   *  search), so a student who doesn't know the exact on-file spelling of
+   *  their major/minor can look it up. */
+  static void printProgramList(String query) {
+    Map<String, DegreeProgram> catalog = DegreeProgram.getCatalog();
+    if (catalog == null) {
+      System.out.println("Degree program data was not loaded.");
+      return;
+    }
+    if (query.isBlank()) {
+      System.out.println("All programs on file:");
+      for (String label : DegreeProgram.listAllPrograms(catalog)) {
+        System.out.println("  " + label);
+      }
+      return;
+    }
+    List<DegreeProgram> matches = DegreeProgram.findMatches(catalog, query);
+    if (matches.isEmpty()) {
+      System.out.println("No programs match \"" + query + "\".");
+      return;
+    }
+    System.out.println("Programs matching \"" + query + "\":");
+    for (DegreeProgram program : matches) {
+      System.out.println("  " + program.getDisplayLabel());
+    }
   }
 
   static boolean validateGivenPath(Path path) {
@@ -166,10 +211,10 @@ public class UserSetup {
           UserSession.currentUser.setCampus(scan.nextLine().trim().equalsIgnoreCase("wilf") ? "wilf" : "beren");
           System.out.println("What school are you in? (YC, Syms, Beren): ");
           UserSession.currentUser.setSchool(scan.nextLine().trim());
-          System.out.println("What is your major? ");
-          UserSession.currentUser.setMajor(scan.nextLine().trim());
-          System.out.println("List any minors, separated by semicolons (or leave blank for none): ");
-          String minorsInput = scan.nextLine().trim();
+          UserSession.currentUser.setMajor(promptProgramName(scan, "What is your major? (type \"list\" to see "
+              + "exact program names, optionally followed by a search term): "));
+          String minorsInput = promptProgramName(scan, "List any minors, separated by semicolons (or leave blank "
+              + "for none) - type \"list\" to see exact program names, optionally followed by a search term: ");
           if (!minorsInput.isBlank()) {
             for (String minor : minorsInput.split(";")) {
               UserSession.currentUser.addMinor(minor);

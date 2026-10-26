@@ -1,4 +1,5 @@
 DegreeProgram$RequirementNode.class
+DegreeProgressChecker.class
 DegreeProgram$RangeRequirement.class
 UserSession.class
 CoursePrinter.class
@@ -15,3 +16,4 @@ SearchEngine.class
 DegreeProgram$Track.class
 Runner.class
 DegreeProgram$ChooseNRequirement.class
+RequirementStatus.class

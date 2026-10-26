@@ -138,6 +138,43 @@ public class DegreeProgram {
         return catalog.get(makeKey(programName, "Syms"));
     }
 
+    /**
+     * Finds every catalog program whose name loosely matches a student-typed
+     * query - case-insensitive, and matching in either direction (handles a
+     * query that's a substring of the real name, e.g. "Computer Science" for
+     * "Computer Science, BA", and the rarer case of a longer typed name). Used
+     * when an exact name+school lookup fails, since students often don't know
+     * a program's exact on-file spelling (degree-type suffix, punctuation).
+     */
+    public static List<DegreeProgram> findMatches(Map<String, DegreeProgram> catalog, String query) {
+        String normalizedQuery = query.trim().toLowerCase();
+        List<DegreeProgram> matches = new ArrayList<>();
+        for (DegreeProgram program : catalog.values()) {
+            String normalizedName = program.name.toLowerCase();
+            if (normalizedName.contains(normalizedQuery) || normalizedQuery.contains(normalizedName)) {
+                matches.add(program);
+            }
+        }
+        return matches;
+    }
+
+    /** Every loaded program's display label, sorted - for showing a student
+     *  the exact on-file spellings when they don't know them. */
+    public static List<String> listAllPrograms(Map<String, DegreeProgram> catalog) {
+        List<String> labels = new ArrayList<>();
+        for (DegreeProgram program : catalog.values()) {
+            labels.add(program.getDisplayLabel());
+        }
+        Collections.sort(labels);
+        return labels;
+    }
+
+    /** A one-line label disambiguating this program by school and degree type,
+     *  e.g. "Computer Science, BA (Stern, BA)". */
+    public String getDisplayLabel() {
+        return name + " (" + school + (degreeType != null && !degreeType.isBlank() ? ", " + degreeType : "") + ")";
+    }
+
     public static Map<String, DegreeProgram> loadCatalog(String path) throws IOException {
         List<String> allLines = Files.readAllLines(Path.of(path));
         Map<String, DegreeProgram> catalog = new HashMap<>();
