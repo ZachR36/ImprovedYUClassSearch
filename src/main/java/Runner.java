@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Scanner;
 
 /** Command-line entry point and search-option prompt loop. */
@@ -15,6 +16,7 @@ public class Runner {
       + "To bookmark (or unmark) a class (so that time slot will be reserved): \"bookmark\" \n"
       + "To get your \"Bookmarked\" list: \"get bookmarked\" \n"
       + "To view a course's full description and requirements: \"details\" \n"
+      + "To see your degree progress for your major and minors: \"progress\" \n"
       + "To clear the screen: \"clear\" \n"
       + "To exit the program: \"exit\"";
 
@@ -24,6 +26,13 @@ public class Runner {
       System.out.println("All courses successfully loaded.");
     } catch (IOException e) {
       System.out.println("Failed to read CSV");
+      e.printStackTrace();
+    }
+    try {
+      DegreeProgram.setup(args[1]);
+      System.out.println("All degree programs successfully loaded.");
+    } catch (IOException e) {
+      System.out.println("Failed to read degree program requirements file");
       e.printStackTrace();
     }
     Scanner scan = new Scanner(System.in);
@@ -91,6 +100,7 @@ public class Runner {
         case "get bookmarked" -> CoursePrinter.coursePrinting(UserSession.getBookmarked(), 1);
         case "get interested" -> CoursePrinter.coursePrinting(UserSession.getInterested(), 1);
         case "details" -> displayCourseDetails(scan);
+        case "progress" -> displayDegreeProgress();
         case "<" -> {
           System.out.print("\033[H\033[2J");
           System.out.flush();
@@ -120,6 +130,34 @@ public class Runner {
 
   private static boolean chooseSearchOption(Scanner scan, boolean refine) {
     return chooseSearchOption(scan, refine, false);
+  }
+
+  /** Checks and prints progress toward the current user's major and every
+   *  minor, applying the Sy Syms home-school fallback for minor lookups. */
+  private static void displayDegreeProgress() {
+    User user = UserSession.currentUser;
+    Map<String, DegreeProgram> catalog = DegreeProgram.getCatalog();
+    if (catalog == null) {
+      System.out.println("Degree program data was not loaded.");
+      return;
+    }
+    DegreeProgram majorProgram = catalog.get(DegreeProgram.makeKey(user.getMajor(), user.getSchool()));
+    if (majorProgram == null) {
+      System.out.println("No degree program data found for major \"" + user.getMajor()
+          + "\" at school \"" + user.getSchool() + "\".");
+    } else {
+      RequirementStatus status = DegreeProgressChecker.check(majorProgram, user.getCompletedCourses());
+      CoursePrinter.degreeProgressPrinting(majorProgram.getName(), status);
+    }
+    for (String minor : user.getMinors()) {
+      DegreeProgram minorProgram = DegreeProgram.findForStudent(catalog, minor, user.getSchool());
+      if (minorProgram == null) {
+        System.out.println("No degree program data found for minor \"" + minor + "\".");
+        continue;
+      }
+      RequirementStatus status = DegreeProgressChecker.check(minorProgram, user.getCompletedCourses());
+      CoursePrinter.degreeProgressPrinting(minorProgram.getName(), status);
+    }
   }
 
   private static void displayCourseDetails(Scanner scan) {

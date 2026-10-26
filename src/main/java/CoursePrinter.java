@@ -2,6 +2,25 @@ import java.util.List;
 
 /** Formats and paginates course lists for the command-line interface. */
 public class CoursePrinter {
+
+  /** Prints one program's degree-progress result: satisfied status, concrete
+   *  remaining requirements, and any informational (never-blocking) notes. */
+  static void degreeProgressPrinting(String programName, RequirementStatus status) {
+    System.out.println("\n**Degree Progress: " + programName + "**");
+    System.out.println(status.isSatisfied() ? "All checkable requirements satisfied!" : "Not yet complete.");
+    if (!status.getRemainingDescriptions().isEmpty()) {
+      System.out.println("Remaining requirements:");
+      for (String description : status.getRemainingDescriptions()) {
+        System.out.println("  - " + description);
+      }
+    }
+    if (!status.getManualNotes().isEmpty()) {
+      System.out.println("Notes (not automatically checked):");
+      for (String note : status.getManualNotes()) {
+        System.out.println("  - " + note);
+      }
+    }
+  }
   static final int INCREMENT = 15;
 
   static void coursePrinting(List<Course> courses, int startingPoint) {
