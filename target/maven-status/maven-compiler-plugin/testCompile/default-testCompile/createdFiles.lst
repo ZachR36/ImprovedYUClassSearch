@@ -1,1 +1,7 @@
 CourseTest.class
+UserTest.class
+CompletedCourseTest.class
+CoreRequirementProgramTest.class
+CoreRequirementCheckerTest.class
+SearchRunTests.class
+SearchSetUpTest.class

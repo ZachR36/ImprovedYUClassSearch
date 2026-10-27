@@ -1,0 +1,238 @@
+# Core graduation requirements
+# ============================
+#
+# This file is intentionally parallel to MajorMinorRequirements.txt.  It uses
+# the existing requirement-tree vocabulary where possible (COURSE_LIST,
+# CHOOSE_N, RANGE, TRACK_CHOICE, MANUAL_NOTE), plus core-specific node types
+# understood by CoreRequirementProgram and CoreRequirementChecker:
+#
+#   ATTRIBUTE_COUNT: <attribute> | count: <n>
+#   COURSE_COUNT: <n>
+#   COURSE_COUNT_FROM_DEPARTMENTS: <dept>|<dept>... | count: <n>
+#   DISTINCT_SUBJECTS: count: <n>
+#     SUBJECT: <subject-area>
+#   DISTRIBUTION: count: <n> | minSubjects: <n>
+#     SUBJECT: <subject-area>
+#   CREDIT_COUNT: <dept>|<dept>... | credits: <n>
+#
+# Selection metadata identifies the one core profile that applies to a user.
+# The user's canonical major-program key supplies the degree type; campus and
+# Jewish-studies track will be supplied by the user profile/selector later.
+
+=== Stern College for Women Core ===
+name: Stern College for Women Core
+school: Stern
+campus: Beren
+degreeType: BA
+programType: Core
+
+CHOOSE_N: 1  # Modes of Expression: composition choice
+  OPTION: ENGL1100
+  OPTION: ENGL1200
+
+COURSE_LIST: Modes of Expression: Speech Communication
+  SPEE1010
+
+DISTINCT_SUBJECTS: count: 4  # History, Philosophy, Social Sciences
+  SUBJECT: Economics
+  SUBJECT: History
+  SUBJECT: Philosophy
+  SUBJECT: Political Science
+  SUBJECT: Psychology
+  SUBJECT: Sociology
+
+DISTRIBUTION: count: 3 | minSubjects: 2  # Interpreting Literature and the Arts
+  SUBJECT: Art History
+  SUBJECT: English
+  SUBJECT: Music
+  SUBJECT: Foreign Language
+
+CHOOSE_N: 2  # Science and Technology
+  OPTION: BIOL1006
+  OPTION:
+    COURSE_LIST:
+      BIOL1011
+      BIOL1013
+  OPTION:
+    COURSE_LIST:
+      BIOL1012
+      BIOL1014
+  OPTION: BIOL1060
+  OPTION: CHEM1010
+  OPTION: CHEM1045
+  OPTION:
+    COURSE_LIST:
+      CHEM1046
+      CHEM1047
+  OPTION:
+    COURSE_LIST:
+      PHYS1031
+      PHYS1033
+  OPTION: PHYS1032
+  OPTION:
+    COURSE_LIST:
+      PHYS1051
+      PHYS1053
+  OPTION:
+    COURSE_LIST:
+      PHYS1052
+      PHYS1054
+
+COURSE_COUNT_FROM_DEPARTMENTS: COMP|MATH | count: 1  # Quantitative Skills
+COURSE_COUNT: 4  # Electives
+CREDIT_COUNT: HEB | credits: 2 | label: Hebrew
+MANUAL_NOTE: Jewish Studies: 18 courses (36 credits).
+
+=== Sy Syms Beren Core ===
+name: Sy Syms Beren Core
+school: Syms
+campus: Beren
+programType: Core
+
+COURSE_LIST: Communication
+  BUS1010
+  BUS1020
+
+COURSE_LIST: Quantitative
+  IDS1010
+  IDS1131
+  IDS1556
+
+COURSE_LIST: Business Core
+  ACC1001
+  ACC1002
+  BLW2021
+  ENT1020
+  FIN1001
+  IDS1015
+  IDS1020
+  MAR1001
+
+COURSE_COUNT_FROM_DEPARTMENTS: ARTS|MUSI|ENGL|HIST|PHIL|JHIS|JPHI | count: 2
+  # General Education: Humanities; each course must be 3 credits.
+COURSE_LIST: General Education: Social and Natural Sciences
+  ECON1010
+COURSE_COUNT_FROM_DEPARTMENTS: BIOL|CHEM|PHYS|POLI|PSYC|SCIE|SOCI | count: 1
+  # General Education: Social and Natural Sciences.
+MANUAL_NOTE: Jewish Values (4 credits): Jewish Business Ethics OR Jewish Public Policy.
+COURSE_COUNT: 1  # General Elective; one 3-credit course.
+CREDIT_COUNT: HEB | credits: 2 | label: Hebrew
+MANUAL_NOTE: Jewish Studies: 18 courses (36 credits).
+MANUAL_NOTE: General elective may not double count as a major business elective.
+
+=== Sy Syms Wilf Core ===
+name: Sy Syms Wilf Core
+school: Syms
+campus: Wilf
+programType: Core
+
+COURSE_LIST: Communication
+  BUS1010
+  BUS1020
+
+COURSE_LIST: Quantitative
+  IDS1010
+  IDS1131
+  IDS1556
+
+COURSE_LIST: Business Core
+  ACC1001
+  ACC1002
+  BLW2021
+  ENT1020
+  FIN1001
+  IDS1015
+  IDS1020
+  MAR1001
+
+COURSE_COUNT_FROM_DEPARTMENTS: ART|MUS|ENG|HIS|PHI|JHI|JPH | count: 2
+  # General Education: Humanities; each course must be 3 credits.
+COURSE_LIST: General Education: Social and Natural Sciences
+  ECO1010
+COURSE_COUNT_FROM_DEPARTMENTS: BIO|CHE|PHY|POL|PSY|SCI|SOC | count: 1
+  # General Education: Social and Natural Sciences.
+COURSE_COUNT: 2  # General Electives; two 3-credit courses.
+CREDIT_COUNT: HEB | credits: 2 | label: Hebrew
+
+TRACK_CHOICE: Jewish Studies Series (pick exactly 1)
+  TRACK: MYP/BMP/IBC
+    COURSE_LIST: Required JUD 26xx courses
+      JUD2620
+      JUD2630
+      JUD2640
+    RANGE: JUD 2600-2699 | count: 1  # One additional JUD 26xx course.
+    MANUAL_NOTE: Each JUD course must be taken for at least 2 credits.
+  TRACK: JSS
+    COURSE_LIST: Required courses
+      JUD2630
+      JUD2640
+    RANGE: JUD 1700-1709 | count: 1
+    COURSE_COUNT_FROM_DEPARTMENTS: HAL | count: 1
+    COURSE_COUNT_FROM_DEPARTMENTS: JHI | count: 1
+    COURSE_COUNT_FROM_DEPARTMENTS: JTH | count: 2
+    COURSE_COUNT_FROM_DEPARTMENTS: TAN | count: 2
+    MANUAL_NOTE: Each JUD course must be taken for at least 2 credits.
+
+MANUAL_NOTE: General elective may not double count as a major business elective.
+
+=== Yeshiva College BA Core ===
+name: Yeshiva College BA Core
+school: YC
+degreeType: BA
+programType: Core
+
+COURSE_LIST: Writing
+  FYWR1020
+ATTRIBUTE_COUNT: WI | count: 1
+
+ATTRIBUTE_COUNT: COWC | count: 1
+ATTRIBUTE_COUNT: CUOT | count: 1
+ATTRIBUTE_COUNT: INTC | count: 1
+ATTRIBUTE_COUNT: HBSI | count: 1
+ATTRIBUTE_COUNT: NAWO | count: 1
+
+CHOOSE_N: 1  # Experimental and Quantitative Methods
+  OPTION:
+    ATTRIBUTE_COUNT: EXQM | count: 1
+  OPTION:
+    MANUAL_NOTE: One year of lab science AND one year of mathematics.
+
+CREDIT_COUNT: HEB | credits: 2 | label: Hebrew
+
+TRACK_CHOICE: Jewish Studies Series (pick exactly 1)
+  TRACK: MYP/BMP/IBC
+    CREDIT_COUNT: BIB|JHI|JST|JTP|HEB | credits: 12 | label: Jewish Studies Series
+    COURSE_COUNT_FROM_DEPARTMENTS: BIB | count: 1
+    COURSE_COUNT_FROM_DEPARTMENTS: JHI | count: 1
+    COURSE_COUNT_FROM_DEPARTMENTS: JTP | count: 1
+    COURSE_COUNT_FROM_DEPARTMENTS: HEB|BIB|JHI|JST|JTP | count: 1
+    MANUAL_NOTE: The final course must be beyond the Hebrew requirement when it is HEB.
+  TRACK: JSS
+    RANGE: JUD 1700-1709 | count: 1
+    COURSE_COUNT_FROM_DEPARTMENTS: HAL | count: 1
+    COURSE_COUNT_FROM_DEPARTMENTS: JHI | count: 1
+    COURSE_COUNT_FROM_DEPARTMENTS: HEB | count: 2
+    COURSE_COUNT_FROM_DEPARTMENTS: JTH | count: 2
+    COURSE_COUNT_FROM_DEPARTMENTS: TAN | count: 2
+    COURSE_COUNT_FROM_DEPARTMENTS: HAL|JHI|JTH|TAN | count: 1
+
+=== Yeshiva College BS Computer Science Core ===
+name: Yeshiva College BS Computer Science Core
+school: YC
+degreeType: BS
+major: Computer Science
+programType: Core
+
+COURSE_LIST: Writing
+  FYWR1020
+COURSE_COUNT_FROM_DEPARTMENTS: BIB|JHI|JST|JTP | count: 2
+  # Two courses totaling 4 credits.
+CHOOSE_N: 1
+  OPTION:
+    ATTRIBUTE_COUNT: CUOT | count: 1
+  OPTION:
+    ATTRIBUTE_COUNT: COWC | count: 1
+ATTRIBUTE_COUNT: INTC | count: 1
+ATTRIBUTE_COUNT: HBSI | count: 1
+COURSE_COUNT_FROM_DEPARTMENTS: ART|BIO|BIB|CHE|ECO|ENG|HEB|HIS|JHI|JST|JTP|MUS|PHI|PHY|POL|PSY|SOC|SPA | count: 2
+  # Two electives totaling 6 credits.

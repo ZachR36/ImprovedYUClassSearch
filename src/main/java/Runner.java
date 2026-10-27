@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -35,6 +34,14 @@ public class Runner {
       System.out.println("All degree programs successfully loaded.");
     } catch (IOException e) {
       System.out.println("Failed to read degree program requirements file");
+      e.printStackTrace();
+    }
+    try {
+      String coreRequirementsPath = args.length >= 3 ? args[2] : "CoreRequirements.txt";
+      CoreRequirementProgram.setup(coreRequirementsPath);
+      System.out.println("All core requirement profiles successfully loaded.");
+    } catch (IOException | IllegalArgumentException e) {
+      System.out.println("Failed to read core requirement profiles");
       e.printStackTrace();
     }
     Scanner scan = new Scanner(System.in);
@@ -102,7 +109,7 @@ public class Runner {
         case "get bookmarked" -> CoursePrinter.coursePrinting(UserSession.getBookmarked(), 1);
         case "get interested" -> CoursePrinter.coursePrinting(UserSession.getInterested(), 1);
         case "details" -> displayCourseDetails(scan);
-        case "progress" -> displayDegreeProgress(scan);
+        case "progress" -> displayDegreeProgress();
         case "list programs" -> {
           System.out.println("Search term (or leave blank to list every program): ");
           UserSetup.printProgramList(scan.nextLine().trim());
@@ -138,65 +145,42 @@ public class Runner {
     return chooseSearchOption(scan, refine, false);
   }
 
-  /** Checks and prints progress toward the current user's major and every
-   *  minor, applying the Sy Syms home-school fallback for minor lookups and
-   *  falling back to substring matching (with disambiguation) when the
-   *  student's typed major/minor doesn't exactly match the catalog. */
-  private static void displayDegreeProgress(Scanner scan) {
+  /** Checks and prints progress toward the current user's major and minors.
+   *  Program keys are canonicalized when a profile is created, updated, or
+   *  loaded, so this method never prompts the student to disambiguate one. */
+  private static void displayDegreeProgress() {
     User user = UserSession.currentUser;
     Map<String, DegreeProgram> catalog = DegreeProgram.getCatalog();
     if (catalog == null) {
       System.out.println("Degree program data was not loaded.");
       return;
     }
-    DegreeProgram majorProgram = resolveProgram(scan, catalog, user.getMajor(), user.getSchool(), "major");
+    DegreeProgram majorProgram = DegreeProgram.findByCatalogKey(catalog, user.getMajor());
     if (majorProgram != null) {
       RequirementStatus status = DegreeProgressChecker.check(majorProgram, user.getCompletedCourses());
       CoursePrinter.degreeProgressPrinting(majorProgram.getName(), status);
+      CoreRequirementProgram coreProgram = CoreRequirementProgram.findForUser(user);
+      if (coreProgram != null) {
+        RequirementStatus coreStatus = CoreRequirementChecker.check(coreProgram, user.getCompletedCourseRecords(),
+            user.getJewishStudiesTrack());
+        CoursePrinter.degreeProgressPrinting(coreProgram.getName(), coreStatus);
+      } else {
+        System.out.println("No single core-requirement profile matches your saved school, campus, and major yet.");
+      }
+    } else if (!user.getMajor().equalsIgnoreCase("undeclared")) {
+      System.out.println("Saved major program key was not found: " + user.getMajor()
+          + ". Update your user profile to select a current catalog program.");
     }
-    for (String minor : user.getMinors()) {
-      DegreeProgram minorProgram = resolveProgram(scan, catalog, minor, user.getSchool(), "minor");
+    for (String minorKey : user.getMinors()) {
+      DegreeProgram minorProgram = DegreeProgram.findByCatalogKey(catalog, minorKey);
       if (minorProgram != null) {
         RequirementStatus status = DegreeProgressChecker.check(minorProgram, user.getCompletedCourses());
         CoursePrinter.degreeProgressPrinting(minorProgram.getName(), status);
+      } else {
+        System.out.println("Saved minor program key was not found: " + minorKey
+            + ". Update your user profile to select a current catalog program.");
       }
     }
-  }
-
-  /** Resolves one major/minor name to a catalog program: tries the exact
-   *  (Sy-Syms-aware) lookup first, then falls back to substring matching,
-   *  asking the student to pick when that's ambiguous. Returns null if
-   *  nothing matches or the student doesn't resolve the ambiguity. */
-  private static DegreeProgram resolveProgram(Scanner scan, Map<String, DegreeProgram> catalog, String query,
-                                               String studentSchool, String kind) {
-    DegreeProgram direct = DegreeProgram.findForStudent(catalog, query, studentSchool);
-    if (direct != null) {
-      return direct;
-    }
-    List<DegreeProgram> matches = DegreeProgram.findMatches(catalog, query);
-    if (matches.isEmpty()) {
-      System.out.println("No degree program data found matching " + kind + " \"" + query
-          + "\". Try \"progress\" again, or use \"list\" when entering your " + kind + " to see exact spellings.");
-      return null;
-    }
-    if (matches.size() == 1) {
-      return matches.get(0);
-    }
-    System.out.println("Multiple programs match " + kind + " \"" + query + "\" - which did you mean?");
-    for (int i = 0; i < matches.size(); i++) {
-      System.out.println("  " + (i + 1) + ") " + matches.get(i).getDisplayLabel());
-    }
-    System.out.println("Enter a number, or anything else to skip: ");
-    try {
-      int index = Integer.parseInt(scan.nextLine().trim()) - 1;
-      if (index >= 0 && index < matches.size()) {
-        return matches.get(index);
-      }
-    } catch (NumberFormatException ignored) {
-      // falls through to the skip message below
-    }
-    System.out.println("Skipping " + kind + " progress check for \"" + query + "\".");
-    return null;
   }
 
   private static void displayCourseDetails(Scanner scan) {

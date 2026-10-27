@@ -997,7 +997,7 @@ RANGE: IDS 1000-4999 | count: 2  # "Complete two additional IDS courses" - open,
 
 CHOOSE_N: 1  # "And" one of the following two elective paths
   OPTION:
-RANGE: ACC|FIN|MAR|ENT|IDS 1000-4999 | count: 3  # "upper-level business courses from a single subject area" - subject list = any Sy Syms major's courses (per user); single-subject-only constraint NOT enforced (accepted limitation per user). Number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+    RANGE: ACC|FIN|MAR|ENT|IDS 1000-4999 | count: 3  # "upper-level business courses from a single subject area" - subject list = any Sy Syms major's courses (per user); single-subject-only constraint NOT enforced (accepted limitation per user). Number floor TEMP set to full range pending confirmed "upper-level" cutoff.
   OPTION:
     MANUAL_NOTE: Three courses from a combination of Computer Science (COMP) and IDS courses - open, no course-number restriction stated in source.
 
@@ -1009,7 +1009,7 @@ totalCredits: 9-18 (varies by home school)
 
 TRACK_CHOICE: Requirements (based on student's home school)
   TRACK: Sy Syms students
-RANGE: IDS 1000-4999 | count: 3  # "upper-level IDS courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+    RANGE: IDS 1000-4999 | count: 3  # "upper-level IDS courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
   TRACK: Stern/YC students
     COURSE_LIST:
       IDS1010
@@ -1064,7 +1064,7 @@ totalCredits: 9-18 (varies by home school)
 
 TRACK_CHOICE: Requirements (based on student's home school)
   TRACK: Sy Syms students
-RANGE: FIN 1000-4999 | count: 3  # "upper-level FIN courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+    RANGE: FIN 1000-4999 | count: 3  # "upper-level FIN courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
   TRACK: Stern/YC students
     COURSE_LIST:
       ACC1001
@@ -1100,7 +1100,7 @@ totalCredits: 9-18 (varies by home school)
 
 TRACK_CHOICE: Requirements (based on student's home school)
   TRACK: Sy Syms students
-RANGE: MAR 1000-4999 | count: 3  # "upper-level MAR courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+    RANGE: MAR 1000-4999 | count: 3  # "upper-level MAR courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
   TRACK: Stern/YC students
     COURSE_LIST:
       IDS1010
@@ -1155,7 +1155,7 @@ totalCredits: 9-18 (varies by home school)
 
 TRACK_CHOICE: Requirements (based on student's home school)
   TRACK: Sy Syms students
-RANGE: ENT 1000-4999 | count: 3  # "upper-level ENT courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
+    RANGE: ENT 1000-4999 | count: 3  # "upper-level ENT courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
   TRACK: Stern/YC students
     CHOOSE_N: 1
       OPTION: ACC1001
@@ -1480,17 +1480,17 @@ TRACK_CHOICE: Program (pick exactly 1)
       OPTION: STA1021
       OPTION: MAT2461
     CHOOSE_N: 2  # "two electives" - confirmed. ECO1010 and "one Finance/Accounting course" are mutually exclusive with each other (can't pick both) - this exclusivity isn't enforced by this CHOOSE_N
-    OPTION: ECO1010
-    OPTION:
-      MANUAL_NOTE: "One Finance/Accounting course" - specific ACC/FIN courses that qualify not stated in source.
-    OPTION: ECO1221
-    OPTION: ECO1501
-    OPTION: ECO1601
-    OPTION: ECO1701
-    OPTION: ECO2005
-    OPTION: ECO2201
-    OPTION: ECO2531
-    OPTION: ECO4930
+      OPTION: ECO1010
+      OPTION:
+        MANUAL_NOTE: "One Finance/Accounting course" - specific ACC/FIN courses that qualify not stated in source.
+      OPTION: ECO1221
+      OPTION: ECO1501
+      OPTION: ECO1601
+      OPTION: ECO1701
+      OPTION: ECO2005
+      OPTION: ECO2201
+      OPTION: ECO2531
+      OPTION: ECO4930
     MANUAL_NOTE: "Advanced Electives" also count as substitutes within the same elective requirement above: ECO1177, ECO2601, ECO2801, ECO4931.
 
 === Economics Minor ===

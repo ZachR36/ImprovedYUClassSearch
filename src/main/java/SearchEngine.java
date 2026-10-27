@@ -101,6 +101,16 @@ public class SearchEngine {
     return resultCourse;
   }
 
+  /** Finds a current-semester offering by its stable department+number code. */
+  static Course searchByCourseCode(String courseCode) {
+    for (Course course : mapByCRN.values()) {
+      if (course.getCourseCode().equalsIgnoreCase(courseCode.trim())) {
+        return course;
+      }
+    }
+    return null;
+  }
+
   static ArrayList<Course> searchByCredits(double credits) {
     return mapByCredits.getOrDefault(credits, new ArrayList<>());
   }

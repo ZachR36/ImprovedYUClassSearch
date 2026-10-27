@@ -21,9 +21,15 @@ public class User {
     // semester, so it can't be checked against prerequisites in a later
     // semester's course data - the course code is what's stable and what
     // Course.prerequisitesSatisfied(...) actually checks against.
-    private Set<String> completedCourses;
+    // LinkedHashMap preserves a stable save-file order while ensuring one
+    // completed-course record exists for each stable course code.
+    private Map<String, CompletedCourse> completedCourses;
+    // These store DegreeProgram catalog keys (for example,
+    // "computer science, ba@stern"), not informal student-entered names.
     private String major;
     private Set<String> minors;
+    // MYP, BMP, IBC, JSS, or "undeclared" when not applicable/known.
+    private String jewishStudiesTrack;
 
     public User(Path filePath) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(filePath)) {
@@ -31,39 +37,63 @@ public class User {
             this.honors = Boolean.parseBoolean(reader.readLine());
             this.campus = reader.readLine();
             this.school = reader.readLine();
-            this.major = reader.readLine();
-            String minorsLine = reader.readLine();
+            List<String> remainingLines = reader.lines().toList();
+            this.major = remainingLines.isEmpty() ? "undeclared" : remainingLines.get(0);
             this.minors = new HashSet<>();
-            if (minorsLine != null && !minorsLine.isBlank()) {
+            String minorsLine = remainingLines.size() >= 2 ? remainingLines.get(1) : "";
+            if (!minorsLine.isBlank()) {
                 for (String minor : minorsLine.split(";")) {
                     minors.add(minor.trim());
                 }
             }
-            this.completedCourses = new HashSet<>();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.isBlank()) {
-                    completedCourses.add(normalizeCourseCode(line));
-                }
+            this.completedCourses = new LinkedHashMap<>();
+            this.jewishStudiesTrack = "undeclared";
+
+            // Profiles from before degree-program information had only four
+            // header lines followed immediately by course codes.  Detect that
+            // shape rather than losing those completed courses.
+            int courseStart = 2;
+            if (!remainingLines.isEmpty() && looksLikeCourseCode(remainingLines.get(0))) {
+                this.major = "undeclared";
+                this.minors.clear();
+                courseStart = 0;
+            }
+            if (courseStart < remainingLines.size() && remainingLines.get(courseStart).startsWith("TRACK:")) {
+                setJewishStudiesTrack(remainingLines.get(courseStart).substring("TRACK:".length()));
+                courseStart++;
+            }
+            for (int i = courseStart; i < remainingLines.size(); i++) {
+                addSerializedCompletedCourse(remainingLines.get(i));
             }
         }
     }
 
     public User(String name, boolean honors, String campus, String school, String major,
                 Set<String> minors, Set<String> completedCourseCodes) {
+        this(name, honors, campus, school, major, minors, "undeclared", completedCourseCodes);
+    }
+
+    public User(String name, boolean honors, String campus, String school, String major,
+                Set<String> minors, String jewishStudiesTrack, Set<String> completedCourseCodes) {
         this.name = name;
         this.honors = honors;
         this.campus = campus;
         this.school = school;
         this.major = major;
+        setJewishStudiesTrack(jewishStudiesTrack);
         this.minors = new HashSet<>();
         for (String minor : minors) {
             this.minors.add(minor.trim());
         }
-        this.completedCourses = new HashSet<>();
+        this.completedCourses = new LinkedHashMap<>();
         for (String code : completedCourseCodes) {
-            this.completedCourses.add(normalizeCourseCode(code));
+            addCompletedClass(code);
         }
+    }
+
+    /** Backward-compatible constructor for callers without degree-program data. */
+    public User(String name, boolean honors, String campus, String school, Set<String> completedCourseCodes) {
+        this(name, honors, campus, school, "undeclared", new HashSet<>(), completedCourseCodes);
     }
 
     public User(){
@@ -73,7 +103,8 @@ public class User {
         this.school = "yc syms beren";
         this.major = "undeclared";
         this.minors = new HashSet<>();
-        this.completedCourses = new HashSet<>();
+        this.jewishStudiesTrack = "undeclared";
+        this.completedCourses = new LinkedHashMap<>();
     }
 
     public void setName(String name) {
@@ -128,12 +159,34 @@ public class User {
         return minors;
     }
 
+    public String getJewishStudiesTrack() {
+        return jewishStudiesTrack;
+    }
+
+    public void setJewishStudiesTrack(String jewishStudiesTrack) {
+        this.jewishStudiesTrack = jewishStudiesTrack == null || jewishStudiesTrack.isBlank()
+                ? "undeclared" : jewishStudiesTrack.trim().toUpperCase();
+    }
+
     public Set<String> getCompletedCourses() {
-        return completedCourses;
+        return Collections.unmodifiableSet(completedCourses.keySet());
+    }
+
+    /** Rich completed-course data for core-progress checks. */
+    public Collection<CompletedCourse> getCompletedCourseRecords() {
+        return Collections.unmodifiableCollection(completedCourses.values());
     }
 
     public void addCompletedClass(String courseCode){
-        completedCourses.add(normalizeCourseCode(courseCode));
+        addCompletedCourse(new CompletedCourse(courseCode, null, null, Set.of()));
+    }
+
+    public void addCompletedClass(Course course) {
+        addCompletedCourse(new CompletedCourse(course));
+    }
+
+    public void addCompletedCourse(CompletedCourse course) {
+        completedCourses.put(course.getCourseCode(), course);
     }
 
     public void removeCompletedClass(String courseCode) {
@@ -144,6 +197,28 @@ public class User {
     // casing still matches Course.getCourseCode()'s canonical format.
     private static String normalizeCourseCode(String courseCode) {
         return courseCode.trim().toUpperCase();
+    }
+
+    private static boolean looksLikeCourseCode(String value) {
+        return value != null && value.trim().matches("[A-Za-z]+\\d+");
+    }
+
+    private void addSerializedCompletedCourse(String line) {
+        if (line == null || line.isBlank()) {
+            return;
+        }
+        // Older profile files stored only a course code on each line.
+        if (!line.startsWith("COMPLETED|")) {
+            addCompletedClass(line);
+            return;
+        }
+        String[] fields = line.split("\\|", -1);
+        if (fields.length != 5 || fields[1].isBlank()) {
+            throw new IllegalArgumentException("Malformed completed-course record in profile: " + line);
+        }
+        Double credits = fields[2].isBlank() ? null : Double.parseDouble(fields[2]);
+        Set<String> attributes = fields[4].isBlank() ? Set.of() : Set.of(fields[4].split(","));
+        addCompletedCourse(new CompletedCourse(fields[1], credits, fields[3], attributes));
     }
 
     public void saveToFile(Path filePath) throws IOException {
@@ -160,8 +235,13 @@ public class User {
             writer.newLine();
             writer.write(String.join(";", minors));
             writer.newLine();
-            for (String courseCode : completedCourses) {
-                writer.write(courseCode);
+            writer.write("TRACK:" + jewishStudiesTrack);
+            writer.newLine();
+            for (CompletedCourse course : completedCourses.values()) {
+                writer.write("COMPLETED|" + course.getCourseCode() + "|"
+                    + (course.getCredits() == null ? "" : course.getCredits()) + "|"
+                    + (course.getDepartment() == null ? "" : course.getDepartment()) + "|"
+                    + String.join(",", course.getAttributes()));
                 writer.newLine();
             }
         }

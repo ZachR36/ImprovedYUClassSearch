@@ -100,6 +100,8 @@ public class DegreeProgram {
     public String getDegreeType() { return degreeType; }
     public String getTotalCredits() { return totalCredits; }
     public List<RequirementNode> getRequirements() { return requirements; }
+    /** The canonical catalog key suitable for persistent profile storage. */
+    public String getCatalogKey() { return makeKey(name, school); }
 
     // ===================== LOADING =====================
 
@@ -118,6 +120,18 @@ public class DegreeProgram {
 
     public static Map<String, DegreeProgram> getCatalog() {
         return catalog;
+    }
+
+    /** Looks up a program by the canonical name@school key stored in a profile. */
+    public static DegreeProgram findByCatalogKey(Map<String, DegreeProgram> catalog, String catalogKey) {
+        if (catalogKey == null || catalogKey.isBlank()) {
+            return null;
+        }
+        int separator = catalogKey.lastIndexOf('@');
+        if (separator <= 0 || separator == catalogKey.length() - 1) {
+            return null;
+        }
+        return catalog.get(makeKey(catalogKey.substring(0, separator), catalogKey.substring(separator + 1)));
     }
 
     /**
