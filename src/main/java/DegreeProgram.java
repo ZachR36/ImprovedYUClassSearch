@@ -100,6 +100,17 @@ public class DegreeProgram {
     public String getDegreeType() { return degreeType; }
     public String getTotalCredits() { return totalCredits; }
     public List<RequirementNode> getRequirements() { return requirements; }
+    /** Returns this program's declared track choice(s). Current program data
+     * has at most one, but the list keeps the model extensible. */
+    public List<TrackChoiceRequirement> getTrackChoices() {
+        List<TrackChoiceRequirement> choices = new ArrayList<>();
+        for (RequirementNode requirement : requirements) {
+            if (requirement instanceof TrackChoiceRequirement trackChoice) {
+                choices.add(trackChoice);
+            }
+        }
+        return choices;
+    }
     /** The canonical catalog key suitable for persistent profile storage. */
     public String getCatalogKey() { return makeKey(name, school); }
 
@@ -137,11 +148,11 @@ public class DegreeProgram {
     /**
      * Looks up a program by name for a given student's home school, applying
      * the Sy Syms fallback: most minors are filed once under "Syms" but branch
-     * internally via a TrackChoiceRequirement keyed to the student's actual
-     * home school (e.g. "Sy Syms students" vs "Stern/YC students"). Tries the
-     * direct key first; if that's absent, falls back to the "Syms" filing and
-     * returns it as-is (the caller/checker resolves the matching track by
-     * school when evaluating it). Returns null if neither lookup succeeds.
+     * internally via a TrackChoiceRequirement whose tracks are tagged for the
+     * student's actual home school (e.g. "Sy Syms students" vs "Stern/YC
+     * students"). Tries the direct key first; if that's absent, falls back to
+     * the "Syms" filing. User setup then stores the matching tagged track.
+     * Returns null if neither lookup succeeds.
      */
     public static DegreeProgram findForStudent(Map<String, DegreeProgram> catalog, String programName,
                                                 String studentSchool) {
@@ -393,9 +404,13 @@ public class DegreeProgram {
             if (indent <= parentIndent) break;
             cursor.next();
             String trimmed = line.trim();
-            String name = trimmed.startsWith("TRACK:") ? trimmed.substring("TRACK:".length()).trim() : trimmed;
+            String header = trimmed.startsWith("TRACK:") ? trimmed.substring("TRACK:".length()).trim() : trimmed;
+            String[] headerParts = header.split("\\s*\\|\\s*school:\\s*", 2);
+            String name = stripComment(headerParts[0]);
+            List<String> schools = headerParts.length == 2 && !headerParts[1].isBlank()
+                    ? Arrays.asList(stripComment(headerParts[1]).split("\\|")) : List.of();
             List<RequirementNode> body = parseNodes(cursor, indent);
-            tracks.add(new Track(name, body));
+            tracks.add(new Track(name, schools, body));
         }
         return tracks;
     }
@@ -491,12 +506,16 @@ public class DegreeProgram {
 
     public static class Track {
         private final String name;
+        private final List<String> schools;
         private final List<RequirementNode> requirements;
-        public Track(String name, List<RequirementNode> requirements) {
+        public Track(String name, List<String> schools, List<RequirementNode> requirements) {
             this.name = name;
+            this.schools = schools;
             this.requirements = requirements;
         }
         public String getName() { return name; }
+        /** Empty means this track is not automatically limited to a school. */
+        public List<String> getSchools() { return schools; }
         public List<RequirementNode> getRequirements() { return requirements; }
     }
 

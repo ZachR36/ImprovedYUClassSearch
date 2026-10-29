@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -16,7 +17,8 @@ public class Runner {
       + "To bookmark (or unmark) a class (so that time slot will be reserved): \"bookmark\" \n"
       + "To get your \"Bookmarked\" list: \"get bookmarked\" \n"
       + "To view a course's full description and requirements: \"details\" \n"
-      + "To see your degree progress for your major and minors: \"progress\" \n"
+      + "To see your degree progress for your degree programs: \"progress\" \n"
+      + "To get up to five recommended next courses: \"recommend\" \n"
       + "To look up exact major/minor program names: \"list programs\" \n"
       + "To clear the screen: \"clear\" \n"
       + "To exit the program: \"exit\"";
@@ -46,15 +48,17 @@ public class Runner {
     }
     Scanner scan = new Scanner(System.in);
     int printingSpot = 1;
-    UserSetup.userSetUp(scan);
+    UserSession.currentUser = new User();
+    runUserCommand(scan, true);
     System.out.print("\033[H\033[2J");
     System.out.flush();
     boolean run = true;
     while (run) {
       System.out.println(actionPrompt);
       String selection = scan.nextLine().trim();
+      try {
       switch (selection.toLowerCase()) {
-        case "user" -> UserSetup.userChange(scan);
+        case "user" -> runUserCommand(scan, false);
         case "search" -> {
           boolean success = chooseSearchOption(scan, false);
           if (success) {
@@ -100,19 +104,25 @@ public class Runner {
         }
         case "bookmark" -> {
           System.out.println("Give the CRN of the class that you want to bookmark: ");
-          UserSession.bookmarkClass(scan.nextLine().trim());
+          UserSession.bookmarkClass(ConsoleInput.read(scan));
         }
         case "interested" -> {
           System.out.println("Give the CRN of the class that you're interested in: ");
-          UserSession.interestedInClass(scan.nextLine().trim());
+          UserSession.interestedInClass(ConsoleInput.read(scan));
         }
-        case "get bookmarked" -> CoursePrinter.coursePrinting(UserSession.getBookmarked(), 1);
+        case "get bookmarked" -> {
+          CoursePrinter.coursePrinting(UserSession.getBookmarked(), 1);
+          for (String warning : UserSession.getCorequisiteWarnings()) {
+            System.out.println("Warning: " + warning);
+          }
+        }
         case "get interested" -> CoursePrinter.coursePrinting(UserSession.getInterested(), 1);
         case "details" -> displayCourseDetails(scan);
         case "progress" -> displayDegreeProgress();
+        case "recommend" -> CoursePrinter.recommendationPrinting(RecommendationEngine.recommend(UserSession.currentUser));
         case "list programs" -> {
           System.out.println("Search term (or leave blank to list every program): ");
-          UserSetup.printProgramList(scan.nextLine().trim());
+          UserSetup.printProgramList(ConsoleInput.read(scan));
         }
         case "<" -> {
           System.out.print("\033[H\033[2J");
@@ -138,6 +148,28 @@ public class Runner {
         }
         case "exit" -> run = false;
       }
+      } catch (CommandCancelledException e) {
+        System.out.println("Command cancelled. Returning to the main menu.");
+      }
+    }
+  }
+
+  /** Runs profile setup/update transactionally so cancelling never leaves a
+   * partially edited profile behind. */
+  private static void runUserCommand(Scanner scan, boolean setup) {
+    User previous = new User(UserSession.currentUser);
+    try {
+      if (setup) {
+        UserSetup.userSetUp(scan);
+      } else {
+        UserSetup.userChange(scan);
+      }
+    } catch (CommandCancelledException e) {
+      UserSession.currentUser = previous;
+      System.out.println("Command cancelled. Keeping the current user unchanged.");
+    } catch (IOException e) {
+      UserSession.currentUser = previous;
+      System.out.println("Unable to complete the user command. Keeping the current user unchanged.");
     }
   }
 
@@ -145,7 +177,7 @@ public class Runner {
     return chooseSearchOption(scan, refine, false);
   }
 
-  /** Checks and prints progress toward the current user's major and minors.
+  /** Checks and prints progress toward the current user's degree programs.
    *  Program keys are canonicalized when a profile is created, updated, or
    *  loaded, so this method never prompts the student to disambiguate one. */
   private static void displayDegreeProgress() {
@@ -155,30 +187,50 @@ public class Runner {
       System.out.println("Degree program data was not loaded.");
       return;
     }
-    DegreeProgram majorProgram = DegreeProgram.findByCatalogKey(catalog, user.getMajor());
-    if (majorProgram != null) {
-      RequirementStatus status = DegreeProgressChecker.check(majorProgram, user.getCompletedCourses());
-      CoursePrinter.degreeProgressPrinting(majorProgram.getName(), status);
-      CoreRequirementProgram coreProgram = CoreRequirementProgram.findForUser(user);
-      if (coreProgram != null) {
-        RequirementStatus coreStatus = CoreRequirementChecker.check(coreProgram, user.getCompletedCourseRecords(),
-            user.getJewishStudiesTrack());
-        CoursePrinter.degreeProgressPrinting(coreProgram.getName(), coreStatus);
+    DegreeProgram primaryMajor = DegreeProgram.findByCatalogKey(catalog, user.getMajor());
+    if (user.isHonors()) {
+      // Honors is intentionally read-only: its courses may also satisfy a
+      // degree program or core requirement.
+      CoursePrinter.degreeProgressPrinting("Honors Program", HonorsProgressChecker.check(user));
+    }
+    List<CompletedCourse> degreeUsedCourses = new java.util.ArrayList<>();
+    for (String majorKey : user.getMajors()) {
+      DegreeProgram majorProgram = DegreeProgram.findByCatalogKey(catalog, majorKey);
+      if (majorProgram != null) {
+      DegreeProgressChecker.AllocationResult result = DegreeProgressChecker.allocate(majorProgram,
+          user.getCompletedCourseRecords(), user.getSelectedProgramTrack(majorKey));
+      degreeUsedCourses.addAll(result.usedCourses());
+      CoursePrinter.degreeProgressPrinting(majorProgram.getName(), result.status());
       } else {
-        System.out.println("No single core-requirement profile matches your saved school, campus, and major yet.");
+        System.out.println("Saved degree program key was not found: " + majorKey
+            + ". Update your user profile to select a current catalog program.");
       }
-    } else if (!user.getMajor().equalsIgnoreCase("undeclared")) {
-      System.out.println("Saved major program key was not found: " + user.getMajor()
-          + ". Update your user profile to select a current catalog program.");
     }
     for (String minorKey : user.getMinors()) {
       DegreeProgram minorProgram = DegreeProgram.findByCatalogKey(catalog, minorKey);
       if (minorProgram != null) {
-        RequirementStatus status = DegreeProgressChecker.check(minorProgram, user.getCompletedCourses());
-        CoursePrinter.degreeProgressPrinting(minorProgram.getName(), status);
+        DegreeProgressChecker.AllocationResult result = DegreeProgressChecker.allocate(minorProgram,
+            user.getCompletedCourseRecords(), user.getSelectedProgramTrack(minorKey));
+        degreeUsedCourses.addAll(result.usedCourses());
+        CoursePrinter.degreeProgressPrinting(minorProgram.getName(), result.status());
       } else {
         System.out.println("Saved minor program key was not found: " + minorKey
             + ". Update your user profile to select a current catalog program.");
+      }
+    }
+    if (primaryMajor != null) {
+      CoreRequirementProgram coreProgram = CoreRequirementProgram.findForUser(user);
+      if (coreProgram != null) {
+        List<CompletedCourse> coreEligibleCourses = new java.util.ArrayList<>(user.getCompletedCourseRecords());
+        // CompletedCourse intentionally has identity semantics, so duplicate
+        // repeatable offerings remain distinct and removeAll removes only the
+        // exact record assigned to a major/minor.
+        coreEligibleCourses.removeAll(degreeUsedCourses);
+        RequirementStatus coreStatus = CoreRequirementChecker.check(coreProgram, coreEligibleCourses,
+            user.getJewishStudiesTrack());
+        CoursePrinter.degreeProgressPrinting(coreProgram.getName(), coreStatus);
+      } else {
+        System.out.println("No single core-requirement profile matches your saved school, campus, and primary major yet.");
       }
     }
   }
@@ -187,7 +239,7 @@ public class Runner {
     System.out.println("Give the CRN of the class whose details you want to view: ");
     int crn;
     try {
-      crn = Integer.parseInt(scan.nextLine().trim());
+      crn = Integer.parseInt(ConsoleInput.read(scan));
     } catch (NumberFormatException e) {
       System.out.println("CRN must be a number");
       return;
@@ -218,7 +270,7 @@ public class Runner {
           int crn = 0;
           Course course = null;
           try {
-            crn = Integer.parseInt(scan.nextLine().trim());
+            crn = Integer.parseInt(ConsoleInput.read(scan));
             if (crn < 10000 || crn > 99999) {
               throw new IllegalArgumentException();
             }
@@ -237,23 +289,23 @@ public class Runner {
         }
         case "campus" -> {
           System.out.println("Give the campus you want to search for: ");
-          results = SearchEngine.searchByCampus(scan.nextLine().toLowerCase().trim());
+          results = SearchEngine.searchByCampus(ConsoleInput.read(scan).toLowerCase());
           validGiven = true;
         }
         case "department" -> {
           System.out.println("Give the department that you want to search for (you may have multiple separated by spaces): ");
-          results = SearchEngine.searchByDepartment(scan.nextLine().toLowerCase().trim());
+          results = SearchEngine.searchByDepartment(ConsoleInput.read(scan).toLowerCase());
           validGiven = true;
         }
         case "teacher" -> {
           System.out.println("Give the teacher that you want to search for (you may have multiple separated by spaces):");
-          results = SearchEngine.searchByTeacher(scan.nextLine().toLowerCase().trim());
+          results = SearchEngine.searchByTeacher(ConsoleInput.read(scan).toLowerCase());
           validGiven = true;
         }
         case "credits" -> {
           System.out.println("Give the number of credits that you want to search for: ");
           try {
-            double credits = Double.parseDouble(scan.nextLine().trim());
+            double credits = Double.parseDouble(ConsoleInput.read(scan));
             if (!Double.isFinite(credits) || credits < 0) {
               throw new NumberFormatException();
             }
@@ -265,22 +317,19 @@ public class Runner {
         }
         case "dept + course number" -> {
           System.out.println("First give the department: ");
-          String dept = scan.nextLine().toLowerCase().trim();
+          String dept = ConsoleInput.read(scan).toLowerCase();
           System.out.println("Now give the course number: ");
-          Course course = SearchEngine.searchByDeptAndNumber(dept, scan.nextLine().trim());
+          results = SearchEngine.searchByDeptAndNumber(dept, ConsoleInput.read(scan));
           validGiven = true;
-          if (course != null) {
-            results.add(course);
-          }
         }
         case "name" -> {
           System.out.println("What is the name of the class? (You may give part of the name)");
-          results.addAll(SearchEngine.searchByName(scan.nextLine().trim().toLowerCase()));
+          results.addAll(SearchEngine.searchByName(ConsoleInput.read(scan).toLowerCase()));
           validGiven = true;
         }
         case "attribute" -> {
           System.out.println("Give the attributes you want to search for (you may have multiple speparated by spaces): ");
-          results = SearchEngine.searchByAttributes(scan.nextLine().toLowerCase().trim());
+          results = SearchEngine.searchByAttributes(ConsoleInput.read(scan).toLowerCase());
           validGiven = true;
         }
         case "exit" -> {

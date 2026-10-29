@@ -50,7 +50,7 @@ public class UserSession {
       System.out.println("Over credit maximum");
       return false;
     }
-    if (!currentUser.getCampus().contains(newCourse.getCampus().toLowerCase())) {
+    if (!campusesMatch(currentUser.getCampus(), newCourse.getCampus())) {
       System.out.println("Course and User campuses do not match");
       return false;
     }
@@ -61,7 +61,91 @@ public class UserSession {
       }
     }
     bookmarked.put(courseCrn, newCourse);
+    printCorequisiteWarning(newCourse);
     return true;
+  }
+
+  /** Matches campus labels by their Wilf/Beren identity, so a guest user with
+   * both names can also use offerings labelled "Beren (Online)" or "Wilf (Online)". */
+  private static boolean campusesMatch(String userCampus, String courseCampus) {
+    String user = userCampus == null ? "" : userCampus.toLowerCase();
+    String course = courseCampus == null ? "" : courseCampus.toLowerCase();
+    return (user.contains("wilf") && course.contains("wilf"))
+        || (user.contains("beren") && course.contains("beren"));
+  }
+
+  /** Read-only eligibility check shared by recommendations.  It deliberately
+   * does not reserve the course or print anything. */
+  static boolean canFitRecommendation(Course course) {
+    if (currentUser == null || !campusesMatch(currentUser.getCampus(), course.getCampus())
+        || course.getRemainingEnrollment() <= 0
+        || !course.prerequisitesSatisfied(currentUser.getCompletedCourses())) {
+      return false;
+    }
+    Set<String> completedOrBookmarked = new HashSet<>(currentUser.getCompletedCourses());
+    for (Course bookmarkedCourse : bookmarked.values()) {
+      completedOrBookmarked.add(bookmarkedCourse.getCourseCode());
+      if (hasMeetingConflict(course, bookmarkedCourse)) {
+        return false;
+      }
+    }
+    return course.flexiblePrereqsSatisfied(completedOrBookmarked);
+  }
+
+  /** A strict corequisite is a warning rather than a rejection: students may
+   * need to select the lecture and lab one at a time. */
+  static ArrayList<String[]> missingStrictCorequisites(Course course) {
+    Set<String> completedOrBookmarked = new HashSet<>(currentUser.getCompletedCourses());
+    for (Course bookmarkedCourse : bookmarked.values()) {
+      completedOrBookmarked.add(bookmarkedCourse.getCourseCode());
+    }
+    return missingCorequisiteGroups(course, completedOrBookmarked);
+  }
+
+  /** Reports strict corequisites that are neither completed nor presently
+   * bookmarked. This warns without preventing either half of a valid pair
+   * from being added first. */
+  static ArrayList<String> getCorequisiteWarnings() {
+    Set<String> completedOrBookmarked = new HashSet<>(currentUser.getCompletedCourses());
+    for (Course course : bookmarked.values()) {
+      completedOrBookmarked.add(course.getCourseCode());
+    }
+    ArrayList<String> warnings = new ArrayList<>();
+    for (Course course : bookmarked.values()) {
+      for (String[] group : missingCorequisiteGroups(course, completedOrBookmarked)) {
+        warnings.add(course.getCourseCode() + " requires strict corequisite "
+            + String.join(" OR ", group) + " to be completed or bookmarked alongside it.");
+      }
+    }
+    return warnings;
+  }
+
+  private static void printCorequisiteWarning(Course course) {
+    Set<String> completedOrBookmarked = new HashSet<>(currentUser.getCompletedCourses());
+    for (Course bookmarkedCourse : bookmarked.values()) {
+      completedOrBookmarked.add(bookmarkedCourse.getCourseCode());
+    }
+    for (String[] group : missingCorequisiteGroups(course, completedOrBookmarked)) {
+      System.out.println("Warning: " + course.getCourseCode() + " requires strict corequisite "
+          + String.join(" OR ", group) + " to be completed or bookmarked alongside it.");
+    }
+  }
+
+  private static ArrayList<String[]> missingCorequisiteGroups(Course course, Set<String> completedOrBookmarked) {
+    ArrayList<String[]> missing = new ArrayList<>();
+    for (String[] group : course.getCorequisites()) {
+      boolean satisfied = false;
+      for (String alternative : group) {
+        if (completedOrBookmarked.contains(alternative)) {
+          satisfied = true;
+          break;
+        }
+      }
+      if (!satisfied) {
+        missing.add(group);
+      }
+    }
+    return missing;
   }
 
   /** Returns whether two courses meet on a shared day during overlapping times. */

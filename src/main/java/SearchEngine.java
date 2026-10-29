@@ -9,6 +9,8 @@ import java.util.HashMap;
 /** Builds indexes over the loaded course data and performs course searches. */
 public class SearchEngine {
   static HashMap<Integer, Course> mapByCRN = new HashMap<>();
+  /** Stable course code -> every current-semester offering of that course. */
+  static HashMap<String, ArrayList<Course>> mapByCourseCode = new HashMap<>();
   static HashMap<String, ArrayList<Course>> mapByDep = new HashMap<>();
   static HashMap<String, ArrayList<Course>> mapByTeacher = new HashMap<>();
   static HashMap<Double, ArrayList<Course>> mapByCredits = new HashMap<>();
@@ -23,6 +25,8 @@ public class SearchEngine {
       while ((line = reader.readLine()) != null) {
         Course newCourse = new Course(line);
         mapByCRN.put(newCourse.getCRN(), newCourse);
+        String courseCode = newCourse.getCourseCode().toUpperCase();
+        mapByCourseCode.computeIfAbsent(courseCode, unused -> new ArrayList<>()).add(newCourse);
         String name = newCourse.getName().toLowerCase();
         if (!mapByName.containsKey(name)) {
           mapByName.put(name, new ArrayList<Course>());
@@ -90,25 +94,14 @@ public class SearchEngine {
     return results;
   }
 
-  static Course searchByDeptAndNumber(String dept, String num) {
-    Course resultCourse = null;
-    ArrayList<Course> deptList = searchByDepartment(dept);
-    for (Course course : deptList) {
-      if (course.getDeptNumber().equals(num)) {
-        resultCourse = course;
-      }
-    }
-    return resultCourse;
+  /** Returns every offering with the requested department and course number. */
+  static ArrayList<Course> searchByDeptAndNumber(String dept, String num) {
+    return searchByCourseCode(dept + num);
   }
 
-  /** Finds a current-semester offering by its stable department+number code. */
-  static Course searchByCourseCode(String courseCode) {
-    for (Course course : mapByCRN.values()) {
-      if (course.getCourseCode().equalsIgnoreCase(courseCode.trim())) {
-        return course;
-      }
-    }
-    return null;
+  /** Returns every current-semester offering with a stable department+number code. */
+  static ArrayList<Course> searchByCourseCode(String courseCode) {
+    return new ArrayList<>(mapByCourseCode.getOrDefault(courseCode.trim().toUpperCase(), new ArrayList<>()));
   }
 
   static ArrayList<Course> searchByCredits(double credits) {

@@ -21,13 +21,18 @@ public class User {
     // semester, so it can't be checked against prerequisites in a later
     // semester's course data - the course code is what's stable and what
     // Course.prerequisitesSatisfied(...) actually checks against.
-    // LinkedHashMap preserves a stable save-file order while ensuring one
-    // completed-course record exists for each stable course code.
-    private Map<String, CompletedCourse> completedCourses;
+    // A list preserves every completed offering, including repeatable courses
+    // that legitimately share a department+number across semesters.
+    private List<CompletedCourse> completedCourses;
     // These store DegreeProgram catalog keys (for example,
     // "computer science, ba@stern"), not informal student-entered names.
-    private String major;
+    // LinkedHashSet retains the first major as the deterministic selector for
+    // a student's core profile while allowing double majors.
+    private Set<String> majors;
     private Set<String> minors;
+    // Catalog program key -> explicitly selected (or automatically resolved)
+    // track name for that program.
+    private Map<String, String> selectedProgramTracks;
     // MYP, BMP, IBC, JSS, or "undeclared" when not applicable/known.
     private String jewishStudiesTrack;
 
@@ -38,15 +43,22 @@ public class User {
             this.campus = reader.readLine();
             this.school = reader.readLine();
             List<String> remainingLines = reader.lines().toList();
-            this.major = remainingLines.isEmpty() ? "undeclared" : remainingLines.get(0);
-            this.minors = new HashSet<>();
+            this.majors = new LinkedHashSet<>();
+            String majorsLine = remainingLines.isEmpty() ? "" : remainingLines.get(0);
+            if (!majorsLine.isBlank() && !majorsLine.equalsIgnoreCase("undeclared")) {
+                for (String major : majorsLine.split(";")) {
+                    majors.add(major.trim());
+                }
+            }
+            this.minors = new LinkedHashSet<>();
             String minorsLine = remainingLines.size() >= 2 ? remainingLines.get(1) : "";
             if (!minorsLine.isBlank()) {
                 for (String minor : minorsLine.split(";")) {
                     minors.add(minor.trim());
                 }
             }
-            this.completedCourses = new LinkedHashMap<>();
+            this.completedCourses = new ArrayList<>();
+            this.selectedProgramTracks = new LinkedHashMap<>();
             this.jewishStudiesTrack = "undeclared";
 
             // Profiles from before degree-program information had only four
@@ -54,7 +66,7 @@ public class User {
             // shape rather than losing those completed courses.
             int courseStart = 2;
             if (!remainingLines.isEmpty() && looksLikeCourseCode(remainingLines.get(0))) {
-                this.major = "undeclared";
+                this.majors.clear();
                 this.minors.clear();
                 courseStart = 0;
             }
@@ -63,7 +75,12 @@ public class User {
                 courseStart++;
             }
             for (int i = courseStart; i < remainingLines.size(); i++) {
-                addSerializedCompletedCourse(remainingLines.get(i));
+                String line = remainingLines.get(i);
+                if (line.startsWith("PROGRAM_TRACK|")) {
+                    addSerializedProgramTrack(line);
+                } else {
+                    addSerializedCompletedCourse(line);
+                }
             }
         }
     }
@@ -79,13 +96,17 @@ public class User {
         this.honors = honors;
         this.campus = campus;
         this.school = school;
-        this.major = major;
+        this.majors = new LinkedHashSet<>();
+        if (major != null && !major.isBlank() && !major.equalsIgnoreCase("undeclared")) {
+            this.majors.add(major.trim());
+        }
         setJewishStudiesTrack(jewishStudiesTrack);
-        this.minors = new HashSet<>();
+        this.minors = new LinkedHashSet<>();
         for (String minor : minors) {
             this.minors.add(minor.trim());
         }
-        this.completedCourses = new LinkedHashMap<>();
+        this.completedCourses = new ArrayList<>();
+        this.selectedProgramTracks = new LinkedHashMap<>();
         for (String code : completedCourseCodes) {
             addCompletedClass(code);
         }
@@ -99,12 +120,27 @@ public class User {
     public User(){
         this.name = "guest";
         this.honors = false;
-        this.campus = "wilf beren"; // Temporarily setting these like this so errors aren't thrown
+        this.campus = "wilf beren"; // Guest users may bookmark offerings from either campus.
         this.school = "yc syms beren";
-        this.major = "undeclared";
-        this.minors = new HashSet<>();
+        this.majors = new LinkedHashSet<>();
+        this.minors = new LinkedHashSet<>();
         this.jewishStudiesTrack = "undeclared";
-        this.completedCourses = new LinkedHashMap<>();
+        this.completedCourses = new ArrayList<>();
+        this.selectedProgramTracks = new LinkedHashMap<>();
+    }
+
+    /** Snapshot constructor used to restore a profile when an interactive
+     * update is cancelled before it is finished. */
+    public User(User other) {
+        this.name = other.name;
+        this.honors = other.honors;
+        this.campus = other.campus;
+        this.school = other.school;
+        this.majors = new LinkedHashSet<>(other.majors);
+        this.minors = new LinkedHashSet<>(other.minors);
+        this.jewishStudiesTrack = other.jewishStudiesTrack;
+        this.completedCourses = new ArrayList<>(other.completedCourses);
+        this.selectedProgramTracks = new LinkedHashMap<>(other.selectedProgramTracks);
     }
 
     public void setName(String name) {
@@ -140,7 +176,19 @@ public class User {
     }
 
     public void setMajor(String major) {
-        this.major = major.trim();
+        majors.clear();
+        addMajor(major);
+    }
+
+    public void addMajor(String major) {
+        if (major != null && !major.isBlank() && !major.equalsIgnoreCase("undeclared")) {
+            majors.add(major.trim());
+        }
+    }
+
+    public void removeMajor(String major) {
+        majors.remove(major.trim());
+        removeSelectedProgramTrack(major.trim());
     }
 
     public void addMinor(String minor) {
@@ -149,14 +197,38 @@ public class User {
 
     public void removeMinor(String minor) {
         minors.remove(minor.trim());
+        removeSelectedProgramTrack(minor.trim());
     }
 
     public String getMajor() {
-        return major;
+        return majors.isEmpty() ? "undeclared" : majors.iterator().next();
+    }
+
+    public Set<String> getMajors() {
+        return Collections.unmodifiableSet(majors);
     }
 
     public Set<String> getMinors() {
         return minors;
+    }
+
+    public String getSelectedProgramTrack(String programKey) {
+        return selectedProgramTracks.get(programKey);
+    }
+
+    public void setSelectedProgramTrack(String programKey, String trackName) {
+        if (programKey == null || trackName == null || trackName.isBlank()) {
+            return;
+        }
+        selectedProgramTracks.put(programKey, trackName.trim());
+    }
+
+    public void removeSelectedProgramTrack(String programKey) {
+        selectedProgramTracks.remove(programKey);
+    }
+
+    public Map<String, String> getSelectedProgramTracks() {
+        return Collections.unmodifiableMap(selectedProgramTracks);
     }
 
     public String getJewishStudiesTrack() {
@@ -169,12 +241,27 @@ public class User {
     }
 
     public Set<String> getCompletedCourses() {
-        return Collections.unmodifiableSet(completedCourses.keySet());
+        Set<String> courseCodes = new LinkedHashSet<>();
+        for (CompletedCourse course : completedCourses) {
+            courseCodes.add(course.getCourseCode());
+        }
+        return Collections.unmodifiableSet(courseCodes);
     }
 
-    /** Rich completed-course data for core-progress checks. */
-    public Collection<CompletedCourse> getCompletedCourseRecords() {
-        return Collections.unmodifiableCollection(completedCourses.values());
+    /** Rich completed-course history, including legitimate repeated courses. */
+    public List<CompletedCourse> getCompletedCourseRecords() {
+        return Collections.unmodifiableList(completedCourses);
+    }
+
+    public List<CompletedCourse> getCompletedCourseRecords(String courseCode) {
+        List<CompletedCourse> matches = new ArrayList<>();
+        String normalizedCode = normalizeCourseCode(courseCode);
+        for (CompletedCourse course : completedCourses) {
+            if (course.getCourseCode().equals(normalizedCode)) {
+                matches.add(course);
+            }
+        }
+        return Collections.unmodifiableList(matches);
     }
 
     public void addCompletedClass(String courseCode){
@@ -186,11 +273,23 @@ public class User {
     }
 
     public void addCompletedCourse(CompletedCourse course) {
-        completedCourses.put(course.getCourseCode(), course);
+        completedCourses.add(course);
     }
 
+    /** Removes the first matching record; interactive removal should use the
+     * record-specific overload when repeated courses are present. */
     public void removeCompletedClass(String courseCode) {
-        completedCourses.remove(normalizeCourseCode(courseCode));
+        String normalizedCode = normalizeCourseCode(courseCode);
+        for (int i = 0; i < completedCourses.size(); i++) {
+            if (completedCourses.get(i).getCourseCode().equals(normalizedCode)) {
+                completedCourses.remove(i);
+                return;
+            }
+        }
+    }
+
+    public void removeCompletedCourse(CompletedCourse course) {
+        completedCourses.remove(course);
     }
 
     // Trims whitespace and uppercases, so a course code entered/stored in any
@@ -221,6 +320,14 @@ public class User {
         addCompletedCourse(new CompletedCourse(fields[1], credits, fields[3], attributes));
     }
 
+    private void addSerializedProgramTrack(String line) {
+        String[] fields = line.split("\\|", 3);
+        if (fields.length != 3 || fields[1].isBlank() || fields[2].isBlank()) {
+            throw new IllegalArgumentException("Malformed program-track record in profile: " + line);
+        }
+        setSelectedProgramTrack(fields[1], fields[2]);
+    }
+
     public void saveToFile(Path filePath) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(filePath)) {
             writer.write(name);
@@ -231,13 +338,17 @@ public class User {
             writer.newLine();
             writer.write(school);
             writer.newLine();
-            writer.write(major);
+            writer.write(majors.isEmpty() ? "undeclared" : String.join(";", majors));
             writer.newLine();
             writer.write(String.join(";", minors));
             writer.newLine();
             writer.write("TRACK:" + jewishStudiesTrack);
             writer.newLine();
-            for (CompletedCourse course : completedCourses.values()) {
+            for (Map.Entry<String, String> selection : selectedProgramTracks.entrySet()) {
+                writer.write("PROGRAM_TRACK|" + selection.getKey() + "|" + selection.getValue());
+                writer.newLine();
+            }
+            for (CompletedCourse course : completedCourses) {
                 writer.write("COMPLETED|" + course.getCourseCode() + "|"
                     + (course.getCredits() == null ? "" : course.getCredits()) + "|"
                     + (course.getDepartment() == null ? "" : course.getDepartment()) + "|"

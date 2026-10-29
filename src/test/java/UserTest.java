@@ -168,6 +168,44 @@ public class UserTest {
         assertEquals(original.getCompletedCourses(), loaded.getCompletedCourses());
     }
 
+    @Test
+    void roundTrip_multipleMajorsPreservesTheirOrderAndPrimaryMajor() throws IOException {
+        User original = new User("Diana", true, "Wilf", "YC", "first major@yc", new HashSet<>(), new HashSet<>());
+        original.addMajor("second major@yc");
+        Path file = tempDir.resolve("multiple-majors.txt");
+        original.saveToFile(file);
+
+        User loaded = new User(file);
+        assertEquals(List.of("first major@yc", "second major@yc"), new ArrayList<>(loaded.getMajors()));
+        assertEquals("first major@yc", loaded.getMajor());
+    }
+
+    @Test
+    void roundTrip_preservesSelectedProgramTracks() throws IOException {
+        User original = new User("Diana", true, "Wilf", "YC", "computer science, bs@yc", new HashSet<>(), new HashSet<>());
+        original.setSelectedProgramTrack("computer science, bs@yc", "Cybersecurity");
+        Path file = tempDir.resolve("program-track.txt");
+        original.saveToFile(file);
+
+        User loaded = new User(file);
+        assertEquals("Cybersecurity", loaded.getSelectedProgramTrack("computer science, bs@yc"));
+    }
+
+    @Test
+    void roundTrip_preservesRepeatedCompletedCourseRecords() throws IOException {
+        User original = new User("Diana", true, "Wilf", "YC", new HashSet<>());
+        original.addCompletedCourse(new CompletedCourse("BIB1000", 2.0, "BIB", Set.of("HONR")));
+        original.addCompletedCourse(new CompletedCourse("BIB1000", 2.0, "BIB", Set.of("INTC")));
+        Path file = tempDir.resolve("repeated-course.txt");
+        original.saveToFile(file);
+
+        User loaded = new User(file);
+        assertEquals(2, loaded.getCompletedCourseRecords("BIB1000").size());
+        assertEquals(Set.of("BIB1000"), loaded.getCompletedCourses());
+        assertEquals(Set.of("HONR"), loaded.getCompletedCourseRecords("BIB1000").getFirst().getAttributes());
+        assertEquals(Set.of("INTC"), loaded.getCompletedCourseRecords("BIB1000").get(1).getAttributes());
+    }
+
     // -------------------------------------------------------------------------
     // Guest constructor
     // -------------------------------------------------------------------------

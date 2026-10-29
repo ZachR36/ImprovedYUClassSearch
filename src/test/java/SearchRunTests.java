@@ -13,6 +13,7 @@ public class SearchRunTests {
   @BeforeEach
   void resetSearchState() {
     SearchEngine.mapByCRN = new HashMap<>();
+    SearchEngine.mapByCourseCode = new HashMap<>();
     SearchEngine.mapByCredits = new HashMap<>();
     UserSession.bookmarked = new HashMap<>();
     UserSession.currentSearchResults = new ArrayList<>();
@@ -39,6 +40,16 @@ public class SearchRunTests {
 
     assertTrue(chooseSearchOption("credits\n0.5\n", false, true));
     assertEquals(java.util.List.of(existingCourse, additionalCourse), UserSession.currentSearchResults);
+  }
+
+  @Test
+  void departmentAndCourseNumberSearchReturnsEveryOfferingOfThatCourse() throws ReflectiveOperationException {
+    Course first = course("10001", "A", "M}0900}1000}SCW}101", "3");
+    Course second = course("10002", "B", "T}0900}1000}SCW}102", "3");
+    SearchEngine.mapByCourseCode.put("TEST1001", new ArrayList<>(java.util.List.of(first, second)));
+
+    assertTrue(chooseSearchOption("dept + course number\nTEST\n1001\n"));
+    assertEquals(java.util.List.of(first, second), UserSession.currentSearchResults);
   }
 
   @Test
@@ -78,8 +89,31 @@ public class SearchRunTests {
   }
 
   @Test
+  void bookmarkingOneHalfOfAStrictCorequisitePairWarnsButDoesNotBlockIt() throws ReflectiveOperationException {
+    Course lecture = courseWithCorequisite("10001", "CHEM", "1215", "CHEM1213");
+    Course companion = courseWithCorequisite("10002", "CHEM", "1213", "");
+    addToCourseMap(lecture, companion);
+
+    assertTrue(UserSession.bookmarkClass("10001"));
+    assertTrue(UserSession.getCorequisiteWarnings().getFirst().contains("CHEM1215 requires strict corequisite CHEM1213"));
+
+    assertTrue(UserSession.bookmarkClass("10002"));
+    assertTrue(UserSession.getCorequisiteWarnings().isEmpty());
+  }
+
+  @Test
   void nonNumericBookmarkCrnIsRejectedWithoutThrowing() {
     assertFalse(UserSession.bookmarkClass("not-a-crn"));
+  }
+
+  @Test
+  void guestUserCanBookmarkAnOnlineOfferingFromEitherCampus() {
+    UserSession.currentUser = new User();
+    Course berenOnline = new Course("\"10001\",\"1001\",\"TEST\",\"A\",\"Beren (Online)\",\"Test Course\",3,"
+        + "\"Professor\",0,20,20,0,0,0,\"M}0900}1000}SCW}101\",\"\",\"\"");
+    addToCourseMap(berenOnline);
+
+    assertTrue(UserSession.bookmarkClass("10001"));
   }
 
   @Test
@@ -117,6 +151,13 @@ public class SearchRunTests {
         + "\"Professor\",0,20,20,0,0,0,\"M}0900}1000}SCW}101\",\"\",\"\","
         + "\"TEST1000;;ALT1000|ALT2000\",\"CORE1000\",\"FLEX1000\","
         + "\"Permission of instructor\",\"A detailed course description.\"");
+  }
+
+  private Course courseWithCorequisite(String crn, String department, String number, String corequisite) {
+    String meeting = crn.equals("10002") ? "T}0900}1000}SCW}101" : "M}0900}1000}SCW}101";
+    return new Course("\"" + crn + "\",\"" + number + "\",\"" + department + "\",\"A\",\"Beren\",\"Test Course\",3,"
+        + "\"Professor\",0,20,20,0,0,0,\"" + meeting + "\",\"\",\"\",\"\",\""
+        + corequisite + "\",\"\",\"\",\"\"");
   }
 
   private void addToCourseMap(Course... courses) {

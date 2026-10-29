@@ -28,7 +28,8 @@ class CoreRequirementCheckerTest {
             CREDIT_COUNT: HEB | credits: 2 | label: Hebrew
             """);
         List<CompletedCourse> completed = List.of(
-                new CompletedCourse("FYWR1020", 3.0, "ENG", Set.of("WRIN")),
+                new CompletedCourse("FYWR1020", 3.0, "ENG", Set.of()),
+                new CompletedCourse("ENG2000", 3.0, "ENG", Set.of("WRIN")),
                 // CHEM is deliberately the second department in BIO|CHEM.
                 new CompletedCourse("CHEM1010", 3.0, "CHEM", Set.of()),
                 new CompletedCourse("HEB1001", 2.0, "HEB", Set.of()));
@@ -77,6 +78,47 @@ class CoreRequirementCheckerTest {
 
         assertTrue(CoreRequirementChecker.check(profile, completed, "JSS").isSatisfied());
         assertFalse(CoreRequirementChecker.check(profile, completed, "MYP").isSatisfied());
+    }
+
+    @Test
+    void aCoreCourseCannotSatisfyTwoSeparateCoreRequirements() throws Exception {
+        CoreRequirementProgram profile = load("""
+            === Test Core ===
+            name: Test Core
+            school: YC
+            programType: Core
+
+            COURSE_LIST: Writing
+              FYWR1020
+            ATTRIBUTE_COUNT: WI | count: 1
+            """);
+
+        RequirementStatus status = CoreRequirementChecker.check(profile,
+                List.of(new CompletedCourse("FYWR1020", 3.0, "ENG", Set.of("WI"))));
+
+        assertFalse(status.isSatisfied());
+        assertTrue(status.getRemainingDescriptions().stream().anyMatch(text -> text.contains("WRIN")));
+    }
+
+    @Test
+    void checkerExplainsWhenItSelectsAmongMultipleCoreOptions() throws Exception {
+        CoreRequirementProgram profile = load("""
+            === Test Core ===
+            name: Test Core
+            school: YC
+            programType: Core
+
+            CHOOSE_N: 1 | label: Science
+              OPTION: BIO1000
+              OPTION: CHE1000
+            """);
+
+        RequirementStatus status = CoreRequirementChecker.check(profile, List.of(
+                new CompletedCourse("BIO1000", 3.0, "BIO", Set.of()),
+                new CompletedCourse("CHE1000", 3.0, "CHE", Set.of())));
+
+        assertTrue(status.isSatisfied());
+        assertTrue(status.getAllocationNotes().stream().anyMatch(note -> note.contains("valid options")));
     }
 
     private CoreRequirementProgram load(String contents) throws Exception {

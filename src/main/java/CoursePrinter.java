@@ -20,6 +20,29 @@ public class CoursePrinter {
         System.out.println("  - " + note);
       }
     }
+    if (!status.getAllocationNotes().isEmpty()) {
+      System.out.println("Course-allocation notes:");
+      for (String note : status.getAllocationNotes()) {
+        System.out.println("  - " + note);
+      }
+    }
+  }
+
+  /** Prints a compact, explained list of course suggestions. */
+  static void recommendationPrinting(List<Recommendation> recommendations) {
+    System.out.println("\n**Recommended next courses**");
+    if (recommendations.isEmpty()) {
+      System.out.println("No current-semester offerings fit your unmet requirements and bookmarked schedule.");
+      return;
+    }
+    for (int i = 0; i < recommendations.size(); i++) {
+      Recommendation recommendation = recommendations.get(i);
+      Course course = recommendation.course();
+      System.out.println((i + 1) + ". " + course.getCourseCode() + " — " + course.getName()
+          + " (CRN " + course.getCRN() + ", " + course.getCampus() + ", " + course.getCredits() + " credits)");
+      for (String reason : recommendation.reasons()) System.out.println("   Why: " + reason);
+      for (String caution : recommendation.cautions()) System.out.println("   Note: " + caution);
+    }
   }
   static final int INCREMENT = 15;
 
@@ -39,6 +62,22 @@ public class CoursePrinter {
     }
     int endSpot = lastPrintedCourseIndex(startingPoint, courses.size());
     System.out.println("Classes " + startingPoint + " to " + endSpot + ". Out of " + courses.size());
+  }
+
+  /** Prints current-semester offerings plus a custom option for a prior
+   * semester, whose attributes may differ from the current catalog. */
+  static void courseChoicePrinting(String courseCode, List<Course> courses) {
+    System.out.println("Current-semester offerings matching " + courseCode + ". Choose the one you completed,"
+        + " or choose the custom option for a prior-semester offering:");
+    for (int i = 0; i < courses.size(); i++) {
+      Course course = courses.get(i);
+      System.out.println("  " + (i + 1) + ") CRN " + course.getCRN() + ", section " + course.getSection()
+          + ", " + course.getCampus() + ", " + course.getCredits() + " credits, "
+          + course.getTeacher() + ", attributes: " + String.join(", ", course.getAttributes()));
+    }
+    System.out.println("  " + (courses.size() + 1)
+        + ") Custom/prior-semester offering (enter credits, department, and attributes manually)");
+    System.out.println("Enter a number, or type exit to cancel: ");
   }
 
   static boolean hasNextPage(int startingPoint, int courseCount) {

@@ -967,12 +967,12 @@ degreeType: Minor
 totalCredits: 9-18 (varies by home school)
 
 TRACK_CHOICE: Requirements (based on student's home school)
-  TRACK: Sy Syms students
+  TRACK: Sy Syms students | school: Syms
     COURSE_LIST:
       ACC1101
       ACC1102
       ACC2403
-  TRACK: Stern/YC students
+  TRACK: Stern/YC students | school: Stern|YC
     COURSE_LIST:
       ACC1001
       ACC1002
@@ -1008,9 +1008,9 @@ degreeType: Minor
 totalCredits: 9-18 (varies by home school)
 
 TRACK_CHOICE: Requirements (based on student's home school)
-  TRACK: Sy Syms students
+  TRACK: Sy Syms students | school: Syms
     RANGE: IDS 1000-4999 | count: 3  # "upper-level IDS courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
-  TRACK: Stern/YC students
+  TRACK: Stern/YC students | school: Stern|YC
     COURSE_LIST:
       IDS1010
       IDS1020
@@ -1063,9 +1063,9 @@ degreeType: Minor
 totalCredits: 9-18 (varies by home school)
 
 TRACK_CHOICE: Requirements (based on student's home school)
-  TRACK: Sy Syms students
+  TRACK: Sy Syms students | school: Syms
     RANGE: FIN 1000-4999 | count: 3  # "upper-level FIN courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
-  TRACK: Stern/YC students
+  TRACK: Stern/YC students | school: Stern|YC
     COURSE_LIST:
       ACC1001
       FIN1001
@@ -1099,9 +1099,9 @@ degreeType: Minor
 totalCredits: 9-18 (varies by home school)
 
 TRACK_CHOICE: Requirements (based on student's home school)
-  TRACK: Sy Syms students
+  TRACK: Sy Syms students | school: Syms
     RANGE: MAR 1000-4999 | count: 3  # "upper-level MAR courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
-  TRACK: Stern/YC students
+  TRACK: Stern/YC students | school: Stern|YC
     COURSE_LIST:
       IDS1010
       MAR1001
@@ -1116,12 +1116,12 @@ degreeType: Minor
 totalCredits: 8-20 (varies by home school)
 
 TRACK_CHOICE: Requirements (based on student's home school)
-  TRACK: Sy Syms students
+  TRACK: Sy Syms students | school: Syms
     COURSE_LIST:
       FIN2949
       FIN3149
     RANGE: REA 1000-4999 | count: 1  # "Real Estate elective"
-  TRACK: Stern/YC students
+  TRACK: Stern/YC students | school: Stern|YC
     COURSE_LIST:
       ACC1001
       FIN1001
@@ -1154,9 +1154,9 @@ degreeType: Minor
 totalCredits: 9-18 (varies by home school)
 
 TRACK_CHOICE: Requirements (based on student's home school)
-  TRACK: Sy Syms students
+  TRACK: Sy Syms students | school: Syms
     RANGE: ENT 1000-4999 | count: 3  # "upper-level ENT courses" - number floor TEMP set to full range pending confirmed "upper-level" cutoff.
-  TRACK: Stern/YC students
+  TRACK: Stern/YC students | school: Stern|YC
     CHOOSE_N: 1
       OPTION: ACC1001
       OPTION: IDS1010

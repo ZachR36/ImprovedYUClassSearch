@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -13,7 +15,7 @@ import java.util.regex.Pattern;
  * recommendations need to know what's left in a program, and this is where
  * that question gets answered.
  *
- * Takes the student's completed-course set as a plain parameter rather than
+ * Takes the student's completed-course records as a plain parameter rather than
  * requiring a live reference between DegreeProgram and User, so lookups
  * always go fresh through the catalog (see DegreeProgram.findForStudent) and
  * nothing goes stale if the catalog is reloaded.
@@ -34,27 +36,161 @@ public class DegreeProgressChecker {
     // format with no separator.
     private static final Pattern COURSE_CODE = Pattern.compile("^([A-Za-z]+)(\\d+)$");
 
+    /** One independent major/minor audit plus the individual course records it
+     * assigned to that program.  Callers can union assignments across all
+     * degree programs before evaluating non-double-countable core work. */
+    public record AllocationResult(RequirementStatus status, List<CompletedCourse> usedCourses) { }
+
     /** Checks an entire program: all top-level requirements combine as AND. */
     public static RequirementStatus check(DegreeProgram program, Set<String> completedCourses) {
+        return check(program, recordsForCodes(completedCourses), null);
+    }
+
+    /** Checks a program against its explicitly selected track, if it has one. */
+    public static RequirementStatus check(DegreeProgram program, Set<String> completedCourses,
+                                          String selectedTrack) {
+        return check(program, recordsForCodes(completedCourses), selectedTrack);
+    }
+
+    /** Uses full records so repeatable courses can count separately in ranges
+     * and other count-based requirements. */
+    public static RequirementStatus check(DegreeProgram program, Collection<CompletedCourse> completedCourses,
+                                          String selectedTrack) {
+        Set<String> completedCodes = completedCodes(completedCourses);
         List<RequirementStatus> childStatuses = new ArrayList<>();
         for (DegreeProgram.RequirementNode node : program.getRequirements()) {
-            childStatuses.add(checkNode(node, completedCourses));
+            childStatuses.add(checkNode(node, completedCodes, completedCourses, selectedTrack));
         }
         return RequirementStatus.combineAnd(childStatuses);
     }
 
-    private static RequirementStatus checkNode(DegreeProgram.RequirementNode node, Set<String> completed) {
+    /** Performs the normal degree audit and also identifies records used by
+     * it. Degree programs are deliberately evaluated independently: a course
+     * may count toward a major and a minor (or two majors), but any record
+     * claimed by at least one program is unavailable to core requirements. */
+    public static AllocationResult allocate(DegreeProgram program, Collection<CompletedCourse> completedCourses,
+                                            String selectedTrack) {
+        List<CompletedCourse> available = new ArrayList<>(completedCourses);
+        List<CompletedCourse> used = new ArrayList<>();
+        List<String> notes = new ArrayList<>();
+        List<DegreeProgram.RequirementNode> nodes = new ArrayList<>(program.getRequirements());
+        nodes.sort((left, right) -> Integer.compare(allocationPriority(left), allocationPriority(right)));
+        List<RequirementStatus> statuses = new ArrayList<>();
+        for (DegreeProgram.RequirementNode node : nodes) {
+            statuses.add(checkNode(node, completedCodes(available), available, selectedTrack));
+            allocateNode(node, available, used, notes, selectedTrack);
+        }
+        RequirementStatus raw = RequirementStatus.combineAnd(statuses);
+        RequirementStatus status = new RequirementStatus(raw.isSatisfied(), raw.getRemainingCourseCodes(),
+                raw.getRemainingDescriptions(), raw.getManualNotes(), notes, raw.getChildren());
+        return new AllocationResult(status, List.copyOf(used));
+    }
+
+    private static int allocationPriority(DegreeProgram.RequirementNode node) {
+        if (node instanceof DegreeProgram.CourseListRequirement) return 0;
+        if (node instanceof DegreeProgram.ChooseNRequirement || node instanceof DegreeProgram.TrackChoiceRequirement) return 1;
+        if (node instanceof DegreeProgram.RangeRequirement) return 2;
+        return 3;
+    }
+
+    private static void allocateNode(DegreeProgram.RequirementNode node, List<CompletedCourse> available,
+                                     List<CompletedCourse> used, List<String> notes, String selectedTrack) {
+        if (node instanceof DegreeProgram.CourseListRequirement list) {
+            for (String code : list.getCourseCodes()) takeCode(available, used, code);
+        } else if (node instanceof DegreeProgram.RangeRequirement range) {
+            int count = range.getCount() == null ? 1 : range.getCount();
+            takeRange(available, used, range, count);
+        } else if (node instanceof DegreeProgram.ChooseNRequirement choose) {
+            allocateChoose(choose, available, used, notes, selectedTrack);
+        } else if (node instanceof DegreeProgram.TrackChoiceRequirement choice) {
+            if (selectedTrack != null) {
+                for (DegreeProgram.Track track : choice.getTracks()) {
+                    if (track.getName().equalsIgnoreCase(selectedTrack.trim())) {
+                        List<DegreeProgram.RequirementNode> nodes = new ArrayList<>(track.getRequirements());
+                        nodes.sort((left, right) -> Integer.compare(allocationPriority(left), allocationPriority(right)));
+                        for (DegreeProgram.RequirementNode child : nodes) {
+                            allocateNode(child, available, used, notes, selectedTrack);
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void allocateChoose(DegreeProgram.ChooseNRequirement choose, List<CompletedCourse> available,
+                                       List<CompletedCourse> used, List<String> notes, String selectedTrack) {
+        List<DegreeProgram.Option> valid = new ArrayList<>();
+        for (DegreeProgram.Option option : choose.getOptions()) {
+            if (optionSatisfied(option, available, selectedTrack)) valid.add(option);
+        }
+        valid.sort((left, right) -> Integer.compare(optionFlexibility(left, available), optionFlexibility(right, available)));
+        List<String> selected = new ArrayList<>();
+        for (DegreeProgram.Option option : valid) {
+            if (selected.size() == choose.getN()) break;
+            if (optionSatisfied(option, available, selectedTrack)) {
+                if (option.isSimple()) takeCode(available, used, option.getCourseCode());
+                else allocateNode(option.getNestedContent(), available, used, notes, selectedTrack);
+                selected.add(option.isSimple() ? option.getCourseCode() : "a grouped option");
+            }
+        }
+        if (valid.size() > choose.getN()) {
+            notes.add("A degree-program choice had " + valid.size() + " valid options; used "
+                    + String.join(", ", selected) + " because it was the most constrained available allocation.");
+        }
+    }
+
+    private static boolean optionSatisfied(DegreeProgram.Option option, Collection<CompletedCourse> available,
+                                           String selectedTrack) {
+        if (option.isSimple()) return completedCodes(available).contains(option.getCourseCode());
+        return checkNode(option.getNestedContent(), completedCodes(available), available, selectedTrack).isSatisfied();
+    }
+
+    private static int optionFlexibility(DegreeProgram.Option option, Collection<CompletedCourse> available) {
+        if (option.isSimple()) return 1;
+        if (option.getNestedContent() instanceof DegreeProgram.RangeRequirement range) {
+            int matches = 0;
+            for (CompletedCourse course : available) if (matchesRange(course.getCourseCode(), range)) matches++;
+            return matches;
+        }
+        return 2;
+    }
+
+    private static void takeCode(List<CompletedCourse> available, List<CompletedCourse> used, String code) {
+        for (CompletedCourse course : available) {
+            if (course.getCourseCode().equalsIgnoreCase(code)) {
+                available.remove(course);
+                used.add(course);
+                return;
+            }
+        }
+    }
+
+    private static void takeRange(List<CompletedCourse> available, List<CompletedCourse> used,
+                                  DegreeProgram.RangeRequirement range, int count) {
+        for (CompletedCourse course : new ArrayList<>(available)) {
+            if (matchesRange(course.getCourseCode(), range)) {
+                available.remove(course);
+                used.add(course);
+                if (--count == 0) return;
+            }
+        }
+    }
+
+    private static RequirementStatus checkNode(DegreeProgram.RequirementNode node, Set<String> completedCodes,
+                                               Collection<CompletedCourse> completedRecords,
+                                               String selectedTrack) {
         if (node instanceof DegreeProgram.CourseListRequirement courseList) {
-            return checkCourseList(courseList, completed);
+            return checkCourseList(courseList, completedCodes);
         }
         if (node instanceof DegreeProgram.ChooseNRequirement chooseN) {
-            return checkChooseN(chooseN, completed);
+            return checkChooseN(chooseN, completedCodes, completedRecords, selectedTrack);
         }
         if (node instanceof DegreeProgram.RangeRequirement range) {
-            return checkRange(range, completed);
+            return checkRange(range, completedRecords);
         }
         if (node instanceof DegreeProgram.TrackChoiceRequirement trackChoice) {
-            return checkTrackChoice(trackChoice, completed);
+            return checkTrackChoice(trackChoice, completedCodes, completedRecords, selectedTrack);
         }
         if (node instanceof DegreeProgram.ManualNoteRequirement manualNote) {
             return new RequirementStatus(true, List.of(), List.of(), List.of(manualNote.getText()), List.of());
@@ -76,21 +212,24 @@ public class DegreeProgressChecker {
         return new RequirementStatus(satisfied, remaining, descriptions, List.of(), List.of());
     }
 
-    private static RequirementStatus checkChooseN(DegreeProgram.ChooseNRequirement chooseN, Set<String> completed) {
+    private static RequirementStatus checkChooseN(DegreeProgram.ChooseNRequirement chooseN, Set<String> completedCodes,
+                                                  Collection<CompletedCourse> completedRecords,
+                                                  String selectedTrack) {
         int satisfiedCount = 0;
         List<String> remainingCourseCodes = new ArrayList<>();
         List<String> unsatisfiedOptionDescriptions = new ArrayList<>();
         List<String> manualNotes = new ArrayList<>();
         for (DegreeProgram.Option option : chooseN.getOptions()) {
             if (option.isSimple()) {
-                if (completed.contains(option.getCourseCode())) {
+                if (completedCodes.contains(option.getCourseCode())) {
                     satisfiedCount++;
                 } else {
                     remainingCourseCodes.add(option.getCourseCode());
                     unsatisfiedOptionDescriptions.add(option.getCourseCode());
                 }
             } else {
-                RequirementStatus nestedStatus = checkNode(option.getNestedContent(), completed);
+                RequirementStatus nestedStatus = checkNode(option.getNestedContent(), completedCodes,
+                        completedRecords, selectedTrack);
                 manualNotes.addAll(nestedStatus.getManualNotes());
                 if (nestedStatus.isSatisfied()) {
                     satisfiedCount++;
@@ -108,10 +247,11 @@ public class DegreeProgressChecker {
                 manualNotes, List.of());
     }
 
-    private static RequirementStatus checkRange(DegreeProgram.RangeRequirement range, Set<String> completed) {
+    private static RequirementStatus checkRange(DegreeProgram.RangeRequirement range,
+                                                Collection<CompletedCourse> completed) {
         int matches = 0;
-        for (String code : completed) {
-            if (matchesRange(code, range)) {
+        for (CompletedCourse course : completed) {
+            if (matchesRange(course.getCourseCode(), range)) {
                 matches++;
             }
         }
@@ -149,24 +289,30 @@ public class DegreeProgressChecker {
     }
 
     private static RequirementStatus checkTrackChoice(DegreeProgram.TrackChoiceRequirement trackChoice,
-                                                         Set<String> completed) {
-        RequirementStatus closest = null;
+                                                         Set<String> completedCodes,
+                                                         Collection<CompletedCourse> completedRecords,
+                                                         String selectedTrack) {
+        if (selectedTrack == null || selectedTrack.isBlank()) {
+            return new RequirementStatus(true, List.of(), List.of(),
+                    List.of(describeLabel(trackChoice.getLabel())
+                            + "is not checked because no track is saved for this program."), List.of());
+        }
         for (DegreeProgram.Track track : trackChoice.getTracks()) {
-            RequirementStatus trackStatus = checkTrack(track, completed);
-            if (trackStatus.isSatisfied()) {
-                return trackStatus;
-            }
-            if (closest == null || trackStatus.remainingWeight() < closest.remainingWeight()) {
-                closest = trackStatus;
+            if (track.getName().equalsIgnoreCase(selectedTrack.trim())) {
+                return checkTrack(track, completedCodes, completedRecords, selectedTrack);
             }
         }
-        return closest != null ? closest : new RequirementStatus(true, List.of(), List.of(), List.of(), List.of());
+        return new RequirementStatus(true, List.of(), List.of(),
+                List.of("Saved track \"" + selectedTrack + "\" does not match a track in "
+                        + describeLabel(trackChoice.getLabel()) + "."), List.of());
     }
 
-    private static RequirementStatus checkTrack(DegreeProgram.Track track, Set<String> completed) {
+    private static RequirementStatus checkTrack(DegreeProgram.Track track, Set<String> completedCodes,
+                                                Collection<CompletedCourse> completedRecords,
+                                                String selectedTrack) {
         List<RequirementStatus> childStatuses = new ArrayList<>();
         for (DegreeProgram.RequirementNode node : track.getRequirements()) {
-            childStatuses.add(checkNode(node, completed));
+            childStatuses.add(checkNode(node, completedCodes, completedRecords, selectedTrack));
         }
         RequirementStatus combined = RequirementStatus.combineAnd(childStatuses);
         List<String> descriptions = combined.isSatisfied() ? List.of()
@@ -188,5 +334,21 @@ public class DegreeProgressChecker {
 
     private static String describeLabel(String label) {
         return label != null && !label.isBlank() ? label + " " : "";
+    }
+
+    private static Set<String> completedCodes(Collection<CompletedCourse> completedCourses) {
+        Set<String> codes = new HashSet<>();
+        for (CompletedCourse course : completedCourses) {
+            codes.add(course.getCourseCode());
+        }
+        return codes;
+    }
+
+    private static List<CompletedCourse> recordsForCodes(Set<String> completedCourseCodes) {
+        List<CompletedCourse> records = new ArrayList<>();
+        for (String code : completedCourseCodes) {
+            records.add(new CompletedCourse(code, null, null, Set.of()));
+        }
+        return records;
     }
 }
