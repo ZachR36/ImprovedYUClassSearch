@@ -39,9 +39,63 @@ public class CoursePrinter {
       Recommendation recommendation = recommendations.get(i);
       Course course = recommendation.course();
       System.out.println((i + 1) + ". " + course.getCourseCode() + " — " + course.getName()
-          + " (CRN " + course.getCRN() + ", " + course.getCampus() + ", " + course.getCredits() + " credits)");
+          + " (" + course.getCredits() + " credits)");
       for (String reason : recommendation.reasons()) System.out.println("   Why: " + reason);
       for (String caution : recommendation.cautions()) System.out.println("   Note: " + caution);
+      System.out.println("   Available sections:");
+      for (Course offering : recommendation.offerings()) {
+        System.out.println("   - CRN " + offering.getCRN() + ", section " + offering.getSection()
+            + ", " + offering.getCampus() + ", " + offering.getTeacher()
+            + " (" + offering.getRemainingEnrollment() + " seats remaining)");
+      }
+    }
+  }
+
+  static void schedulePlanPrinting(List<SchedulePlan> plans) {
+    System.out.println("\n**Recommended schedules**");
+    if (plans.isEmpty()) {
+      System.out.println("No compatible schedule reached the requested credit range.");
+      return;
+    }
+    for (int i = 0; i < plans.size(); i++) {
+      SchedulePlan plan = plans.get(i);
+      System.out.println((i + 1) + ". " + plan.credits() + " credits");
+      if (!plan.explanations().isEmpty()) {
+        System.out.println("   Why this schedule:");
+        for (String explanation : plan.explanations()) System.out.println("   - " + explanation);
+      }
+      if (!plan.fixedCourses().isEmpty()) {
+        System.out.println("   Already bookmarked (kept in this schedule):");
+        for (Course fixed : plan.fixedCourses()) {
+          System.out.println("   - " + fixed.getCourseCode() + ", CRN " + fixed.getCRN());
+        }
+      }
+      for (Recommendation choice : plan.selections()) {
+        Course course = choice.course();
+        System.out.println("   - " + course.getCourseCode() + ", CRN " + course.getCRN()
+            + " — " + String.join("; ", choice.reasons()));
+      }
+    }
+  }
+
+  static void substitutionPrinting(List<ScheduleSubstitution> substitutions) {
+    System.out.println("\n**Replacement options**");
+    if (substitutions.isEmpty()) {
+      System.out.println("No compatible replacements meet that goal.");
+      return;
+    }
+    for (int i = 0; i < substitutions.size(); i++) {
+      ScheduleSubstitution option = substitutions.get(i);
+      Course primary = option.primary().course();
+      System.out.println((i + 1) + ". " + primary.getCourseCode() + ", CRN " + primary.getCRN());
+      for (String reason : option.primary().reasons()) System.out.println("   Why: " + reason);
+      if (!option.corequisites().isEmpty()) {
+        System.out.println("   Also adds strict corequisite section(s):");
+        for (Recommendation corequisite : option.corequisites()) {
+          System.out.println("   - " + corequisite.course().getCourseCode() + ", CRN "
+              + corequisite.course().getCRN());
+        }
+      }
     }
   }
   static final int INCREMENT = 15;

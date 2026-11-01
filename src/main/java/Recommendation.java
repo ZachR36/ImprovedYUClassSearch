@@ -1,4 +1,5 @@
 import java.util.List;
 
-/** One explained, schedulable course suggestion. */
-public record Recommendation(Course course, List<String> reasons, List<String> cautions) { }
+/** One explained course suggestion, with every currently viable section. */
+public record Recommendation(Course course, List<Course> offerings, List<String> reasons,
+                             List<String> cautions) { }

@@ -32,6 +32,17 @@ public class SearchRunTests {
   }
 
   @Test
+  void scheduleTimeWindowsAcceptMultipleCommaSeparatedEntries() throws ReflectiveOperationException {
+    Method method = Runner.class.getDeclaredMethod("readTimeRanges", Scanner.class, String.class);
+    method.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    java.util.List<TimeRange> ranges = (java.util.List<TimeRange>) method.invoke(null,
+        new Scanner("0900-1100, 1300-1500\n"), "test: ");
+
+    assertEquals(java.util.List.of(new TimeRange(900, 1100), new TimeRange(1300, 1500)), ranges);
+  }
+
+  @Test
   void expandingASearchAddsNewMatchesWithoutDuplicatingExistingOnes() throws ReflectiveOperationException {
     Course existingCourse = course("10001", "A", "M}0900}1000}SCW}101", "3");
     Course additionalCourse = course("10002", "B", "T}0900}1000}SCW}102", "0.5");
@@ -99,6 +110,72 @@ public class SearchRunTests {
 
     assertTrue(UserSession.bookmarkClass("10002"));
     assertTrue(UserSession.getCorequisiteWarnings().isEmpty());
+  }
+
+  @Test
+  void acceptingAScheduleIsAtomicWhenAProposedCourseConflicts() {
+    Course saved = course("10001", "A", "M}0900}1000}SCW}101", "3");
+    Course conflict = course("10002", "B", "M}0930}1030}SCW}102", "3");
+    UserSession.bookmarked.put(saved.getCRN(), saved);
+
+    assertFalse(UserSession.acceptScheduleAtomically(java.util.List.of(conflict)));
+    assertEquals(java.util.List.of(saved), UserSession.getBookmarked());
+  }
+
+  @Test
+  void acceptingAScheduleRequiresAllStrictCorequisitesTogether() {
+    Course lecture = courseWithCorequisite("10001", "CHEM", "1215", "CHEM1213");
+    Course companion = courseWithCorequisite("10002", "CHEM", "1213", "");
+
+    assertFalse(UserSession.acceptScheduleAtomically(java.util.List.of(lecture)));
+    assertTrue(UserSession.getBookmarked().isEmpty());
+    assertTrue(UserSession.acceptScheduleAtomically(java.util.List.of(lecture, companion)));
+    assertEquals(2, UserSession.getBookmarked().size());
+  }
+
+  @Test
+  void replacingASelectionKeepsFixedBookmarkCreditsInTheSelectedPlan() {
+    Course fixed = course("10001", "A", "M}0900}1000}SCW}101", "3");
+    Course original = course("10002", "B", "T}0900}1000}SCW}102", "3");
+    Course replacementCourse = course("10003", "C", "W}0900}1000}SCW}103", "4");
+    Recommendation originalRecommendation = new Recommendation(original, java.util.List.of(original),
+        java.util.List.of("Advances test major"), java.util.List.of());
+    Recommendation replacement = new Recommendation(replacementCourse, java.util.List.of(replacementCourse),
+        java.util.List.of("Advances test major"), java.util.List.of());
+    ScheduleSession.selectedPlan = new SchedulePlan(java.util.List.of(fixed),
+        java.util.List.of(originalRecommendation), 6, 0);
+
+    ScheduleSession.replace(original.getCRN(), new ScheduleSubstitution(replacement, java.util.List.of()));
+
+    assertEquals(7, ScheduleSession.selectedPlan.credits());
+    assertEquals(java.util.List.of(fixed), ScheduleSession.selectedPlan.fixedCourses());
+  }
+
+  @Test
+  void selectedPlanCanBeRedisplayedWithItsFixedBookmarks() {
+    Course fixed = course("10001", "A", "M}0900}1000}SCW}101", "3");
+    Course selection = course("10002", "B", "T}0900}1000}SCW}102", "3");
+    Recommendation recommendation = new Recommendation(selection, java.util.List.of(selection),
+        java.util.List.of("Advances test major"), java.util.List.of());
+    SchedulePlan plan = new SchedulePlan(java.util.List.of(fixed), java.util.List.of(recommendation), 6, 0,
+        java.util.List.of("Strategy: major-first."));
+    ScheduleSession.setPlans(java.util.List.of(plan), SchedulePreferences.defaults());
+    assertTrue(ScheduleSession.select(1));
+
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    PrintStream originalOutput = System.out;
+    try {
+      System.setOut(new PrintStream(output));
+      CoursePrinter.schedulePlanPrinting(java.util.List.of(ScheduleSession.selectedPlan));
+    } finally {
+      System.setOut(originalOutput);
+    }
+
+    assertTrue(output.toString().contains("Already bookmarked (kept in this schedule)"));
+    assertTrue(output.toString().contains("Why this schedule:"));
+    assertTrue(output.toString().contains("Strategy: major-first."));
+    assertTrue(output.toString().contains("CRN 10001"));
+    assertTrue(output.toString().contains("CRN 10002"));
   }
 
   @Test

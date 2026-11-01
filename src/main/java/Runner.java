@@ -19,6 +19,11 @@ public class Runner {
       + "To view a course's full description and requirements: \"details\" \n"
       + "To see your degree progress for your degree programs: \"progress\" \n"
       + "To get up to five recommended next courses: \"recommend\" \n"
+      + "To build a compatible recommended schedule: \"plan schedule\" \n"
+      + "To select a proposed schedule: \"select schedule\" \n"
+      + "To view the selected proposed schedule: \"view selected schedule\" \n"
+      + "To replace one selected course: \"substitute\" \n"
+      + "To bookmark the selected schedule: \"accept schedule\" \n"
       + "To look up exact major/minor program names: \"list programs\" \n"
       + "To clear the screen: \"clear\" \n"
       + "To exit the program: \"exit\"";
@@ -120,6 +125,52 @@ public class Runner {
         case "details" -> displayCourseDetails(scan);
         case "progress" -> displayDegreeProgress();
         case "recommend" -> CoursePrinter.recommendationPrinting(RecommendationEngine.recommend(UserSession.currentUser));
+        case "plan schedule" -> {
+          SchedulePreferences preferences = readSchedulePreferences(scan);
+          ScheduleSession.setPlans(SchedulePlanner.plan(UserSession.currentUser, preferences), preferences);
+          CoursePrinter.schedulePlanPrinting(ScheduleSession.lastPlans);
+        }
+        case "select schedule" -> {
+          System.out.println("Choose a schedule number from the most recent plan: ");
+          try {
+            if (ScheduleSession.select(Integer.parseInt(ConsoleInput.read(scan)))) System.out.println("Schedule selected.");
+            else System.out.println("That schedule number is unavailable.");
+          } catch (NumberFormatException e) { System.out.println("Enter a schedule number."); }
+        }
+        case "view selected schedule" -> {
+          if (ScheduleSession.selectedPlan == null) {
+            System.out.println("No proposed schedule is selected.");
+          } else {
+            CoursePrinter.schedulePlanPrinting(List.of(ScheduleSession.selectedPlan));
+          }
+        }
+        case "substitute" -> {
+          if (ScheduleSession.selectedPlan == null) {
+            System.out.println("Select a proposed schedule first.");
+            break;
+          }
+          System.out.println("Enter the CRN you want to replace: ");
+          int crn;
+          try { crn = Integer.parseInt(ConsoleInput.read(scan)); }
+          catch (NumberFormatException e) { System.out.println("CRN must be a number."); break; }
+          SubstitutionGoal goal = readSubstitutionGoal(scan);
+          List<ScheduleSubstitution> substitutes = SchedulePlanner.substitutes(ScheduleSession.selectedPlan, crn,
+              ScheduleSession.preferences, goal);
+          CoursePrinter.substitutionPrinting(substitutes);
+          if (!substitutes.isEmpty()) {
+            System.out.println("Enter a replacement option number, or press Enter to keep the current course: ");
+            String replacement = ConsoleInput.read(scan);
+            if (!replacement.isBlank()) try {
+              int replacementNumber = Integer.parseInt(replacement);
+              if (replacementNumber >= 1 && replacementNumber <= substitutes.size()) {
+                ScheduleSession.replace(crn, substitutes.get(replacementNumber - 1));
+              } else System.out.println("No replacement was made.");
+            } catch (NumberFormatException e) { System.out.println("No replacement was made."); }
+          }
+        }
+        case "accept schedule" -> {
+          if (!ScheduleSession.acceptSelected()) System.out.println("No selected schedule was added to bookmarks.");
+        }
         case "list programs" -> {
           System.out.println("Search term (or leave blank to list every program): ");
           UserSetup.printProgramList(ConsoleInput.read(scan));
@@ -173,6 +224,138 @@ public class Runner {
     }
   }
 
+  private static SchedulePreferences readSchedulePreferences(Scanner scan) {
+    SchedulePreferences defaults = SchedulePreferences.defaults();
+    double minimum = readDoublePreference(scan, "Minimum credits [12]: ", defaults.minimumCredits());
+    double maximum;
+    do {
+      maximum = readDoublePreference(scan, "Maximum credits [15]: ", defaults.maximumCredits());
+      if (maximum < minimum) System.out.println("Maximum credits must be at least the minimum.");
+    } while (maximum < minimum);
+    int majorCount = readIntPreference(scan, "Desired major courses [2]: ", defaults.desiredMajorCourses());
+    int minorCount = readIntPreference(scan, "Desired minor courses [1]: ", defaults.desiredMinorCourses());
+    System.out.println("Schedule strategy: major-first, balanced, minor-first, or core-first [major-first]: ");
+    String strategyInput = ConsoleInput.read(scan);
+    SchedulePreferences.Strategy strategy = switch (strategyInput.isBlank() ? "major-first" : strategyInput.toLowerCase()) {
+      case "balanced" -> SchedulePreferences.Strategy.BALANCED;
+      case "minor-first" -> SchedulePreferences.Strategy.MINOR_FIRST;
+      case "core-first" -> SchedulePreferences.Strategy.CORE_FIRST;
+      default -> SchedulePreferences.Strategy.MAJOR_FIRST;
+    };
+    java.util.List<TimeRange> preferred = readTimeRanges(scan,
+        "Preferred class-time window(s), e.g. 1000-1500, 1600-1900. "
+            + "A class must fit entirely within one window (Enter for no preference): ");
+    java.util.List<TimeRange> avoid = readTimeRanges(scan,
+        "Class-time window(s) to avoid, e.g. 0800-0900, 1700-1800. "
+            + "Separate multiple windows with commas (Enter for none): ");
+    System.out.println("For day distribution, type weekdays to balance all days, or list lighter days "
+        + "(M T W R F), or press Enter for no preference:");
+    String dayInput = ConsoleInput.read(scan);
+    boolean balancedDays = dayInput.equalsIgnoreCase("weekdays") || dayInput.equalsIgnoreCase("balanced");
+    java.util.Set<String> lightDays = new java.util.HashSet<>();
+    if (!balancedDays) for (String day : dayInput.toUpperCase().split("\\s+")) {
+      if (day.matches("M|T|W|R|F")) lightDays.add(day);
+    }
+    java.util.Set<String> preferredDepartments = readPreferenceTokens(scan,
+        "Preferred departments/subjects, separated by spaces (e.g. COMP MATH; Enter for none): ");
+    java.util.Set<String> preferredAttributes = readPreferenceTokens(scan,
+        "Preferred course attributes, separated by spaces (e.g. HONR WRIN; Enter for none): ");
+    System.out.println("Instructors to avoid when possible, separated by semicolons (Enter for none): ");
+    java.util.Set<String> avoidedInstructors = new java.util.HashSet<>();
+    for (String instructor : ConsoleInput.read(scan).split(";")) {
+      if (!instructor.isBlank()) avoidedInstructors.add(instructor.trim().toLowerCase());
+    }
+    System.out.println("Favor sections with more open seats? (Y/N) [N]: ");
+    SchedulePreferences.SeatPreference seatPreference = ConsoleInput.read(scan).equalsIgnoreCase("y")
+        ? SchedulePreferences.SeatPreference.MORE_OPEN_SEATS
+        : SchedulePreferences.SeatPreference.NO_PREFERENCE;
+    return new SchedulePreferences(minimum, maximum, majorCount, minorCount, strategy,
+        preferred, avoid, java.util.Set.copyOf(lightDays), balancedDays,
+        preferredDepartments, preferredAttributes, java.util.Set.copyOf(avoidedInstructors), seatPreference);
+  }
+
+  private static java.util.Set<String> readPreferenceTokens(Scanner scan, String prompt) {
+    System.out.println(prompt);
+    java.util.Set<String> tokens = new java.util.HashSet<>();
+    for (String token : ConsoleInput.read(scan).toUpperCase().split("\\s+")) {
+      if (!token.isBlank()) tokens.add(token);
+    }
+    return java.util.Set.copyOf(tokens);
+  }
+
+  private static double readDoublePreference(Scanner scan, String prompt, double fallback) {
+    while (true) {
+      System.out.print(prompt);
+      String input = ConsoleInput.read(scan);
+      if (input.isBlank()) return fallback;
+      try {
+        double value = Double.parseDouble(input);
+        if (value >= 0) return value;
+      } catch (NumberFormatException ignored) { }
+      System.out.println("Enter a non-negative number, or press Enter for the default.");
+    }
+  }
+
+  private static int readIntPreference(Scanner scan, String prompt, int fallback) {
+    while (true) {
+      System.out.print(prompt);
+      String input = ConsoleInput.read(scan);
+      if (input.isBlank()) return fallback;
+      try {
+        int value = Integer.parseInt(input);
+        if (value >= 0) return value;
+      } catch (NumberFormatException ignored) { }
+      System.out.println("Enter a non-negative whole number, or press Enter for the default.");
+    }
+  }
+
+  private static java.util.List<TimeRange> readTimeRanges(Scanner scan, String prompt) {
+    while (true) {
+      System.out.print(prompt);
+      String input = ConsoleInput.read(scan);
+      if (input.isBlank()) return java.util.List.of();
+      java.util.List<TimeRange> ranges = new java.util.ArrayList<>();
+      boolean valid = true;
+      for (String range : input.split(",")) {
+        String[] pieces = range.trim().split("-");
+        try {
+          if (pieces.length != 2) { valid = false; break; }
+          int start = Integer.parseInt(pieces[0].trim());
+          int end = Integer.parseInt(pieces[1].trim());
+          if (!validTime(start) || !validTime(end) || start >= end) { valid = false; break; }
+          ranges.add(new TimeRange(start, end));
+        } catch (NumberFormatException ignored) { valid = false; break; }
+      }
+      if (valid && !ranges.isEmpty()) return java.util.List.copyOf(ranges);
+      System.out.println("Use one or more 24-hour windows separated by commas, such as 1000-1500, 1600-1900.");
+    }
+  }
+
+  private static boolean validTime(int time) {
+    return time >= 0 && time <= 2359 && time % 100 < 60;
+  }
+
+  private static SubstitutionGoal readSubstitutionGoal(Scanner scan) {
+    System.out.println("""
+        What should the replacement do?
+          1) Different section of the same course
+          2) Another course with the same broad role (major/minor/core)
+          3) Prioritize a major requirement
+          4) Prioritize a minor requirement
+          5) Prioritize a core requirement
+          6) Any compatible course that advances progress
+        Enter a number [2]: """);
+    String input = ConsoleInput.read(scan);
+    return switch (input.isBlank() ? "2" : input) {
+      case "1" -> SubstitutionGoal.DIFFERENT_SECTION;
+      case "3" -> SubstitutionGoal.MAJOR;
+      case "4" -> SubstitutionGoal.MINOR;
+      case "5" -> SubstitutionGoal.CORE;
+      case "6" -> SubstitutionGoal.ANY_PROGRESS;
+      default -> SubstitutionGoal.SAME_ROLE;
+    };
+  }
+
   private static boolean chooseSearchOption(Scanner scan, boolean refine) {
     return chooseSearchOption(scan, refine, false);
   }
@@ -188,11 +371,6 @@ public class Runner {
       return;
     }
     DegreeProgram primaryMajor = DegreeProgram.findByCatalogKey(catalog, user.getMajor());
-    if (user.isHonors()) {
-      // Honors is intentionally read-only: its courses may also satisfy a
-      // degree program or core requirement.
-      CoursePrinter.degreeProgressPrinting("Honors Program", HonorsProgressChecker.check(user));
-    }
     List<CompletedCourse> degreeUsedCourses = new java.util.ArrayList<>();
     for (String majorKey : user.getMajors()) {
       DegreeProgram majorProgram = DegreeProgram.findByCatalogKey(catalog, majorKey);
@@ -232,6 +410,12 @@ public class Runner {
       } else {
         System.out.println("No single core-requirement profile matches your saved school, campus, and primary major yet.");
       }
+    }
+    // Honors is intentionally read-only: its courses may also satisfy a
+    // degree program or core requirement. It is printed last for a natural
+    // degree-progress reading order.
+    if (user.isHonors()) {
+      CoursePrinter.degreeProgressPrinting("Honors Program", HonorsProgressChecker.check(user));
     }
   }
 

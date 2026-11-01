@@ -22,6 +22,17 @@ public final class RecommendationEngine {
   private RecommendationEngine() { }
 
   static List<Recommendation> recommend(User user) {
+    return buildRecommendations(user, LIMIT);
+  }
+
+  /** Supplies every eligible requirement-advancing course to the schedule planner.
+   * This is deliberately not capped, so planning can choose alternatives when a
+   * stronger early choice causes a later time conflict. */
+  static List<Recommendation> eligibleRecommendations(User user) {
+    return buildRecommendations(user, Integer.MAX_VALUE);
+  }
+
+  private static List<Recommendation> buildRecommendations(User user, int limit) {
     if (user == null || DegreeProgram.getCatalog() == null) return List.of();
     Set<String> completed = user.getCompletedCourses();
     Map<String, Target> targets = new LinkedHashMap<>();
@@ -45,23 +56,26 @@ public final class RecommendationEngine {
     List<Recommendation> recommendations = new ArrayList<>();
     for (Target target : targets.values()) {
       if (unavailableCodes.contains(target.courseCode)) continue;
-      Course best = bestOffering(target.courseCode);
-      if (best == null) continue;
+      List<Course> offerings = viableOfferings(target.courseCode);
+      if (offerings.isEmpty()) continue;
+      Course best = offerings.getFirst();
       List<String> cautions = new ArrayList<>();
       for (String[] group : UserSession.missingStrictCorequisites(best)) {
         cautions.add("Also needs strict corequisite " + String.join(" OR ", group) + ".");
       }
-      recommendations.add(new Recommendation(best, List.copyOf(target.reasons), List.copyOf(cautions)));
+      recommendations.add(new Recommendation(best, offerings, List.copyOf(target.reasons), List.copyOf(cautions)));
     }
     recommendations.sort(Comparator.comparingInt((Recommendation item) -> targets.get(item.course().getCourseCode()).priority)
         .reversed().thenComparing(Comparator.comparingInt((Recommendation item) -> item.course().getRemainingEnrollment()).reversed())
         .thenComparing(item -> item.course().getCourseCode()).thenComparingInt(item -> item.course().getCRN()));
-    return List.copyOf(recommendations.subList(0, Math.min(LIMIT, recommendations.size())));
+    return List.copyOf(recommendations.subList(0, Math.min(limit, recommendations.size())));
   }
 
-  private static Course bestOffering(String code) {
+  private static List<Course> viableOfferings(String code) {
     return SearchEngine.searchByCourseCode(code).stream().filter(UserSession::canFitRecommendation)
-        .max(Comparator.comparingInt(Course::getRemainingEnrollment).thenComparingInt(Course::getCRN)).orElse(null);
+        .sorted(Comparator.comparingInt(Course::getRemainingEnrollment).reversed()
+            .thenComparingInt(Course::getCRN))
+        .toList();
   }
 
   private static void collectDegreeTargets(DegreeProgram program, Set<String> completed, String selectedTrack,
