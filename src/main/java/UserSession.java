@@ -65,65 +65,6 @@ public class UserSession {
     return true;
   }
 
-  /** Adds an entire proposed schedule only after validating the complete final
-   * set. Unlike repeated bookmarkClass calls, this never leaves a partial plan
-   * behind if a later section cannot be added. */
-  static boolean acceptScheduleAtomically(Collection<Course> proposedCourses) {
-    if (currentUser == null) {
-      System.out.println("No user is selected.");
-      return false;
-    }
-    LinkedHashMap<Integer, Course> finalSchedule = new LinkedHashMap<>(bookmarked);
-    for (Course course : proposedCourses) finalSchedule.put(course.getCRN(), course);
-
-    double credits = 0;
-    for (Course course : finalSchedule.values()) {
-      if (!campusesMatch(currentUser.getCampus(), course.getCampus())) {
-        System.out.println("Schedule was not accepted: " + course.getCourseCode()
-            + " is not on an accessible campus.");
-        return false;
-      }
-      if (!course.prerequisitesSatisfied(currentUser.getCompletedCourses())) {
-        System.out.println("Schedule was not accepted: prerequisites are not satisfied for "
-            + course.getCourseCode() + ".");
-        return false;
-      }
-      credits += course.getCredits();
-    }
-    if ((currentUser.getCampus().equals("wilf") && credits > 17.5) || credits > 21) {
-      System.out.println("Schedule was not accepted: it exceeds the credit maximum.");
-      return false;
-    }
-
-    Set<String> completedOrPlanned = new HashSet<>(currentUser.getCompletedCourses());
-    for (Course course : finalSchedule.values()) completedOrPlanned.add(course.getCourseCode());
-    for (Course course : finalSchedule.values()) {
-      if (!course.flexiblePrereqsSatisfied(completedOrPlanned)) {
-        System.out.println("Schedule was not accepted: flexible prerequisites are not satisfied for "
-            + course.getCourseCode() + ".");
-        return false;
-      }
-      for (String[] missingGroup : missingCorequisiteGroups(course, completedOrPlanned)) {
-        System.out.println("Schedule was not accepted: " + course.getCourseCode()
-            + " requires strict corequisite " + String.join(" OR ", missingGroup)
-            + " to be completed or included in the schedule.");
-        return false;
-      }
-    }
-    List<Course> sections = new ArrayList<>(finalSchedule.values());
-    for (int i = 0; i < sections.size(); i++) for (int j = i + 1; j < sections.size(); j++) {
-      if (hasMeetingConflict(sections.get(i), sections.get(j))) {
-        System.out.println("Schedule was not accepted: " + sections.get(i).getCourseCode()
-            + " conflicts with " + sections.get(j).getCourseCode() + ".");
-        return false;
-      }
-    }
-    bookmarked.clear();
-    bookmarked.putAll(finalSchedule);
-    System.out.println("Schedule accepted and bookmarked (" + proposedCourses.size() + " selected section(s)).");
-    return true;
-  }
-
   /** Matches campus labels by their Wilf/Beren identity, so a guest user with
    * both names can also use offerings labelled "Beren (Online)" or "Wilf (Online)". */
   private static boolean campusesMatch(String userCampus, String courseCampus) {

@@ -25,13 +25,6 @@ public final class RecommendationEngine {
     return buildRecommendations(user, LIMIT);
   }
 
-  /** Supplies every eligible requirement-advancing course to the schedule planner.
-   * This is deliberately not capped, so planning can choose alternatives when a
-   * stronger early choice causes a later time conflict. */
-  static List<Recommendation> eligibleRecommendations(User user) {
-    return buildRecommendations(user, Integer.MAX_VALUE);
-  }
-
   private static List<Recommendation> buildRecommendations(User user, int limit) {
     if (user == null || DegreeProgram.getCatalog() == null) return List.of();
     Set<String> completed = user.getCompletedCourses();
