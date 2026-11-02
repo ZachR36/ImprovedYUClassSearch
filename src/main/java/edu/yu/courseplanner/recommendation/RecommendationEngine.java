@@ -8,6 +8,7 @@ import edu.yu.courseplanner.model.Course;
 import edu.yu.courseplanner.model.Recommendation;
 import edu.yu.courseplanner.model.User;
 import edu.yu.courseplanner.progress.DegreeProgressChecker;
+import edu.yu.courseplanner.progress.CoreRequirementChecker;
 import edu.yu.courseplanner.session.UserSession;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -118,6 +119,18 @@ public final class RecommendationEngine {
     Map<String, Target> targets = new LinkedHashMap<>();
     collectCoreTargets(program.getRequirements(), completed, track, targets, "");
     return new LinkedHashSet<>(targets.keySet());
+  }
+
+  static Map<String, List<String>> coreTargetReasons(CoreRequirementProgram program,
+                                                       Collection<CompletedCourse> completed, String track) {
+    Map<String, Target> targets = new LinkedHashMap<>();
+    collectCoreTargets(program.getRequirements(), completed, track, targets, "");
+    Map<String, List<String>> reasons = new LinkedHashMap<>();
+    for (Target target : targets.values()) {
+      reasons.put(target.courseCode, List.copyOf(target.reasons.stream()
+          .filter(reason -> !reason.isBlank()).toList()));
+    }
+    return reasons;
   }
 
   private static void collectDegreeTargets(DegreeProgram program, Set<String> completed, String selectedTrack,
@@ -245,9 +258,8 @@ public final class RecommendationEngine {
   private static boolean coreOptionSatisfied(CoreRequirementProgram.RequirementNode option,
                                              Collection<CompletedCourse> completed, String track) {
     if (option.getChildren().isEmpty() && !option.getValue().isBlank()) return hasCode(completed, option.getValue());
-    // A grouped option is recommendable only while one of its checkable slots is still open.
     for (CoreRequirementProgram.RequirementNode child : option.getChildren()) {
-      if (child.getType() == CoreRequirementProgram.NodeType.COURSE_CODE && !hasCode(completed, child.getValue())) return false;
+      if (!CoreRequirementChecker.isSatisfied(child, completed, track)) return false;
     }
     return !option.getChildren().isEmpty();
   }

@@ -39,6 +39,14 @@ public class CoreRequirementChecker {
         return allocateNodes(program.getRequirements(), new ArrayList<>(completedCourses), jewishStudiesTrack);
     }
 
+    /** Shared, non-consuming evaluation for one requirement-tree node.  This
+     * keeps recommendation eligibility aligned with the progress checker. */
+    public static boolean isSatisfied(CoreRequirementProgram.RequirementNode node,
+                                      Collection<CompletedCourse> completedCourses,
+                                      String jewishStudiesTrack) {
+        return checkNode(node, completedCourses, false, jewishStudiesTrack).isSatisfied();
+    }
+
     /** Pure evaluation used when considering an alternative. It must never
      * spend a course, since CHOOSE_N options are alternatives rather than
      * requirements that all apply at once. */

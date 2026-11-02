@@ -18,8 +18,13 @@ import java.util.*;
 public final class SchedulePlanner {
   private static final double MIN_CREDITS = 12.0;
   private static final double WILF_MAX_CREDITS = 17.5;
+  // Until Beren's official maximum is available, keep generated plans within
+  // a practical planning ceiling rather than letting asynchronous offerings
+  // create an unrealistic course load.
+  private static final double NON_WILF_MAX_CREDITS = 25.0;
   private static final int MAJOR_CAP = 3;
-  private static final int MINOR_CAP = 2;
+  private static final int MINOR_CAP = 3;
+  private static final int CORE_CAP = 5;
   private static final int CANDIDATE_COUNT = 5;
 
   private SchedulePlanner() { }
@@ -36,7 +41,7 @@ public final class SchedulePlanner {
     }
     plans.sort(Comparator.comparingInt(SchedulePlan::fulfilledRequirementCourses).reversed()
         .thenComparing(Comparator.comparingInt(SchedulePlan::degreeProgramCourses).reversed())
-        .thenComparingDouble(SchedulePlan::credits).reversed());
+        .thenComparing(Comparator.comparingDouble(SchedulePlan::credits).reversed()));
     return List.copyOf(plans.subList(0, Math.min(3, plans.size())));
   }
 
@@ -48,15 +53,18 @@ public final class SchedulePlanner {
     Set<String> coreTargets = coreProgram == null ? Set.of()
         : RecommendationEngine.coreTargetCodes(coreProgram,
             RecommendationEngine.coreEligibleCompletedCourses(user), user.getJewishStudiesTrack());
-    State state = new State(user, completed, earlyDay, majorTargets, minorTargets, coreTargets);
+    Map<String, List<String>> reasons = requirementReasons(user, completed, coreProgram);
+    State state = new State(user, completed, earlyDay, majorTargets, minorTargets, coreTargets, reasons);
 
     for (Course bookmarked : UserSession.getBookmarked()) {
       List<Course> bundle = state.bundleFor(bookmarked, new HashSet<>());
       if (bundle == null || !state.addBundle(bundle, Phase.FILLER, true)) return null;
     }
-    fillPhase(state, majorTargets, Phase.MAJOR, MAJOR_CAP, variation);
-    fillPhase(state, minorTargets, Phase.MINOR, MINOR_CAP, variation + 7);
-    fillPhase(state, coreTargets, Phase.CORE, Integer.MAX_VALUE, variation + 13);
+    // Recompute degree targets after every selection.  A CHOOSE_N requirement
+    // must stop offering its other alternatives once one of them is planned.
+    fillDegreePhase(state, user, user.getMajors(), Phase.MAJOR, MAJOR_CAP, variation);
+    fillDegreePhase(state, user, user.getMinors(), Phase.MINOR, MINOR_CAP, variation + 7);
+    fillCores(state, coreProgram, user, variation + 13);
     fillFillers(state, UserSession.getInterested(), variation + 19);
     if (state.credits < MIN_CREDITS) {
       List<Course> catalog = new ArrayList<>(SearchEngine.mapByCRN.values());
@@ -76,25 +84,89 @@ public final class SchedulePlanner {
     return result;
   }
 
-  private static Phase classify(String code, Set<String> major, Set<String> minor, Set<String> core,
-                                Set<String> alreadyUsed) {
-    if (major.contains(code) && !alreadyUsed.contains(code)) return Phase.MAJOR;
-    if (minor.contains(code) && !alreadyUsed.contains(code)) return Phase.MINOR;
-    if (core.contains(code) && !alreadyUsed.contains(code)) return Phase.CORE;
-    return Phase.FILLER;
+  private static Map<String, List<String>> requirementReasons(User user, Set<String> completed,
+                                                               CoreRequirementProgram coreProgram) {
+    Map<String, List<String>> reasons = new HashMap<>();
+    for (String key : user.getMajors()) {
+      DegreeProgram program = DegreeProgram.findByCatalogKey(DegreeProgram.getCatalog(), key);
+      if (program != null) for (String code : RecommendationEngine.degreeTargetCodes(program, completed,
+          user.getSelectedProgramTrack(key))) addReason(reasons, code, "Advances major: " + program.getName());
+    }
+    for (String key : user.getMinors()) {
+      DegreeProgram program = DegreeProgram.findByCatalogKey(DegreeProgram.getCatalog(), key);
+      if (program != null) for (String code : RecommendationEngine.degreeTargetCodes(program, completed,
+          user.getSelectedProgramTrack(key))) addReason(reasons, code, "Advances minor: " + program.getName());
+    }
+    if (coreProgram != null) {
+      for (Map.Entry<String, List<String>> entry : RecommendationEngine.coreTargetReasons(coreProgram,
+          RecommendationEngine.coreEligibleCompletedCourses(user), user.getJewishStudiesTrack()).entrySet()) {
+        for (String reason : entry.getValue()) addReason(reasons, entry.getKey(),
+            "Fulfills core: " + (reason.isBlank() ? coreProgram.getName() : reason));
+      }
+    }
+    return reasons;
   }
 
-  private static void fillPhase(State state, Set<String> targets, Phase phase, int cap, int variation) {
-    List<String> codes = new ArrayList<>(targets);
-    Collections.sort(codes);
-    for (String code : rotate(codes, variation)) {
-      if (state.count(phase) >= cap || state.atCreditLimit()) return;
-      if (state.usedCodes.contains(code)) continue;
-      for (Course offering : rotate(sortedOfferings(code), variation)) {
-        List<Course> bundle = state.bundleFor(offering, new HashSet<>());
-        if (bundle != null && state.count(phase) + state.countForPhase(bundle, phase) <= cap
-            && state.addBundle(bundle, phase, false)) break;
+  private static void addReason(Map<String, List<String>> reasons, String code, String reason) {
+    reasons.computeIfAbsent(code, ignored -> new ArrayList<>()).add(reason);
+  }
+
+  private static void fillDegreePhase(State state, User user, Collection<String> programKeys,
+                                      Phase phase, int cap, int variation) {
+    for (int attempt = 0; attempt < SearchEngine.mapByCourseCode.size()
+        && state.count(phase) < cap && !state.atCreditLimit(); attempt++) {
+      Set<String> completedForProgram = new HashSet<>(state.completed);
+      completedForProgram.addAll(state.plannedCodesFor(phase));
+      Set<String> targets = degreeTargets(programKeys, user, completedForProgram);
+      targets.removeAll(state.usedCodes);
+      if (targets.isEmpty()) return;
+
+      boolean added = false;
+      List<String> codes = new ArrayList<>(targets);
+      Collections.sort(codes);
+      for (String code : rotate(codes, variation + attempt)) {
+        for (Course offering : rotate(sortedOfferings(code), variation + attempt)) {
+          List<Course> bundle = state.bundleFor(offering, new HashSet<>());
+          if (bundle != null && state.count(phase) + state.countForPhase(bundle, phase) <= cap
+              && state.addBundle(bundle, phase, false)) {
+            added = true;
+            break;
+          }
+        }
+        if (added || state.atCreditLimit()) break;
       }
+      if (!added) return;
+    }
+  }
+
+  /** Re-evaluates core requirements after every selection, so satisfying a
+   * CHOOSE_N branch (such as CUOT OR COWC) removes its sibling candidates. */
+  private static void fillCores(State state, CoreRequirementProgram coreProgram, User user, int variation) {
+    if (coreProgram == null) return;
+    for (int attempt = 0; attempt < SearchEngine.mapByCourseCode.size()
+        && state.count(Phase.CORE) < CORE_CAP && !state.atCreditLimit(); attempt++) {
+      List<CompletedCourse> completedForCore = new ArrayList<>(
+          RecommendationEngine.coreEligibleCompletedCourses(user));
+      completedForCore.addAll(state.corePlannedRecords());
+      Set<String> targets = RecommendationEngine.coreTargetCodes(coreProgram, completedForCore,
+          user.getJewishStudiesTrack());
+      targets.removeAll(state.usedCodes);
+      if (targets.isEmpty()) return;
+      boolean added = false;
+      List<String> codes = new ArrayList<>(targets);
+      Collections.sort(codes);
+      for (String code : rotate(codes, variation + attempt)) {
+        for (Course offering : rotate(sortedOfferings(code), variation + attempt)) {
+          List<Course> bundle = state.bundleFor(offering, new HashSet<>());
+          if (bundle != null && state.count(Phase.CORE) + state.countForPhase(bundle, Phase.CORE) <= CORE_CAP
+              && state.addBundle(bundle, Phase.CORE, false)) {
+            added = true;
+            break;
+          }
+        }
+        if (added || state.atCreditLimit()) break;
+      }
+      if (!added) return;
     }
   }
 
@@ -103,7 +175,11 @@ public final class SchedulePlanner {
     ordered.sort(Comparator.comparing(Course::getCourseCode).thenComparingInt(Course::getCRN));
     for (Course course : rotate(ordered, variation)) {
       if (state.credits >= MIN_CREDITS || state.atCreditLimit()) return;
-      if (state.usedCodes.contains(course.getCourseCode())) continue;
+      if (state.usedCodes.contains(course.getCourseCode())
+          || state.completed.contains(course.getCourseCode())
+          // Do not use an unselected requirement alternative as a generic
+          // filler: that would silently bypass a major/minor/core course cap.
+          || state.isRequirementTarget(course.getCourseCode())) continue;
       List<Course> bundle = state.bundleFor(course, new HashSet<>());
       if (bundle != null) state.addBundle(bundle, Phase.FILLER, false);
     }
@@ -148,6 +224,9 @@ public final class SchedulePlanner {
     private final Set<String> majorTargets;
     private final Set<String> minorTargets;
     private final Set<String> coreTargets;
+    private final Map<String, List<String>> requirementReasons;
+    private final Map<Integer, List<String>> courseReasons = new LinkedHashMap<>();
+    private final Map<Integer, Phase> coursePhases = new HashMap<>();
     private double credits;
     private int majors;
     private int minors;
@@ -155,9 +234,11 @@ public final class SchedulePlanner {
     private boolean creditLimitReached;
 
     private State(User user, Set<String> completed, String earlyDay, Set<String> majorTargets,
-                  Set<String> minorTargets, Set<String> coreTargets) {
+                  Set<String> minorTargets, Set<String> coreTargets,
+                  Map<String, List<String>> requirementReasons) {
       this.user = user; this.completed = completed; this.earlyDay = earlyDay;
       this.majorTargets = majorTargets; this.minorTargets = minorTargets; this.coreTargets = coreTargets;
+      this.requirementReasons = requirementReasons;
     }
 
     private int count(Phase phase) {
@@ -177,13 +258,38 @@ public final class SchedulePlanner {
       return Phase.FILLER;
     }
 
+    private boolean isRequirementTarget(String code) {
+      return majorTargets.contains(code) || minorTargets.contains(code) || coreTargets.contains(code);
+    }
+
+    private Set<String> plannedCodesFor(Phase desiredPhase) {
+      Set<String> result = new HashSet<>();
+      for (Course course : courses) {
+        if (coursePhases.get(course.getCRN()) == desiredPhase) result.add(course.getCourseCode());
+      }
+      return result;
+    }
+
+    private List<CompletedCourse> corePlannedRecords() {
+      List<CompletedCourse> records = new ArrayList<>();
+      for (Course course : courses) {
+        Phase phase = coursePhases.get(course.getCRN());
+        if (phase == Phase.CORE || phase == Phase.FILLER) records.add(new CompletedCourse(course));
+      }
+      return records;
+    }
+
     private boolean atCreditLimit() {
-      return creditLimitReached || (user.getCampus().equalsIgnoreCase("wilf") && credits >= WILF_MAX_CREDITS);
+      return creditLimitReached || credits >= maximumCredits();
+    }
+
+    private double maximumCredits() {
+      return user.getCampus().equalsIgnoreCase("wilf") ? WILF_MAX_CREDITS : NON_WILF_MAX_CREDITS;
     }
 
     private List<Course> bundleFor(Course course, Set<String> visiting) {
-      if (usedCodes.contains(course.getCourseCode())) return List.of();
-      if (!eligible(course) || !visiting.add(course.getCourseCode())) return null;
+      if (usedCodes.contains(course.getCourseCode()) || completed.contains(course.getCourseCode())) return null;
+      if (!baseEligible(course) || !visiting.add(course.getCourseCode())) return null;
       List<Course> bundle = new ArrayList<>();
       bundle.add(course);
       Set<String> plannedCodes = new HashSet<>(usedCodes);
@@ -194,7 +300,7 @@ public final class SchedulePlanner {
         for (String option : group) {
           for (Course offering : sortedOfferings(option)) {
             if (plannedCodes.contains(offering.getCourseCode())) { choice = offering; break; }
-            if (eligible(offering) && !conflictsBundle(offering, bundle)) { choice = offering; break; }
+            if (baseEligible(offering) && !conflictsBundle(offering, bundle)) { choice = offering; break; }
           }
           if (choice != null) break;
         }
@@ -207,12 +313,10 @@ public final class SchedulePlanner {
       return bundle;
     }
 
-    private boolean eligible(Course course) {
+    private boolean baseEligible(Course course) {
       if (course.getRemainingEnrollment() <= 0 || !campusAllowed(course)
           || !course.prerequisitesSatisfied(completed)) return false;
-      Set<String> registering = new HashSet<>(completed);
-      registering.addAll(usedCodes);
-      if (!course.flexiblePrereqsSatisfied(registering) || !fitsYeshivaTime(course)) return false;
+      if (!fitsYeshivaTime(course)) return false;
       for (Course existing : courses) if (UserSession.hasMeetingConflict(course, existing)) return false;
       return true;
     }
@@ -233,10 +337,15 @@ public final class SchedulePlanner {
         if (meeting.length < 3 || meeting[0].length == 0 || meeting[1].length == 0 || meeting[2].length == 0
             || !meeting[1][0].matches("\\d{4}") || !meeting[2][0].matches("\\d{4}")) continue;
         int start = Integer.parseInt(meeting[1][0]), end = Integer.parseInt(meeting[2][0]);
-        boolean standard = start >= (track.equals("MYP") ? 1500 : 1300) && end <= 2000;
-        boolean earlyMyp = track.equals("MYP") && (earlyDay.equals("T") || earlyDay.equals("R"))
-            && allDaysAre(meeting[0], earlyDay) && start >= 1300 && end <= 1500;
-        if (!standard && !earlyMyp) return false;
+        for (String day : meeting[0]) {
+          // Friday is unrestricted for MYP; its Monday–Thursday schedule is
+          // still constrained by afternoon yeshiva study.
+          if (track.equals("MYP") && day.equalsIgnoreCase("F")) continue;
+          boolean standard = start >= (track.equals("MYP") ? 1500 : 1300) && end <= 2000;
+          boolean earlyMyp = track.equals("MYP") && day.equalsIgnoreCase(earlyDay)
+              && start >= 1300 && end <= 1500;
+          if (!standard && !earlyMyp) return false;
+        }
       }
       return true;
     }
@@ -244,7 +353,7 @@ public final class SchedulePlanner {
     private boolean addBundle(List<Course> bundle, Phase phase, boolean bookmarked) {
       if (bundle == null || bundle.isEmpty()) return bundle != null;
       double addedCredits = bundle.stream().mapToDouble(Course::getCredits).sum();
-      if (user.getCampus().equalsIgnoreCase("wilf") && credits + addedCredits > WILF_MAX_CREDITS) {
+      if (credits + addedCredits > maximumCredits()) {
         creditLimitReached = true;
         return false;
       }
@@ -253,14 +362,31 @@ public final class SchedulePlanner {
         boolean bookmarkStillFits = campusAllowed(course)
             && course.prerequisitesSatisfied(completed)
             && fitsYeshivaTime(course);
+        Set<String> registering = new HashSet<>(completed);
+        registering.addAll(usedCodes);
+        for (Course bundledCourse : bundle) registering.add(bundledCourse.getCourseCode());
         if (usedCodes.contains(course.getCourseCode())
             || (existingBookmark && !bookmarkStillFits)
-            || (!existingBookmark && !eligible(course))) return false;
+            || (!existingBookmark && !baseEligible(course))
+            || !course.flexiblePrereqsSatisfied(registering)) return false;
         if (conflictsBundle(course, courses)) return false;
       }
-      for (Course course : bundle) {
+      for (int i = 0; i < bundle.size(); i++) {
+        Course course = bundle.get(i);
         courses.add(course); usedCodes.add(course.getCourseCode()); credits += course.getCredits();
         Phase coursePhase = phaseFor(course.getCourseCode());
+        coursePhases.put(course.getCRN(), coursePhase);
+        List<String> reasons = new ArrayList<>(requirementReasons.getOrDefault(course.getCourseCode(), List.of()));
+        if (i > 0) reasons.add("Required strict corequisite added automatically.");
+        if (bookmarked && UserSession.bookmarked.containsKey(course.getCRN())) {
+          reasons.add("Already bookmarked; included as mandatory.");
+        }
+        if (coursePhase == Phase.FILLER) {
+          reasons.add(UserSession.interested.containsKey(course.getCRN())
+              ? "Interested course selected to reach the 12-credit minimum."
+              : "Eligible course selected to reach the 12-credit minimum.");
+        }
+        courseReasons.put(course.getCRN(), List.copyOf(reasons));
         if (coursePhase == Phase.MAJOR) majors++;
         else if (coursePhase == Phase.MINOR) minors++;
         else if (coursePhase == Phase.CORE) cores++;
@@ -268,7 +394,9 @@ public final class SchedulePlanner {
       return true;
     }
 
-    private SchedulePlan toPlan() { return new SchedulePlan(courses, credits, majors, minors, cores); }
+    private SchedulePlan toPlan() {
+      return new SchedulePlan(courses, credits, majors, minors, cores, courseReasons);
+    }
   }
 
   private static boolean matchesAny(String[] options, Set<String> codes) {
@@ -282,10 +410,5 @@ public final class SchedulePlanner {
   private static boolean conflictsBundleList(Collection<Course> first, Collection<Course> second) {
     for (Course course : first) if (conflictsBundle(course, second)) return true;
     return false;
-  }
-  private static boolean allDaysAre(String[] days, String day) {
-    if (days.length == 0) return false;
-    for (String value : days) if (!value.equalsIgnoreCase(day)) return false;
-    return true;
   }
 }

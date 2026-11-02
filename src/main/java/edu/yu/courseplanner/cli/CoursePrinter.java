@@ -74,6 +74,9 @@ public class CoursePrinter {
         System.out.println("   - " + course.getCourseCode() + " — " + course.getName()
             + " (CRN " + course.getCRN() + ", " + course.getCredits() + " credits; "
             + meetingSummary(course) + ")");
+        for (String reason : plan.courseReasons().getOrDefault(course.getCRN(), List.of())) {
+          System.out.println("     Why: " + reason);
+        }
       }
     }
   }
