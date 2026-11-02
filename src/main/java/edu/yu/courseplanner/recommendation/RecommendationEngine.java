@@ -7,6 +7,7 @@ import edu.yu.courseplanner.model.CompletedCourse;
 import edu.yu.courseplanner.model.Course;
 import edu.yu.courseplanner.model.Recommendation;
 import edu.yu.courseplanner.model.User;
+import edu.yu.courseplanner.progress.DegreeProgressChecker;
 import edu.yu.courseplanner.session.UserSession;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,7 +53,7 @@ public final class RecommendationEngine {
           targets, 2, "Advances " + program.getName());
     }
     CoreRequirementProgram core = CoreRequirementProgram.findForUser(user);
-    if (core != null) collectCoreTargets(core.getRequirements(), user.getCompletedCourseRecords(),
+    if (core != null) collectCoreTargets(core.getRequirements(), coreEligibleCompletedCourses(user),
         user.getJewishStudiesTrack(), targets, "Fulfills " + core.getName());
 
     Set<String> unavailableCodes = new HashSet<>(completed);
@@ -79,6 +81,43 @@ public final class RecommendationEngine {
         .sorted(Comparator.comparingInt(Course::getRemainingEnrollment).reversed()
             .thenComparingInt(Course::getCRN))
         .toList();
+  }
+
+  /** Completed records still available for core requirements after the
+   * student's degree programs have claimed their allocations. */
+  static List<CompletedCourse> coreEligibleCompletedCourses(User user) {
+    List<CompletedCourse> eligible = new ArrayList<>(user.getCompletedCourseRecords());
+    if (DegreeProgram.getCatalog() == null) return eligible;
+    List<CompletedCourse> degreeUsed = new ArrayList<>();
+    for (String key : user.getMajors()) {
+      DegreeProgram program = DegreeProgram.findByCatalogKey(DegreeProgram.getCatalog(), key);
+      if (program != null) {
+        degreeUsed.addAll(DegreeProgressChecker.allocate(program, user.getCompletedCourseRecords(),
+            user.getSelectedProgramTrack(key)).usedCourses());
+      }
+    }
+    for (String key : user.getMinors()) {
+      DegreeProgram program = DegreeProgram.findByCatalogKey(DegreeProgram.getCatalog(), key);
+      if (program != null) {
+        degreeUsed.addAll(DegreeProgressChecker.allocate(program, user.getCompletedCourseRecords(),
+            user.getSelectedProgramTrack(key)).usedCourses());
+      }
+    }
+    eligible.removeAll(degreeUsed);
+    return eligible;
+  }
+
+  static Set<String> degreeTargetCodes(DegreeProgram program, Set<String> completed, String track) {
+    Map<String, Target> targets = new LinkedHashMap<>();
+    collectDegreeTargets(program, completed, track, targets, 1, "");
+    return new LinkedHashSet<>(targets.keySet());
+  }
+
+  static Set<String> coreTargetCodes(CoreRequirementProgram program,
+                                     Collection<CompletedCourse> completed, String track) {
+    Map<String, Target> targets = new LinkedHashMap<>();
+    collectCoreTargets(program.getRequirements(), completed, track, targets, "");
+    return new LinkedHashSet<>(targets.keySet());
   }
 
   private static void collectDegreeTargets(DegreeProgram program, Set<String> completed, String selectedTrack,

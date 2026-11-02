@@ -2,6 +2,7 @@ package edu.yu.courseplanner.cli;
 
 import edu.yu.courseplanner.model.Course;
 import edu.yu.courseplanner.model.Recommendation;
+import edu.yu.courseplanner.model.SchedulePlan;
 import edu.yu.courseplanner.progress.RequirementStatus;
 import java.util.List;
 
@@ -54,6 +55,39 @@ public class CoursePrinter {
             + " (" + offering.getRemainingEnrollment() + " seats remaining)");
       }
     }
+  }
+
+  /** Prints the highest-ranked schedule plans and their requirement impact. */
+  public static void schedulePrinting(List<SchedulePlan> plans) {
+    System.out.println("\n**Possible semester schedules**");
+    if (plans.isEmpty()) {
+      System.out.println("No schedule meeting the required credit, timing, prerequisite, and seat constraints was found.");
+      return;
+    }
+    for (int i = 0; i < plans.size(); i++) {
+      SchedulePlan plan = plans.get(i);
+      System.out.println("\n" + (i + 1) + ". " + plan.credits() + " credits; "
+          + plan.fulfilledRequirementCourses() + " requirement-fulfilling course(s) "
+          + "(" + plan.majorCourses() + " major, " + plan.minorCourses() + " minor, "
+          + plan.coreCourses() + " core)");
+      for (Course course : plan.courses()) {
+        System.out.println("   - " + course.getCourseCode() + " — " + course.getName()
+            + " (CRN " + course.getCRN() + ", " + course.getCredits() + " credits; "
+            + meetingSummary(course) + ")");
+      }
+    }
+  }
+
+  private static String meetingSummary(Course course) {
+    StringBuilder result = new StringBuilder();
+    for (String[][] meeting : course.getMeetings()) {
+      if (meeting.length < 3 || meeting[0].length == 0 || meeting[1].length == 0 || meeting[2].length == 0
+          || !meeting[1][0].matches("\\d{4}") || !meeting[2][0].matches("\\d{4}")) continue;
+      if (!result.isEmpty()) result.append("; ");
+      result.append(String.join("/", meeting[0])).append(" ")
+          .append(meeting[1][0]).append("-").append(meeting[2][0]);
+    }
+    return result.isEmpty() ? "TBA/asynchronous" : result.toString();
   }
 
   public static final int INCREMENT = 15;

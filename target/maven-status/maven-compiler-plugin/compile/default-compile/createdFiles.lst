@@ -1,7 +1,10 @@
 edu/yu/courseplanner/progress/CoreRequirementChecker$1.class
+edu/yu/courseplanner/model/SchedulePlan.class
+edu/yu/courseplanner/recommendation/SchedulePlanner$State.class
 edu/yu/courseplanner/progress/RequirementStatus.class
 edu/yu/courseplanner/catalog/DegreeProgram$TrackChoiceRequirement.class
 edu/yu/courseplanner/progress/DegreeProgressChecker.class
+edu/yu/courseplanner/recommendation/SchedulePlanner.class
 edu/yu/courseplanner/cli/Runner.class
 edu/yu/courseplanner/recommendation/RecommendationEngine.class
 edu/yu/courseplanner/catalog/DegreeProgram.class
@@ -26,6 +29,7 @@ edu/yu/courseplanner/catalog/DegreeProgram$RangeRequirement.class
 edu/yu/courseplanner/catalog/CoreRequirementProgram.class
 edu/yu/courseplanner/catalog/CoreRequirementProgram$Cursor.class
 edu/yu/courseplanner/catalog/SearchEngine.class
+edu/yu/courseplanner/recommendation/SchedulePlanner$Phase.class
 edu/yu/courseplanner/catalog/DegreeProgram$LineCursor.class
 edu/yu/courseplanner/recommendation/RecommendationEngine$Target.class
 edu/yu/courseplanner/progress/HonorsProgressChecker.class

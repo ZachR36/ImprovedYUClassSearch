@@ -5,12 +5,14 @@ import edu.yu.courseplanner.catalog.DegreeProgram;
 import edu.yu.courseplanner.catalog.SearchEngine;
 import edu.yu.courseplanner.model.CompletedCourse;
 import edu.yu.courseplanner.model.Course;
+import edu.yu.courseplanner.model.SchedulePlan;
 import edu.yu.courseplanner.model.User;
 import edu.yu.courseplanner.progress.CoreRequirementChecker;
 import edu.yu.courseplanner.progress.DegreeProgressChecker;
 import edu.yu.courseplanner.progress.HonorsProgressChecker;
 import edu.yu.courseplanner.progress.RequirementStatus;
 import edu.yu.courseplanner.recommendation.RecommendationEngine;
+import edu.yu.courseplanner.recommendation.SchedulePlanner;
 import edu.yu.courseplanner.session.UserSession;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public class Runner {
       + "To view a course's full description and requirements: \"details\" \n"
       + "To see your degree progress for your degree programs: \"progress\" \n"
       + "To get up to five recommended next courses: \"recommend\" \n"
+      + "To build up to three possible semester schedules: \"schedule\" \n"
       + "To look up exact major/minor program names: \"list programs\" \n"
       + "To clear the screen: \"clear\" \n"
       + "To exit the program: \"exit\"";
@@ -134,6 +137,7 @@ public class Runner {
         case "details" -> displayCourseDetails(scan);
         case "progress" -> displayDegreeProgress();
         case "recommend" -> CoursePrinter.recommendationPrinting(RecommendationEngine.recommend(UserSession.currentUser));
+        case "schedule" -> buildSchedule(scan);
         case "list programs" -> {
           System.out.println("Search term (or leave blank to list every program): ");
           UserSetup.printProgramList(ConsoleInput.read(scan));
@@ -184,6 +188,60 @@ public class Runner {
     } catch (IOException e) {
       UserSession.currentUser = previous;
       System.out.println("Unable to complete the user command. Keeping the current user unchanged.");
+    }
+  }
+
+  /** Builds plans without altering bookmarks unless the student explicitly
+   * chooses one of the printed schedules to save. */
+  private static void buildSchedule(Scanner scan) {
+    List<Course> originalBookmarks = UserSession.getBookmarked();
+    double bookmarkedCredits = originalBookmarks.stream().mapToDouble(Course::getCredits).sum();
+    boolean withoutBookmarks = false;
+    if (bookmarkedCredits > 12.0) {
+      System.out.println("Your bookmarked classes total " + bookmarkedCredits
+          + " credits. Build a schedule without those bookmarks? (Y/N)");
+      if (!ConsoleInput.read(scan).equalsIgnoreCase("y")) {
+        System.out.println("Remove bookmarked classes before building a schedule, or choose to build without them.");
+        return;
+      }
+      UserSession.bookmarked.clear();
+      withoutBookmarks = true;
+    }
+    String earlyDay = "";
+    String track = UserSession.currentUser.getJewishStudiesTrack();
+    if (UserSession.currentUser.getCampus().equalsIgnoreCase("wilf")
+        && track != null && track.equalsIgnoreCase("MYP")) {
+      System.out.println("Which day is your early shiur day? Enter T for Tuesday or R for Thursday:");
+      earlyDay = ConsoleInput.read(scan).trim().toUpperCase();
+      while (!earlyDay.equals("T") && !earlyDay.equals("R")) {
+        System.out.println("Enter T for Tuesday or R for Thursday:");
+        earlyDay = ConsoleInput.read(scan).trim().toUpperCase();
+      }
+    }
+    List<SchedulePlan> plans;
+    try {
+      plans = SchedulePlanner.build(UserSession.currentUser, earlyDay);
+    } finally {
+      if (withoutBookmarks) {
+        UserSession.bookmarked.clear();
+        for (Course course : originalBookmarks) UserSession.bookmarked.put(course.getCRN(), course);
+      }
+    }
+    CoursePrinter.schedulePrinting(plans);
+    if (plans.isEmpty()) return;
+    System.out.println("Enter 1-" + plans.size()
+        + " to save that schedule as bookmarks, or press Enter to return to the main menu:");
+    String choice = ConsoleInput.read(scan).trim();
+    if (choice.isEmpty()) return;
+    try {
+      int selected = Integer.parseInt(choice);
+      if (selected < 1 || selected > plans.size()) {
+        System.out.println("That schedule number is not available.");
+        return;
+      }
+      UserSession.bookmarkSchedule(plans.get(selected - 1).courses(), withoutBookmarks);
+    } catch (NumberFormatException e) {
+      System.out.println("That schedule number is not available.");
     }
   }
 

@@ -75,8 +75,49 @@ public class UserSession {
   private static boolean campusesMatch(String userCampus, String courseCampus) {
     String user = userCampus == null ? "" : userCampus.toLowerCase();
     String course = courseCampus == null ? "" : courseCampus.toLowerCase();
-    return (user.contains("wilf") && course.contains("wilf"))
+    return course.contains("online")
+        || (user.contains("wilf") && course.contains("wilf"))
         || (user.contains("beren") && course.contains("beren"));
+  }
+
+  /** Adds a prevalidated schedule atomically. Existing bookmarks remain in
+   * place; an unexpected conflict or validation failure leaves them untouched. */
+  public static boolean bookmarkSchedule(List<Course> schedule) {
+    return bookmarkSchedule(schedule, false);
+  }
+
+  /** Saves a schedule, optionally replacing rather than retaining old
+   * bookmarks when the student deliberately planned without them. */
+  public static boolean bookmarkSchedule(List<Course> schedule, boolean replaceExisting) {
+    if (currentUser == null || schedule == null || schedule.isEmpty()) return false;
+    Map<Integer, Course> proposed = replaceExisting ? new HashMap<>() : new HashMap<>(bookmarked);
+    for (Course course : schedule) proposed.put(course.getCRN(), course);
+    double credits = proposed.values().stream().mapToDouble(Course::getCredits).sum();
+    if (currentUser.getCampus().equalsIgnoreCase("wilf") && credits > 17.5) {
+      System.out.println("This schedule exceeds Wilf's 17.5-credit maximum and was not bookmarked.");
+      return false;
+    }
+    Set<String> registering = new HashSet<>(currentUser.getCompletedCourses());
+    for (Course course : proposed.values()) registering.add(course.getCourseCode());
+    for (Course course : proposed.values()) {
+      if (!campusesMatch(currentUser.getCampus(), course.getCampus())
+          || !course.prerequisitesSatisfied(currentUser.getCompletedCourses())
+          || !course.flexiblePrereqsSatisfied(registering)) {
+        System.out.println("The schedule could not be bookmarked because " + course.getCourseCode()
+            + " no longer passes validation.");
+        return false;
+      }
+      for (Course other : proposed.values()) {
+        if (course.getCRN() != other.getCRN() && hasMeetingConflict(course, other)) {
+          System.out.println("The schedule could not be bookmarked because "
+              + course.getCourseCode() + " conflicts with " + other.getCourseCode() + ".");
+          return false;
+        }
+      }
+    }
+    bookmarked = new HashMap<>(proposed);
+    System.out.println("Saved the selected schedule to your bookmarked classes.");
+    return true;
   }
 
   /** Read-only eligibility check shared by recommendations.  It deliberately
