@@ -359,4 +359,47 @@ public class User {
             }
         }
     }
+
+    /** Human-readable summary used by the CLI's profile-view command. */
+    @Override
+    public String toString() {
+        StringBuilder summary = new StringBuilder("\n=== Current User Information ===\n");
+        summary.append("Name: ").append(name).append('\n');
+        summary.append("Honors: ").append(honors ? "Yes" : "No").append('\n');
+        summary.append("Campus: ").append(campus).append('\n');
+        summary.append("School: ").append(school).append('\n');
+        summary.append("Majors: ").append(majors.isEmpty() ? "None" : String.join(", ", majors)).append('\n');
+        summary.append("Minors: ").append(minors.isEmpty() ? "None" : String.join(", ", minors)).append('\n');
+        summary.append("Jewish studies track: ").append(jewishStudiesTrack).append('\n');
+
+        summary.append("Selected program tracks:");
+        if (selectedProgramTracks.isEmpty()) {
+            summary.append(" None\n");
+        } else {
+            summary.append('\n');
+            for (Map.Entry<String, String> entry : selectedProgramTracks.entrySet()) {
+                summary.append("  - ").append(entry.getKey()).append(": ")
+                    .append(entry.getValue()).append('\n');
+            }
+        }
+
+        summary.append("Completed courses (").append(completedCourses.size()).append("):");
+        if (completedCourses.isEmpty()) {
+            summary.append(" None\n");
+        } else {
+            summary.append('\n');
+            for (CompletedCourse course : completedCourses) {
+                summary.append("  - ").append(course.getCourseCode());
+                if (course.getCredits() != null) summary.append(" — ").append(course.getCredits()).append(" credits");
+                if (course.getDepartment() != null) summary.append("; ").append(course.getDepartment());
+                if (!course.getAttributes().isEmpty()) {
+                    List<String> attributes = new ArrayList<>(course.getAttributes());
+                    Collections.sort(attributes);
+                    summary.append("; attributes: ").append(String.join(", ", attributes));
+                }
+                summary.append('\n');
+            }
+        }
+        return summary.toString();
+    }
 }

@@ -20,10 +20,13 @@ public class UserSetup {
     String choice = "";
     boolean validChoice = false;
     while (!validChoice) {
-      System.out.println(
-          "Do you want to make an update to this User, save this one, or switch users? (\"update\",\"save\",\"switch\",\"exit\")");
+      System.out.println("Do you want to view info, make an update, save this user, or switch users? "
+          + "(\"view info\", \"update\", \"save\", \"switch\", \"exit\")");
       choice = scan.nextLine().trim();
-      if (choice.equalsIgnoreCase("update")) {
+      if (choice.equalsIgnoreCase("view info")) {
+        System.out.println(UserSession.currentUser);
+        validChoice = true;
+      } else if (choice.equalsIgnoreCase("update")) {
         updateUserData(scan);
         validChoice = true;
       } else if (choice.equalsIgnoreCase("save")) {

@@ -122,6 +122,22 @@ public class UserTest {
         assertNotNull(user.getCompletedCourses());
     }
 
+    @Test
+    void toString_showsAReadableProfileSummary() {
+        User user = new User("Diana", true, "Wilf", "YC", "computer science, bs@yc",
+                Set.of("mathematics minor@yc"), "MYP", Set.of());
+        user.setSelectedProgramTrack("computer science, bs@yc", "Distributed Systems");
+        user.addCompletedCourse(new CompletedCourse("COM1300", 4.0, "COM", Set.of("EXQM")));
+
+        String summary = user.toString();
+
+        assertTrue(summary.contains("Name: Diana"));
+        assertTrue(summary.contains("Honors: Yes"));
+        assertTrue(summary.contains("computer science, bs@yc"));
+        assertTrue(summary.contains("Distributed Systems"));
+        assertTrue(summary.contains("COM1300 — 4.0 credits; COM; attributes: EXQM"));
+    }
+
     // -------------------------------------------------------------------------
     // Round-trip: saveToFile -> file constructor
     // -------------------------------------------------------------------------
