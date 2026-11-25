@@ -74,10 +74,12 @@ Every addition must satisfy prerequisite, corequisite, seat, campus, time-confli
 
 ## Data engineering challenges
 
-The original registration export did not contain enough structured information to power prerequisite-aware planning. The project therefore preserves a one-time data pipeline in `HelperClasses/`:
+The original registration export did not contain enough structured information to power prerequisite-aware planning. The project therefore preserves a data pipeline in `HelperClasses/`:
 
+- `CatalogFetcher.java` downloads every section for a term from Banner's guest class search (no login required) and keeps Wilf/Beren undergraduate sections in the 17-column catalog format.
 - `DescriptionFetcher.java` retrieved course descriptions from the registration system.
 - `PrereqExtractor.java` extracted strict prerequisites, strict corequisites, and flexible prerequisite/corequisite relationships into separate CSV fields.
+- `RequirementMerger.java` carries hand-corrected requirement columns from a previous final CSV into a regenerated one.
 - `PrereqAudit.java` supports auditing extracted requirements against source descriptions.
 
 The final CSV uses a compact requirement grammar: `;;` means **AND**, while `|` means **OR**. For example, `ACC1001;;IDS1015|IDS1020` means `ACC1001` and either `IDS1015` or `IDS1020`.
@@ -105,6 +107,17 @@ mvn exec:java -Dexec.args="fall2026CoursesFinal.csv MajorMinorRequirements.txt"
 ```
 
 Once the CLI starts, type `make`, `pre`, or `guest` to choose a profile flow, then use commands such as `search`, `bookmark`, `progress`, `recommend`, and `schedule`. Type `exit` during a supported prompt to return safely to the main menu.
+
+### Refreshing the catalog
+
+To rebuild a catalog with current seats, rooms, and instructors, or to build one for a new semester:
+
+```bash
+java HelperClasses/CatalogFetcher.java --list-terms   # find the term code, e.g. 202701
+./refresh-catalog.sh 202701 spring2027                # writes spring2027CoursesFinal.csv
+```
+
+The script runs `CatalogFetcher`, `DescriptionFetcher`, and `PrereqExtractor` in sequence. Fetching descriptions takes a few minutes because requests are throttled. If the final CSV already exists (or a previous final CSV is passed as a third argument), `RequirementMerger` keeps its hand-corrected requirement columns for every course whose description is unchanged, and lists the rest for review. Run `PrereqAudit` on the result before relying on newly extracted requirements.
 
 ## Testing
 
